@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>
+    @Styles.Render("~/Content/layout.css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div class="main">
+        <div class="navbar-header">
+            <div class="headerLeft">
+                <div class="navbar-brand">
+                    <a href="" title="" rel="noopener noreferrer" target="_blank"> <img src="~/Images/comm100.png" alt=""></a>
+                </div>
+            </div>
+            <div class="headerRight">
+                <a href="javascript:void(0);" class="avatars">
+                    <img src="~/Images/101.png" alt="" class="imgAvatars">
+                </a>
+                <div class="divAvatarsHasTop" style="display:none;">
+                    <div class="divAvatarsAdditionArea"></div>
+                    <div class="arrow arrowOuter"></div>
+                    <div class="arrow arrowInner"></div>
+                    <ul>
+                        <li>登出</li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+
+            </div>
+            @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("应用程序名称", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })*@
+        </div>
+        <div class="container">
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("主页", "Index", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("关于", "About", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("联系方式", "Contact", "Home")
+                    </li>
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+            <div class="body-content">
+                <div class="pageContainer">
+                    @RenderBody()
+                </div>
+                <hr />
+                <footer>
+                    <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
+                </footer>
+            </div>
+        </div>
+
+    </div>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/layout.js")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

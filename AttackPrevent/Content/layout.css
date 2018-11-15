@@ -191,4 +191,7 @@ body {
     display:inline;
 }
 
+input[readonly].form-control {
+    cursor:pointer;
+}
 

@@ -13,14 +13,14 @@
 <body>
     <form>*@
 @Styles.Render("~/Content/home.css")
-        <div>
+        <div class="logContainer">
             <div class="queryContainer">
                 <table>
                     <tr>
                         <td>
                             <div>
                                 <label>StartTime</label>
-                                <input class="datetime" type="datetime" />
+                                <input type="text" name="startTime" class="form-control" readonly />
                             </div>
                         </td>
                         <td>
@@ -199,7 +199,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="pagination pagination-large">
+                <div class="pagination">
                     <ul>
                         <li>
                             <a href="#">上一页</a>

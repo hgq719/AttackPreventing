@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>    
     @Styles.Render("~/Content/bootstrap.css")
+    @Styles.Render("~/Content/bootstrap.min.css")
     @Styles.Render("~/Content/layout.css")
     @Scripts.Render("~/bundles/modernizr")
 
@@ -68,7 +69,6 @@
                 <div class="pageContainer-cm">
                     @RenderBody()
                 </div>
-                <hr />
                 <footer>
                     <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
                 </footer>
@@ -80,6 +80,7 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
     @Scripts.Render("~/Scripts/layout.js")
     @RenderSection("scripts", required: false)
 </body>

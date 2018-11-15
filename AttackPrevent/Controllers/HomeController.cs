@@ -26,5 +26,10 @@ namespace AttackPrevent.Controllers
 
             return View();
         }
+
+        public ActionResult CloundflareDownloadLogs()
+        {
+            return View();
+        }
     }
 }

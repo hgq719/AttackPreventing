@@ -1,0 +1,232 @@
+﻿@{
+    //Layout = "~/";
+}
+
+@*<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Cloundflare download logs</title>
+    
+</head>
+<body>
+    <form>*@
+@Styles.Render("~/Content/home.css")
+        <div>
+            <div class="queryContainer">
+                <table>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>StartTime</label>
+                                <input class="datetime" type="datetime" />
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>EndTime</label>
+                                <input type="datetime" />
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Host</label>
+                                <input type="text" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Sample</label>
+                                <select>
+                                    <option>0.1</option>
+                                    <option>0.2</option>
+                                    <option>0.3</option>
+                                </select>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div>
+                                <label>SiteId</label>
+                                <input type="text" />
+                            </div>
+
+                        </td>
+                        <td>
+                            <div>
+                                <label>URL</label>
+                                <input type="url" />
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>CacheCaheStatus</label>
+                                <input type="text" />
+                            </div>
+
+                        </td>
+                        <td>
+                            <div>
+                                <label>IP</label>
+                                <input type="text" />
+                            </div>
+
+                        </td>
+                        <td>
+                            <div>
+                                <label>EdgeResponseStatus</label>
+                                <input type="text" />
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>ZoneName</label>
+                                <select>
+                                    <option>Ent.comm100</option>
+                                    <option>Hosted.comm100</option>
+                                </select>
+                            </div>
+
+                        </td>
+                        <td></td>
+                        <td>
+                            <div>
+                                <input class="btn btn-primary" type="button" value="Query" />
+                                <input class="btn btn-default" type="button" value="Export" />
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="resultContainer">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                编号
+                            </th>
+                            <th>
+                                产品
+                            </th>
+                            <th>
+                                交付时间
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                1
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                01/04/2012
+                            </td>
+                            <td>
+                                Default
+                            </td>
+                        </tr>
+                        <tr class="success">
+                            <td>
+                                1
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                01/04/2012
+                            </td>
+                            <td>
+                                Approved
+                            </td>
+                        </tr>
+                        <tr class="error">
+                            <td>
+                                2
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                02/04/2012
+                            </td>
+                            <td>
+                                Declined
+                            </td>
+                        </tr>
+                        <tr class="warning">
+                            <td>
+                                3
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                03/04/2012
+                            </td>
+                            <td>
+                                Pending
+                            </td>
+                        </tr>
+                        <tr class="info">
+                            <td>
+                                4
+                            </td>
+                            <td>
+                                TB - Monthly
+                            </td>
+                            <td>
+                                04/04/2012
+                            </td>
+                            <td>
+                                Call in to confirm
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination pagination-large">
+                    <ul>
+                        <li>
+                            <a href="#">上一页</a>
+                        </li>
+                        <li>
+                            <a href="#">1</a>
+                        </li>
+                        <li>
+                            <a href="#">2</a>
+                        </li>
+                        <li>
+                            <a href="#">3</a>
+                        </li>
+                        <li>
+                            <a href="#">4</a>
+                        </li>
+                        <li>
+                            <a href="#">5</a>
+                        </li>
+                        <li>
+                            <a href="#">下一页</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @*</form>
+  
+</body>
+</html>*@

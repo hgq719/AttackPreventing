@@ -12,7 +12,10 @@
 }
 
 .queryContainer {
-    flex-shrink:0;
+    flex-shrink: 0;
+    margin-top: 40px;
+    margin-left: 30px;
+    margin-right: 60px;
 }
 
 .label-col {

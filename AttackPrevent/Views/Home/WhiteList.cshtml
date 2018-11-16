@@ -2,9 +2,9 @@
     //Layout = "~/";
 }
 
-@Styles.Render("~/Content/home.css")
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 <div class="logContainer">
-    <div class="queryContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+    <div class="queryContainer">
 
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
@@ -36,14 +36,6 @@
             </div>
         </div>
 
-        <div class="col-md-4 form-group">
-            <div class="col-md-4  label-col">
-                <label for="txt-notes">Notes</label>
-            </div>
-            <div class="col-md-8">
-                <input type="text" name="notes" id="txt-notes" class="form-control" />
-            </div>
-        </div>
 
         <div class="col-md-4 form-group">
             <div class="col-md-4  label-col">
@@ -54,14 +46,23 @@
             </div>
         </div>
 
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-notes">Notes</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="notes" id="txt-notes" class="form-control" />
+            </div>
+        </div>
+
+
         <div class="col-md-4 form-group" style="text-align: right">
             <button type="button" class="btn btn-primary">Query</button>
+            <a href="~/Home/AddWhiteList" class="btn btn-default">Add New</a>
         </div>
-        
-        
-        <div class="col-md-4" style="text-align: left">
-            <a href="~/Home/AddWhiteList" class="btn btn-info">Add New</a>
-        </div>
+
+
+
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
@@ -72,16 +73,10 @@
                         #
                     </th>
                     <th>
-                        Target
+                        IP
                     </th>
-                    <th>
-                        Value
-                    </th>
-                    <th>
-                        Mode
-                    </th>
-                    <th>Notes</th>
                     <th>Create Time</th>
+                    <th>Notes</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -90,21 +85,17 @@
                     <td>
                         1
                     </td>
-                    <td>
-                        IP
-                    </td>
+
                     <td>
                         192.168.1.1
                     </td>
                     <td>
-                        White List
+                        2018-11-16 10:00:05
                     </td>
                     <td>
                         Add By Defense System
                     </td>
-                    <td>
-                        2018-11-16 10:00
-                    </td>
+
                     <td>
                         <a href="javescript:void(0);">Delete</a>
                     </td>
@@ -113,28 +104,24 @@
                     <td>
                         2
                     </td>
+
                     <td>
-                        IP
+                        192.168.1.0/256
                     </td>
                     <td>
-                        192.168.1.1
-                    </td>
-                    <td>
-                        White List
+                        2018-11-16 11:00:05
                     </td>
                     <td>
                         Add By Defense System
                     </td>
-                    <td>
-                        2018-11-16 10:00
-                    </td>
+
                     <td>
                         <a href="javescript:void(0);">Delete</a>
                     </td>
                 </tr>
-                
-                
-                
+
+
+
             </tbody>
         </table>
         <div class="pagination">

@@ -48,19 +48,23 @@
                 <ul class="nav-cm navbar-nav-cm">
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("主页", "Index", "Home")
+                        @Html.ActionLink("Cloundflare Download Logs", "CloundflareDownloadLogs", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("关于", "About", "Home")
+                        @Html.ActionLink("White List", "WhiteList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("联系方式", "Contact", "Home")
+                        @Html.ActionLink("Black List", "BlackList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("cloundflare download logs", "CloundflareDownloadLogs", "Home")
+                        @Html.ActionLink("Rate Limiting List", "RateLimitingList", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Audit Logs", "AuditLogs", "Home")
                     </li>
                 </ul>
                 @*@Html.Partial("_LoginPartial")*@
@@ -69,9 +73,9 @@
                 <div class="pageContainer-cm">
                     @RenderBody()
                 </div>
-                <footer>
+                @*<footer>
                     <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
-                </footer>
+                </footer>*@
             </div>
         </div>
 

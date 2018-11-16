@@ -1,0 +1,168 @@
+﻿@{
+    //Layout = "~/";
+}
+
+@Styles.Render("~/Content/home.css")
+<div class="logContainer">
+    <div class="queryContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4 label-col">
+                <label for="select-zoneName">Zone Name</label>
+            </div>
+            <div class="col-md-8">
+                <select id="select-zoneName" class="form-control">
+                    <option>Ent.comm100.com</option>
+                    <option>Hosted.comm100.com</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4 label-col">
+                <label for="txt-StartTime">Start Time</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="startTime" id="txt-StartTime" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-EndTime">End Time</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="endTime" id="txt-EndTime" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-notes">Notes</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="notes" id="txt-notes" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-IP">IP</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="IP" id="txt-IP" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group" style="text-align: right">
+            <button type="button" class="btn btn-primary">Query</button>
+        </div>
+        
+        
+        <div class="col-md-4" style="text-align: left">
+            <a href="~/Home/AddWhiteList" class="btn btn-info">Add New</a>
+        </div>
+    </div>
+
+    <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="info">
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Target
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                    <th>
+                        Mode
+                    </th>
+                    <th>Notes</th>
+                    <th>Create Time</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        1
+                    </td>
+                    <td>
+                        IP
+                    </td>
+                    <td>
+                        192.168.1.1
+                    </td>
+                    <td>
+                        White List
+                    </td>
+                    <td>
+                        Add By Defense System
+                    </td>
+                    <td>
+                        2018-11-16 10:00
+                    </td>
+                    <td>
+                        <a href="javescript:void(0);">Delete</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        2
+                    </td>
+                    <td>
+                        IP
+                    </td>
+                    <td>
+                        192.168.1.1
+                    </td>
+                    <td>
+                        White List
+                    </td>
+                    <td>
+                        Add By Defense System
+                    </td>
+                    <td>
+                        2018-11-16 10:00
+                    </td>
+                    <td>
+                        <a href="javescript:void(0);">Delete</a>
+                    </td>
+                </tr>
+                
+                
+                
+            </tbody>
+        </table>
+        <div class="pagination">
+            <ul>
+                <li>
+                    <a href="#">Last Page</a>
+                </li>
+                <li>
+                    <a href="#">1</a>
+                </li>
+                <li>
+                    <a href="#">2</a>
+                </li>
+                <li>
+                    <a href="#">3</a>
+                </li>
+                <li>
+                    <a href="#">4</a>
+                </li>
+                <li>
+                    <a href="#">5</a>
+                </li>
+                <li>
+                    <a href="#">Next Page</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+

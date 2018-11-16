@@ -18,11 +18,11 @@ $(document).ready(function () {
     //    endDate: new Date()   // 窗口最大时间直至今天
     //});
     $("input[name='startTime']").datetimepicker({
-        format: 'yyyy-mm-dd hh:00:00',
+        format: 'yyyy-mm-dd hh:ii',
     });
 
     $("input[name='endTime']").datetimepicker({
-        format: 'yyyy-mm-dd hh:00:00',
+        format: 'yyyy-mm-dd hh:ii',
     });
 });
 

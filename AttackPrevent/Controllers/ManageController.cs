@@ -10,7 +10,7 @@ using AttackPrevent.Models;
 
 namespace AttackPrevent.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;

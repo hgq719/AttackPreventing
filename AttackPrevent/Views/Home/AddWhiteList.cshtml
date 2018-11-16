@@ -1,0 +1,25 @@
+﻿@{
+    
+}
+@Styles.Render("~/Content/home.css")
+<div style="width: 500px;margin-top: 20px; margin-left: 40px;">
+    <div class="row form-group" >
+        <div class="col-md-4 label-col">
+            <label for="ip-content">IP</label>
+        </div>
+        <div class="col-md-8">
+            <textarea id="ip-content" class="form-control" style="height:400px;"></textarea>
+        </div>
+
+    </div>
+    <div class="row form-group">
+        <label class="col-md-4 label-col">Verification Code</label>
+        <div class="col-md-8 ">
+            <input class="form-control" id="vcode-content" type="text" />
+        </div>        
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary col-md-2 col-md-offset-7" >Save</button>
+        <button class="btn btn-default col-md-2 col-md-offset-1">Cancel</button>
+    </div>
+</div>

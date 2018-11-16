@@ -1,4 +1,5 @@
-﻿html {
+﻿
+html {
     height: 100%;
 }
 
@@ -13,7 +14,7 @@ body {
     height: 100%;
 }
 
-.navbar-header {
+.navbar-header-cm {
     display: flex;
     justify-content: space-between;
     background: #282f34;
@@ -22,7 +23,7 @@ body {
     flex-shrink: 0;
 }
 
-.headerLeft {
+.headerLeft-cm {
     display: flex;
     /*flex-direction:column;
     justify-content:center;*/
@@ -30,18 +31,18 @@ body {
     padding-left: 30px;
 }
 
-.headerRight {
+.headerRight-cm {
     display: flex;
     padding-right: 50px;
     align-items: center;
     padding-left: 50px;
 }
 
-    .headerRight .avatars {
+    .headerRight-cm .avatars-cm {
         height: 40px;
     }
 
-        .headerRight .avatars img {
+        .headerRight-cm .avatars-cm img {
             height: 34px;
             width: 34px;
             background: #FFF;
@@ -51,23 +52,26 @@ body {
             border: 3px solid #585E64;
         }
 
-.container {
+.container-cm {
     background: url("../Images/bg_new.png");
     display: flex;
     flex-grow: 1;
 }
 
-.navbar-collapse {
+.navbar-collapse-cm {
     width: 200px;
     flex-shrink: 0;
 }
 
-.navbar-nav {
+.navbar-nav-cm {
     margin-top: 40px;
 }
 
-.pageContainer {
+.pageContainer-cm {
     background-color: #fff;
+    flex-grow:1;
+    display:flex;
+    flex-direction:column;
 }
 
 .divAvatarsHasTop {
@@ -117,18 +121,19 @@ body {
     left: 56px;
 }
 
-.body-content {
+.body-content-cm {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    flex-grow:1;
 }
 
-.navbar-nav {
+.navbar-nav-cm {
     /*margin: 0;*/
     padding: 0;
 }
 
-    .navbar-nav li {
+    .navbar-nav-cm li {
         display: block;
         cursor: pointer;
         font-size: 13px;
@@ -137,7 +142,7 @@ body {
         list-style-type: none;
     }
 
-    .navbar-nav .icon_menu {
+    .navbar-nav-cm .icon_menu {
         width: 12px;
         height: 12px;
         display: block;
@@ -145,10 +150,48 @@ body {
         margin-top: 3px;
     }
 
-    .navbar-nav a {
+    .navbar-nav-cm a {
         color: #888;
         padding-left: 25px;
         display: block;
         text-decoration: none;
         vertical-align: middle;
     }
+
+.queryContainer table {
+    margin-top:30px;
+    table-layout: fixed;
+    width: 1200px;
+}
+
+.queryContainer tr {
+    padding-bottom:10px;
+}
+
+.queryContainer td div{
+    padding-bottom: 10px;
+    padding-right: 10px;
+    /*width: 297px;*/
+    display: flex;
+    justify-content: flex-end;
+}
+
+.queryContainer td div .btn {
+    margin-right:15px;
+}
+    .queryContainer td label {
+        margin-right: 10px
+    }
+
+.pagination ul {
+    list-style:none;
+}
+
+.pagination li {
+    display:inline;
+}
+
+input[readonly].form-control {
+    cursor:pointer;
+}
+

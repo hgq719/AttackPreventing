@@ -1,0 +1,24 @@
+﻿.resultContainer {
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow:1;
+}
+
+.logContainer {
+    display:flex;
+    flex-direction: column;
+    flex-grow:1;
+}
+
+.queryContainer {
+    flex-shrink:0;
+}
+
+.label-col {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+	margin-left: 0px !important;
+	margin-right: 0px !important;
+	text-align: right !important;
+}

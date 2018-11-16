@@ -4,21 +4,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>
+    <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>    
+    @Styles.Render("~/Content/bootstrap.css")
+    @Styles.Render("~/Content/bootstrap-datetimepicker.min.css")
     @Styles.Render("~/Content/layout.css")
     @Scripts.Render("~/bundles/modernizr")
 
 </head>
 <body>
     <div class="main">
-        <div class="navbar-header">
-            <div class="headerLeft">
-                <div class="navbar-brand">
+        <div class="navbar-header-cm">
+            <div class="headerLeft-cm">
+                <div class="navbar-brand-cm">
                     <a href="" title="" rel="noopener noreferrer" target="_blank"> <img src="~/Images/comm100.png" alt=""></a>
                 </div>
             </div>
-            <div class="headerRight">
-                <a href="javascript:void(0);" class="avatars">
+            <div class="headerRight-cm">
+                <a href="javascript:void(0);" class="avatars-cm">
                     <img src="~/Images/101.png" alt="" class="imgAvatars">
                 </a>
                 <div class="divAvatarsHasTop" style="display:none;">
@@ -41,32 +43,39 @@
                 </button>
                 @Html.ActionLink("应用程序名称", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })*@
         </div>
-        <div class="container">
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
+        <div class="container-cm">
+            <div class="navbar-collapse-cm collapse-cm">
+                <ul class="nav-cm navbar-nav-cm">
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("主页", "Index", "Home")
+                        @Html.ActionLink("Cloundflare Download Logs", "CloundflareDownloadLogs", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("关于", "About", "Home")
+                        @Html.ActionLink("White List", "WhiteList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("联系方式", "Contact", "Home")
+                        @Html.ActionLink("Black List", "BlackList", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Rate Limiting List", "RateLimitingList", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Audit Logs", "AuditLogs", "Home")
                     </li>
                 </ul>
-                @Html.Partial("_LoginPartial")
+                @*@Html.Partial("_LoginPartial")*@
             </div>
-            <div class="body-content">
-                <div class="pageContainer">
+            <div class="body-content-cm">
+                <div class="pageContainer-cm">
                     @RenderBody()
                 </div>
-                <hr />
-                <footer>
+                @*<footer>
                     <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
-                </footer>
+                </footer>*@
             </div>
         </div>
 
@@ -75,6 +84,7 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/bootstrap-datetimepicker.min.js")
     @Scripts.Render("~/Scripts/layout.js")
     @RenderSection("scripts", required: false)
 </body>

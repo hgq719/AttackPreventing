@@ -2,13 +2,17 @@
 
 }
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
-<div style="width: 500px;margin-top: 20px; margin-left: 40px;">
+<div style="width: 500px; margin-top: 20px; margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="~/Home/BlackList">Black List</a></li>
+        <li class="active">Add</li>
+    </ol>
     <div class="row form-group">
         <div class="col-md-4 label-col">
             <label for="ip-content">IP</label>
         </div>
         <div class="col-md-8">
-            <textarea id="ip-content" class="form-control" style="height:400px;"></textarea>
+            <textarea id="ip-content" class="form-control" style="height: 400px;"></textarea>
         </div>
 
     </div>

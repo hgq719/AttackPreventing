@@ -26,7 +26,24 @@ $(document).ready(function () {
     });
 
     $("[name='o-iftest']").bootstrapSwitch({
-        size: "mini",
+        onText: "Test",
+        offText: "NotTest",
+        //onColor: "success",
+        //offColor: "info",
+        //'size': "mini",
     });
+
+    $("[name='o-ifenable']").bootstrapSwitch({
+        state: true,
+        onText: "Enable",
+        offText: "Disable",
+        //onColor: "success",
+        //offColor: "info",
+        //'size': "mini",
+    });
+
+    $("[name='o-iftest']").bootstrapSwitch('size', 'mini');
+    $("[name='o-ifenable']").bootstrapSwitch('size', 'mini');
+    $("[name='o-ifenable']").bootstrapSwitch('state', true);
 });
 

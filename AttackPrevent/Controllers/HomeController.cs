@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AttackPrevent.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -76,6 +77,26 @@ namespace AttackPrevent.Controllers
         public ActionResult AddZone()
         {
             return View();
+        }
+
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string logType, string detail)
+        {
+            List<AuditLogEntity> list = new List<AuditLogEntity>();
+            for (int i = 0; i < 50; i++)
+            {
+                AuditLogEntity en = new AuditLogEntity();
+                en.ID = i;
+                en.LogType = "App";
+                en.Detail = "detail" + i;
+                en.LogTime = DateTime.Now;
+                en.LogOperator = "Michael.he";
+
+                list.Add(en);
+            }
+
+            var total = list.Count;
+            var rows = list.Skip(offset).Take(limit).ToList();
+            return Json(new { total = total, rows = rows }, JsonRequestBehavior.AllowGet); 
         }
     }
 }

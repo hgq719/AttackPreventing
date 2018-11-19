@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     //Layout = "~/";
 }
 
@@ -51,22 +50,22 @@
         </div>
         <div class="col-md-4 form-group">
             <div class="col-md-4  label-col">
-                <label for="txt-content">Content</label>
+                <label for="txt-detail">Detail</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="" id="txt-content" class="form-control" />
+                <input type="text" name="" id="txt-detail" class="form-control" />
             </div>
         </div>
 
 
         <div class="col-md-4 text-right">
-            <button type="button" class="btn btn-primary">Query</button>
+            <button id="queryLog" type="button" class="btn btn-primary">Query</button>
             <button type="button" class="btn btn-default">Export</button>
         </div>
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-        <table class="table table-bordered">
+        <table id="auditLogTable" class="table table-bordered">
             <thead>
                 <tr class="info">
                     <th>
@@ -75,12 +74,12 @@
                     <th>
                         Log Type
                     </th>
-                
+
                     <th>
                         Content
                     </th>
                     <th>Log Time</th>
-              <th>Log Operator</th>
+                    <th>Log Operator</th>
                 </tr>
             </thead>
             <tbody>
@@ -91,14 +90,14 @@
                     <td>
                         App
                     </td>
-                  
+
                     <td>
                         Start analyzing possible whitelist data
                     </td>
                     <td>
                         2018-11-16 08:00:24
                     </td>
-                  
+
                     <td>
                         System
                     </td>
@@ -110,14 +109,14 @@
                     <td>
                         Audit
                     </td>
-                   
+
                     <td>
                         Ban Ip:192.168.2.1, related rate limiting rule: {url: visit.ashx, period: 60, threshold:5}
                     </td>
                     <td>
                         2018-11-16 10:00:51
                     </td>
-                    
+
                     <td>
                         System
                     </td>
@@ -127,33 +126,79 @@
 
             </tbody>
         </table>
-        <div class="pagination">
-            <ul>
-                <li>
-                    <a href="#">Last Page</a>
-                </li>
-                <li>
-                    <a href="#">1</a>
-                </li>
-                <li>
-                    <a href="#">2</a>
-                </li>
-                <li>
-                    <a href="#">3</a>
-                </li>
-                <li>
-                    <a href="#">4</a>
-                </li>
-                <li>
-                    <a href="#">5</a>
-                </li>
-                <li>
-                    <a href="#">Next Page</a>
-                </li>
-            </ul>
-        </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            $('#auditLogTable').bootstrapTable({
+                url: '/Home/GetAuditLog',         //请求后台的URL（*）
+                method: 'get',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 10,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                columns: [{
+                    field: 'ID',
+                    title: '#',
+                }, {
+                    field: 'LogType',
+                    title: 'Log Type'
+                }, {
+                    field: 'Detail',
+                    title: 'Detail'
+                }, {
+                    field: 'LogTime',
+                    title: 'Log Time'
+                }, {
+                    field: 'LogOperator',
+                    title: 'Log Operator'
+                }, ]
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                limit: params.limit,   //页面大小
+                offset: params.offset,  //页码
+                zoneID: $("#select-zoneName").val(),
+                startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
+                logType: $("#select-logType").val(),
+                detail: $("#txt-detail").val() === "" ? '' : $("#txt-detail").val(),
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+
+    $("#queryLog").click(function () {
+        var oTable = new TableInit();
+        oTable.Init();
+    });
+</script>
 
 
 

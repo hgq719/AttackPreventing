@@ -1,17 +1,21 @@
 ﻿@{
 
 }
-@Styles.Render("~/Content/home.css")
-<div style="width: 500px;margin-top: 20px; margin-left: 40px;" class="form-horizontal">
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+<div style="width: 500px; margin-top: 20px; margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="~/Home/BlackList">Black List</a></li>
+        <li class="active">Add</li>
+    </ol>
     <div class="row form-group">
-        <label for="ip-content" class="col-md-4 control-label">IP</label>
+        <label for="ip-content" class="col-md-4 label-col">IP</label>
         <div class="col-md-8">
-            <textarea id="ip-content" class="form-control" style="height:400px;"></textarea>
+            <textarea id="ip-content" class="form-control" style="height: 400px;"></textarea>
         </div>
 
     </div>
     <div class="row form-group">
-        <label class="col-md-4 control-label">Verification Code</label>
+        <label class="col-md-4 label-col">Verification Code</label>
         <div class="col-md-8 ">
             <input class="form-control" id="vcode-content" type="text" />
         </div>

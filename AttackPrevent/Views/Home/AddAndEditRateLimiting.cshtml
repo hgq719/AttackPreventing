@@ -1,28 +1,32 @@
 ﻿@{
 
 }
-@Styles.Render("~/Content/home.css")
-<div style="width: 500px;margin-top: 20px; margin-left: 40px;" class="form-horizontal">
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+<div style="width: 600px; margin-top: 20px; margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="~/Home/RateLimitingList">Rate Limiting List</a></li>
+        <li class="active">Add</li>
+    </ol>
     <div class="row form-group">
-        <label class="col-md-4 control-label">Period</label>
+        <label class="col-md-4 label-col">Period</label>
         <div class="col-md-8 ">
             <input class="form-control" id="period-value" type="text" />
         </div>
     </div>
     <div class="row form-group">
-        <label class="col-md-4 control-label">Threshold</label>
+        <label class="col-md-4 label-col">Threshold</label>
         <div class="col-md-8 ">
             <input class="form-control" id="threshold-value" type="text" />
         </div>
     </div>
     <div class="row form-group">
-        <label class="col-md-4 control-label">URL</label>
+        <label class="col-md-4 label-col">URL</label>
         <div class="col-md-8 ">
             <input class="form-control" id="threshold-value" type="text" />
         </div>
     </div>
     <div class="row form-group">
-        <label class="col-md-4 control-label">Trigger Ratio</label>
+        <label class="col-md-4 label-col">Trigger Ratio</label>
         <div class="col-md-8 ">
             <input class="form-control" id="ratio-value" type="text" />
         </div>

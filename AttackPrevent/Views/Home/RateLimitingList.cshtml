@@ -5,7 +5,7 @@
 
 @Styles.Render("~/Content/home.css")
 <div class="logContainer">
-    <div class="queryContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+    <div class="queryContainer">
 
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
@@ -39,29 +39,16 @@
 
         <div class="col-md-4 form-group">
             <div class="col-md-4  label-col">
-                <label for="txt-notes">Notes</label>
+                <label for="txt-notes">URL</label>
             </div>
             <div class="col-md-8">
                 <input type="text" name="notes" id="txt-notes" class="form-control" />
             </div>
         </div>
 
-        <div class="col-md-4 form-group">
-            <div class="col-md-4  label-col">
-                <label for="txt-IP">IP</label>
-            </div>
-            <div class="col-md-8">
-                <input type="text" name="IP" id="txt-IP" class="form-control" />
-            </div>
-        </div>
-
-        <div class="col-md-4 form-group" style="text-align: right">
+        <div class="col-md-4 col-md-offset-4 form-group  text-right">
             <button type="button" class="btn btn-primary">Query</button>
-        </div>
-
-
-        <div class="col-md-4" style="text-align: left">
-            <a href="~/Home/AddAndEditRateLimiting" class="btn btn-info">Add New</a>
+            <a href="~/Home/AddAndEditRateLimiting" class="btn btn-default">Add New</a>
         </div>
     </div>
 
@@ -82,8 +69,8 @@
                         URL
                     </th>
                     <th>Order</th>
-                    <th>Trigger Ratio</th>
-                    <th>Trigger Number</th>
+                    <th>Enlargement Factor</th>
+                    <th>Rate Limiting Trigger Ip Count</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -119,7 +106,7 @@
                 </tr>
                 <tr>
                     <td>
-                        1
+                        2
                     </td>
                     <td>
                         60

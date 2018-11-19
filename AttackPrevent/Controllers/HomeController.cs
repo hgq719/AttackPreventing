@@ -66,5 +66,15 @@ namespace AttackPrevent.Controllers
         {
             return View();
         }
+
+        public ActionResult ZoneList()
+        {
+            return View();
+        }
+
+        public ActionResult AddZone()
+        {
+            return View();
+        }
     }
 }

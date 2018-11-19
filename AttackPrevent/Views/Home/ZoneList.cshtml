@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     //Layout = "~/";
 }
 
@@ -8,64 +9,46 @@
 
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
-                <label for="select-zoneName">Zone Name</label>
+                <label for="zoneName">Zone Name</label>
             </div>
             <div class="col-md-8">
-                <select id="select-zoneName" class="form-control">
-                    <option>Ent.comm100.com</option>
-                    <option>Hosted.comm100.com</option>
-                </select>
+                <input type="text" name="zoneName" id="zoneName" class="form-control" />
             </div>
         </div>
 
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
-                <label for="txt-StartTime">Start Time</label>
+                <label for="zoneID">Zone ID</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="startTime" id="txt-StartTime" class="form-control" />
+                <input type="text" name="zoneID" id="zoneID" class="form-control" />
             </div>
         </div>
 
         <div class="col-md-4 form-group">
-            <div class="col-md-4  label-col">
-                <label for="txt-EndTime">End Time</label>
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" /> If Test
+                    </label>
+                </div>             
             </div>
-            <div class="col-md-8">
-                <input type="text" name="endTime" id="txt-EndTime" class="form-control" />
-            </div>
-        </div>
-
-        <div class="col-md-4 form-group">
-            <div class="col-md-4  label-col">
-                <label for="txt-notes">Notes</label>
-            </div>
-            <div class="col-md-8">
-                <input type="text" name="notes" id="txt-notes" class="form-control" />
-            </div>
-        </div>
-
-        <div class="col-md-4 form-group">
-            <div class="col-md-4  label-col">
-                <label for="txt-IP">IP</label>
-            </div>
-            <div class="col-md-8">
-                <input type="text" name="IP" id="txt-IP" class="form-control" />
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" /> If Enable
+                    </label>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-4 form-group" style="text-align: right">
+        <div class="col-md-4 form-group col-md-offset-8" style="text-align: right">
             <button type="button" class="btn btn-primary">Query</button>
-        </div>
-        
-        
-        <div class="col-md-4" style="text-align: left">
-            <a href="~/Home/AddWhiteList" class="btn btn-info">Add New</a>
+            <a href="~/Home/AddZone" class="btn btn-default">Add</a>
         </div>
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-        <table id="whiteListData"></table>
         <table class="table table-bordered">
             <thead>
                 <tr class="info">
@@ -73,16 +56,14 @@
                         #
                     </th>
                     <th>
-                        Target
+                        Zone ID
                     </th>
                     <th>
-                        Value
+                        Zone Name
                     </th>
                     <th>
-                        Mode
+                        Auth Email
                     </th>
-                    <th>Notes</th>
-                    <th>Create Time</th>
                     <th>Operation</th>
                 </tr>
             </thead>
@@ -92,50 +73,42 @@
                         1
                     </td>
                     <td>
-                        IP
+                        258
                     </td>
                     <td>
-                        192.168.1.1
+                        peek
                     </td>
                     <td>
-                        White List
+                        test@sss.com
                     </td>
                     <td>
-                        Add By Defense System
-                    </td>
-                    <td>
-                        2018-11-16 10:00
-                    </td>
-                    <td>
-                        <a href="javescript:void(0);">Delete</a>
+                        <div >
+                            <input class="switch switch-small" type="checkbox" name="o-iftest" checked />
+                        </div>
+                        <a href="javescript:void(0);">IsTest</a>
+                        <a href="javescript:void(0);">IfEnable</a>
+                        <a href="javescript:void(0);">Edit</a>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        2
+                        1
                     </td>
                     <td>
-                        IP
+                        258
                     </td>
                     <td>
-                        192.168.1.1
+                        peek
                     </td>
                     <td>
-                        White List
+                        test@sss.com
                     </td>
                     <td>
-                        Add By Defense System
-                    </td>
-                    <td>
-                        2018-11-16 10:00
-                    </td>
-                    <td>
-                        <a href="javescript:void(0);">Delete</a>
+                        <a href="javescript:void(0);">IsTest</a>
+                        <a href="javescript:void(0);">IfEnable</a>
+                        <a href="javescript:void(0);">Edit</a>
                     </td>
                 </tr>
-                
-                
-                
             </tbody>
         </table>
         <div class="pagination">
@@ -165,5 +138,6 @@
         </div>
     </div>
 </div>
+
 
 

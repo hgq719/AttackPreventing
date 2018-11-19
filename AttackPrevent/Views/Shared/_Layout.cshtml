@@ -7,6 +7,8 @@
     <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>    
     @Styles.Render("~/Content/bootstrap.css")
     @Styles.Render("~/Content/bootstrap-datetimepicker.min.css")
+    @Styles.Render("~/Content/bootstrap-table.min.css")
+    @Styles.Render("~/Content/bootstrap-switch.min.css")
     @Styles.Render("~/Content/layout.css")
     @Scripts.Render("~/bundles/modernizr")
 
@@ -66,6 +68,10 @@
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Audit Logs", "AuditLogs", "Home")
                     </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Zone List", "ZoneList", "Home")
+                    </li>
                 </ul>
                 @*@Html.Partial("_LoginPartial")*@
             </div>
@@ -85,6 +91,8 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/Scripts/bootstrap-datetimepicker.min.js")
+    @Scripts.Render("~/Scripts/bootstrap-table.min.js")
+    @Scripts.Render("~/Scripts/bootstrap-switch.min.js")
     @Scripts.Render("~/Scripts/layout.js")
     @RenderSection("scripts", required: false)
 </body>

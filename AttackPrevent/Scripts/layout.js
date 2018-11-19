@@ -24,5 +24,9 @@ $(document).ready(function () {
     $("input[name='endTime']").datetimepicker({
         format: 'yyyy-mm-dd hh:ii',
     });
+
+    $("[name='o-iftest']").bootstrapSwitch({
+        size: "mini",
+    });
 });
 

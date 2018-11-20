@@ -43,6 +43,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
@@ -227,6 +230,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AttackPrevent.Business\AttackPrevent.Business.csproj">
+      <Project>{4ff09fc1-3586-452a-bb10-1ef3200bb508}</Project>
+      <Name>AttackPrevent.Business</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
       <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
       <Name>AttackPrevent.Model</Name>

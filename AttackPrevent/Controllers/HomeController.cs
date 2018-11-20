@@ -13,6 +13,8 @@ namespace AttackPrevent.Controllers
         //
         public ActionResult Index()
         {
+            //Business.ILogService logService = new Business.LogService();
+            //logService.Debug("test log4net");
             return View();
         }
 

@@ -11,10 +11,11 @@
                 <label for="select-zoneName">Zone Name</label>
             </div>
             <div class="col-md-8">
-                <select id="select-zoneName" class="form-control">
+                @Html.DropDownList("select-zoneName",  new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+                @*<select id="select-zoneName" class="form-control">
                     <option>Ent.comm100.com</option>
                     <option>Hosted.comm100.com</option>
-                </select>
+                </select>*@
             </div>
         </div>
 
@@ -60,71 +61,13 @@
 
         <div class="col-md-4 text-right">
             <button id="queryLog" type="button" class="btn btn-primary">Query</button>
-            <button type="button" class="btn btn-default">Export</button>
+            <a id="export" class="btn btn-default">Export</a>
         </div>
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
         <table id="auditLogTable" class="table table-bordered">
-            <thead>
-                <tr class="info">
-                    <th>
-                        #
-                    </th>
-                    <th>
-                        Log Type
-                    </th>
-
-                    <th>
-                        Content
-                    </th>
-                    <th>Log Time</th>
-                    <th>Log Operator</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        1
-                    </td>
-                    <td>
-                        App
-                    </td>
-
-                    <td>
-                        Start analyzing possible whitelist data
-                    </td>
-                    <td>
-                        2018-11-16 08:00:24
-                    </td>
-
-                    <td>
-                        System
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        2
-                    </td>
-                    <td>
-                        Audit
-                    </td>
-
-                    <td>
-                        Ban Ip:192.168.2.1, related rate limiting rule: {url: visit.ashx, period: 60, threshold:5}
-                    </td>
-                    <td>
-                        2018-11-16 10:00:51
-                    </td>
-
-                    <td>
-                        System
-                    </td>
-                </tr>
-
-
-
-            </tbody>
+            
         </table>
     </div>
 </div>
@@ -148,20 +91,25 @@
                 pageNumber: 1,                       //初始化加载第一页，默认第一页
                 pageSize: 10,                       //每页的记录行数（*）
                 pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
-                strictSearch: true,
-                showColumns: true,                  //是否显示所有的列
-                showRefresh: true,                  //是否显示刷新按钮
+                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: false,
+                showColumns: false,                  //是否显示所有的列
+                showRefresh: false,                  //是否显示刷新按钮
                 minimumCountColumns: 2,             //最少允许的列数
-                clickToSelect: true,                //是否启用点击选中行
-                height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
-                uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
-                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                clickToSelect: false,                //是否启用点击选中行
+               // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
                 cardView: false,                    //是否显示详细视图
                 detailView: false,                   //是否显示父子表
+                //showExport: true,
+                //exportDataType: 'all',
                 columns: [{
                     field: 'ID',
                     title: '#',
+                    //formatter: function (value, row, index) {
+                    //    return index + 1;
+                    //}
                 }, {
                     field: 'LogType',
                     title: 'Log Type'
@@ -170,7 +118,10 @@
                     title: 'Detail'
                 }, {
                     field: 'LogTime',
-                    title: 'Log Time'
+                    title: 'Log Time',
+                    formatter: function (value, row, index) {
+                       return changeDateFormat(value);
+                    },
                 }, {
                     field: 'LogOperator',
                     title: 'Log Operator'
@@ -187,16 +138,38 @@
                 startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
                 endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
                 logType: $("#select-logType").val(),
-                detail: $("#txt-detail").val() === "" ? '' : $("#txt-detail").val(),
+                detail: $("#txt-detail").val(),
             };
             return temp;
         };
         return oTableInit;
     };
+    var oTable = new TableInit();
+    $(document).ready(function () {
+
+        @*@{
+            foreach (var item in ViewBag.ZoneList)
+            {
+                $("#select-zoneName").add("<option value='"+item.Value+"'>"+item.Key+"</option>");
+            }
+        }
+        var zonelist = JSON.parse(@ViewBag.ZoneList);
+        $.each(zonelist, function (index, item) {
+            $("#select-zoneName").add("<option value='"+item.Value+"'>"+item.Key+"</option>")
+        });*@
+        //var oTable = new TableInit();
+        oTable.Init();
+    });
 
     $("#queryLog").click(function () {
-        var oTable = new TableInit();
-        oTable.Init();
+        $('#auditLogTable').bootstrapTable('refresh');
+    });
+
+    $('#export').click(function () {
+        var para = oTable.queryParams({limit: 10,offset:0});
+        var uuu = "/home/ExportAuditLog?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
+        $('#export').attr("href", uuu);
+        //$.get(uuu);
     });
 </script>
 

@@ -142,7 +142,7 @@ namespace AttackPrevent.Business
         #endregion
 
         #region Rate Limits
-        public List<RateLimitRule> GetRateLimits()
+        public List<AttackPrevent.Model.RateLimitRule> GetRateLimits()
         {
             try
             {
@@ -152,7 +152,7 @@ namespace AttackPrevent.Business
                 var rules =  JsonConvert.DeserializeObject<RateLimitRules>(content);
                 return rules.Result;
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return null;
             }

@@ -120,7 +120,7 @@ namespace AttackPrevent.WindowsService.Job
                             ).Select(x => new { x.ClientIP, x.ClientRequestURI, x.ClientRequestHost });
 
                         }
-                        
+
                         stopwatch.Stop();
                         
                     }
@@ -133,7 +133,7 @@ namespace AttackPrevent.WindowsService.Job
 
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 //logger.Error(e.Message);
             }

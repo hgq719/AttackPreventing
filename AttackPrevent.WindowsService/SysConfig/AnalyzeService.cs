@@ -42,7 +42,7 @@ namespace AttackPrevent.WindowsService.SysConfig
                     scheduler = taskScheduler.Result;
                     scheduler.Start();
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                     //Loger.Log(string.Format("服务执行失败,{0}", ex.Message), logFileName);
                 }

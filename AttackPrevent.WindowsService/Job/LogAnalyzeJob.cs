@@ -131,7 +131,7 @@ namespace AttackPrevent.WindowsService.Job
 
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 //logger.Error(e.Message);
             }

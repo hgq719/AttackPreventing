@@ -67,6 +67,15 @@
   <ItemGroup>
     <Content Include="quartz_jobs.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\AttackPrevent.Business\AttackPrevent.Business.csproj">
+      <Project>{4ff09fc1-3586-452a-bb10-1ef3200bb508}</Project>
+      <Name>AttackPrevent.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
+      <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
+      <Name>AttackPrevent.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

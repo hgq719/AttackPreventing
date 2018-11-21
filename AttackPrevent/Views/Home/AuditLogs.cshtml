@@ -42,11 +42,35 @@
                 <label for="txt-logType">Log Type</label>
             </div>
             <div class="col-md-8">
-                <select id="select-logType" class="form-control">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-app" value="App" /> App
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
+                </label>
+                @*<div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="logtype" id="check-app" value="App" /> App
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
+                    </label>
+                </div>*@
+                @*<select id="select-logType" class="form-control">
                     <option>App</option>
                     <option>Audit</option>
                     <option>Error</option>
-                </select>
+                </select>*@
             </div>
         </div>
         <div class="col-md-4 form-group">
@@ -131,13 +155,17 @@
 
         //得到查询的参数
         oTableInit.queryParams = function (params) {
+            var logtypeStr = "";
+            $.each($('[name=logtype]:checked'), function () {
+                logtypeStr += $(this).val() + ","
+            });
             var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 zoneID: $("#select-zoneName").val(),
                 startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
                 endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
-                logType: $("#select-logType").val(),
+                logType: logtypeStr,
                 detail: $("#txt-detail").val(),
             };
             return temp;

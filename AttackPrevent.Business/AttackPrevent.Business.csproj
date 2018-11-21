@@ -38,8 +38,15 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\packages\NPOI.2.4.0\lib\net40\NPOI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuditBusiness.cs" />
     <Compile Include="Cloundflare\CloudflareLog.cs" />
     <Compile Include="Cloundflare\CloundFlareApiService.cs" />
     <Compile Include="Cloundflare\FirewallAccessRule.cs" />
@@ -58,6 +66,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AttackPrevent.Access\AttackPrevent.Access.csproj">
+      <Project>{9f5700af-be6a-4ad1-be92-abf6cacc151b}</Project>
+      <Name>AttackPrevent.Access</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
+      <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
+      <Name>AttackPrevent.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

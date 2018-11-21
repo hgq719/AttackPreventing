@@ -84,7 +84,7 @@ namespace AttackPrevent.Controllers
 
         public ActionResult ZoneList()
         {
-            return new HttpUnauthorizedResult();
+            //return new HttpUnauthorizedResult();
             return View();
         }
 

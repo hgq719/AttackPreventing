@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,13 +49,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cloundflare\BackgroundTaskService.cs" />
     <Compile Include="Cloundflare\CloudflareLog.cs" />
     <Compile Include="Cloundflare\CloundFlareApiService.cs" />
+    <Compile Include="Cloundflare\CloundFlareLogHandleSercie.cs" />
     <Compile Include="Cloundflare\FirewallAccessRule.cs" />
     <Compile Include="Cloundflare\FirewallAccessRuleRequest.cs" />
+    <Compile Include="Cloundflare\GetCloundflareLogsBackgroundInfo.cs" />
     <Compile Include="Cloundflare\RateLimitRule.cs" />
     <Compile Include="LogService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

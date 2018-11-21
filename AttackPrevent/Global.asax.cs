@@ -1,6 +1,8 @@
-﻿using System;
+﻿using AttackPrevent.Business.Cloundflare;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -19,6 +21,12 @@ namespace AttackPrevent
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            Task task = new Task(() => {
+                IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
+                backgroundTaskService.doWork();
+            });
+            task.Start();
         }
     }
 }

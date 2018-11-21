@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
@@ -56,13 +57,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuditBusiness.cs" />
+    <Compile Include="Cloundflare\BackgroundTaskService.cs" />
     <Compile Include="Cloundflare\CloudflareLog.cs" />
     <Compile Include="Cloundflare\CloundFlareApiService.cs" />
+    <Compile Include="Cloundflare\CloundFlareLogHandleSercie.cs" />
     <Compile Include="Cloundflare\FirewallAccessRule.cs" />
     <Compile Include="Cloundflare\FirewallAccessRuleRequest.cs" />
+    <Compile Include="Cloundflare\GetCloundflareLogsBackgroundInfo.cs" />
     <Compile Include="Cloundflare\RateLimitRule.cs" />
     <Compile Include="LogService.cs" />
+    <Compile Include="CloudflareBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
+      <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
+      <Name>AttackPrevent.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace AttackPrevent.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         //
         public ActionResult Index()
@@ -109,6 +109,25 @@ namespace AttackPrevent.Controllers
         {
             MemoryStream ms = AuditLogBusiness.ExportAuditLog(zoneID, startTime, endTime, logType, detail);
             return File(ms, "application/vnd.ms-excel", "AuditLog.xls");
+        }
+        public JsonResult GetCloundflareLogs(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string host, double sample,string siteId,string url,string cacheStatus,string ip,string responseStatus)
+        {
+            List<AuditLogEntity> list = new List<AuditLogEntity>();
+            for (int i = 0; i < 50; i++)
+            {
+                AuditLogEntity en = new AuditLogEntity();
+                en.ID = i;
+                en.LogType = "App";
+                en.Detail = "detail" + i;
+                en.LogTime = DateTime.Now;
+                en.LogOperator = "Michael.he";
+
+                list.Add(en);
+            }
+
+            var total = list.Count;
+            var rows = list.Skip(offset).Take(limit).ToList();
+            return Json(new { total = total, rows = rows }, JsonRequestBehavior.AllowGet);
         }
     }
 }

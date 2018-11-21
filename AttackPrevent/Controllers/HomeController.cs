@@ -50,19 +50,29 @@ namespace AttackPrevent.Controllers
 
         public ActionResult RateLimitingList()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            return View();
+        }
+
+        public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string url)
+        {
+            dynamic result = RateLimitBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, url);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult AddAndEditRateLimiting()
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
             return View();
         }
 
         public ActionResult AuditLogs() 
         {
-
-            List<SelectListItem> zonelist = new List<SelectListItem>() {
-                new SelectListItem() {Value="111",Text="ent.comm100.com"},
-                new SelectListItem() {Value="222",Text="hosted.comm100.com"},
-                new SelectListItem() {Value="333",Text="app.comm100.com"},
-            };
-
-            ViewBag.ZoneList = zonelist;
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             
             return View();
         }
@@ -74,13 +84,9 @@ namespace AttackPrevent.Controllers
 
         public ActionResult AddBlackList()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             return View();
-        }
-
-        public ActionResult AddAndEditRateLimiting()
-        {
-            return View();
-        }
+        }        
 
         public ActionResult ZoneList()
         {

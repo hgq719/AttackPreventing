@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AttackPrevent.Model
+namespace AttackPrevent.Model.Cloudflare
 {
-    public class RateLimitRule
+    public class CloudflareRateLimitRule
     {
         public string Id { get; set; }
         public bool Disabled { get; set; }
@@ -16,11 +16,46 @@ namespace AttackPrevent.Model
         public int Threshold { get; set; }
         public int Period { get; set; }
         public RateLimitAction Action { get; set; }
+
+        public CloudflareRateLimitRule()
+        {
+        }
+
+        public CloudflareRateLimitRule(string _url, int _threshold, int _period)
+        {
+            Match = new RateLimitMatch()
+            {
+                Request = new MatchRequest()
+                {
+                    Methods = new List<string>() { "_ALL_" },
+                    Schemes = new List<string>() { "_ALL_" },
+                    Url = _url
+                },
+                Response = new MatchResponse()
+                {
+                    Origin_Traffic = true,
+                    Headers = new List<MatchResponseHeaders> { new MatchResponseHeaders() {
+                        Name = "Cf-Cache-Status",
+                        Op = "ne",
+                        Value = "HIT"
+                    } }
+                }
+            };
+            Disabled = false;
+            Login_Protect = false;
+            Threshold = _threshold;
+            Period = _period;
+            Action = new RateLimitAction()
+            {
+                Mode = "challenge",
+                Timeout = 0
+            };
+        }
     }
 
-    public class RateLimitRules
+    public class RateLimitRuleResponse
     {
-        public List<RateLimitRule> Result { get; set; }
+        public List<CloudflareRateLimitRule> Result { get; set; }
         public bool Success { get; set; }
         public QueryResult Result_Info { get; set; }
     }

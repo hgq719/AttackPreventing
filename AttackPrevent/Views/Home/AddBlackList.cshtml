@@ -4,7 +4,7 @@
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 <div style="width: 500px; margin-top: 20px; margin-left: 40px;">
     <ol class="breadcrumb">
-        <li><a href="~/Home/BlackList">Black List</a></li>
+        <li><a href="~/Home/BlackList">Blacklist Manage</a></li>
         <li class="active">Add</li>
     </ol>
     <div class="row form-group">
@@ -21,8 +21,10 @@
         </div>
     </div>
     <div class="form-group">
-        <button class="btn btn-primary col-md-2 col-md-offset-4">Save</button>
-        <button class="btn btn-default col-md-2 col-md-offset-1">Cancel</button>
+        <div class="col-md-8 col-md-offset-4 text-right">
+            <button class="btn btn-primary ">Save</button>
+            <button class="btn btn-default">Cancel</button>
+        </div>
     </div>
 </div>
 

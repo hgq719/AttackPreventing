@@ -4,8 +4,12 @@
 
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 <div class="logContainer">
-    <div class="queryContainer">
 
+    
+    <div class="queryContainer">
+        <ol class="breadcrumb">
+            <li class="active">Whitelist Manage</li>
+        </ol>
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
                 <label for="select-zoneName">Zone Name</label>
@@ -60,13 +64,9 @@
             <button type="button" class="btn btn-primary">Query</button>
             <a href="~/Home/AddWhiteList" class="btn btn-default">Add New</a>
         </div>
-
-
-
     </div>
 
-    <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-        <table id="whiteListData"></table>
+    <div class="resultContainer">
         <table class="table table-bordered">
             <thead>
                 <tr class="info">

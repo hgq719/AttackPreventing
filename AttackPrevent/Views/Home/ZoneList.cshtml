@@ -4,8 +4,10 @@
 
 @Styles.Render("~/Content/home.css")
 <div class="logContainer">
-    <div class="queryContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-
+    <div class="queryContainer">
+        <ol class="breadcrumb">
+            <li class="active">Zone Manage</li>
+        </ol>
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
                 <label for="zoneName">Zone Name</label>
@@ -43,11 +45,11 @@
 
         <div class="col-md-4 form-group col-md-offset-8" style="text-align: right">
             <button type="button" class="btn btn-primary">Query</button>
-            <a href="~/Home/AddZone" class="btn btn-default">Add</a>
+            <a href="~/Home/AddZone" class="btn btn-default">Add New</a>
         </div>
     </div>
 
-    <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+    <div class="resultContainer">
         <table class="table table-bordered">
             <thead>
                 <tr class="info">

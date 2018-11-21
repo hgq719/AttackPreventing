@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - 我的 ASP.NET 应用程序</title>    
+    <title>Attack Preventing System </title>    
     @Styles.Render("~/Content/bootstrap.css")
     @Styles.Render("~/Content/bootstrap-datetimepicker.min.css")
     @Styles.Render("~/Content/bootstrap-table.min.css")
@@ -51,19 +51,19 @@
                 <ul class="nav-cm navbar-nav-cm">
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Cloundflare Download Logs", "CloundflareDownloadLogs", "Home")
+                        @Html.ActionLink("Cloudflare Logs", "CloundflareDownloadLogs", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("White List", "WhiteList", "Home")
+                        @Html.ActionLink("Whitelist Manage", "WhiteList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Black List", "BlackList", "Home")
+                        @Html.ActionLink("Blacklist Manage", "BlackList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Rate Limiting List", "RateLimitingList", "Home")
+                        @Html.ActionLink("Rate Limiting Rule Manage", "RateLimitingList", "Home")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
@@ -71,7 +71,7 @@
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Zone List", "ZoneList", "Home")
+                        @Html.ActionLink("Zone Manage", "ZoneList", "Home")
                     </li>
                 </ul>
                 @*@Html.Partial("_LoginPartial")*@

@@ -1,0 +1,35 @@
+IF NOT EXISTS
+(
+    SELECT name 
+    FROM SYSOBJECTS
+    WHERE TYPE ='U' AND NAME ='T_Ban_IP_History'
+)
+BEGIN
+
+CREATE TABLE [dbo].[t_Ban_IP_History]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL ,
+	[ZoneId] nvarchar(512) NOT NULL DEFAULT '', 
+	[IP] nvarchar(256) NOT NULL DEFAULT '',
+	[LatestTriggerTime] DateTime NOT NULL , 
+	[RuleId] int NOT NULL DEFAULT 0, 
+	[Remark] nvarchar(max) NOT NULL DEFAULT '', 
+	Constraint [PK_t_Ban_IP_History] primary key clustered
+	(
+	  [Id] ASC
+	)with( PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] ;
+
+IF NOT EXISTS
+(    SELECT *
+	 FROM SYS.indexes
+	 WHERE NAME = 'IX_T_Ban_IP_History_ZONEID'
+)
+
+CREATE NONCLUSTERED INDEX IX_T_Ban_IP_History_ZONEID ON T_Ban_IP_History
+(
+    [ZONEID] ASC
+)
+with( PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) 
+ON [PRIMARY];
+END;

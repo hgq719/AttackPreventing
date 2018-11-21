@@ -1,0 +1,35 @@
+
+IF NOT EXISTS
+(
+    SELECT name 
+    FROM SYSOBJECTS
+    WHERE TYPE ='U' AND NAME ='T_Logs'
+)
+BEGIN
+
+CREATE TABLE [dbo].[t_Logs] (
+    [Id]          INT             IDENTITY (1, 1) NOT NULL,
+    [ZoneId]      NVARCHAR (512)  DEFAULT ('') NOT NULL,
+    [LogLevel]    NVARCHAR (256)  DEFAULT ('') NOT NULL,
+    [LogTime]     DATETIME        NOT NULL,
+    [LogOperator] NVARCHAR (256)  DEFAULT ('') NOT NULL,
+    [IP]          NVARCHAR (256)  DEFAULT ('') NOT NULL,
+    [Detail]      NVARCHAR (MAX)  DEFAULT ('') NOT NULL,
+    [Remark]      NVARCHAR (1024) DEFAULT ('') NOT NULL,
+    CONSTRAINT [PK_t_Logs] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+IF NOT EXISTS
+(    SELECT *
+	 FROM SYS.indexes
+	 WHERE NAME = 'IX_T_Logs'
+)
+
+CREATE NONCLUSTERED INDEX IX_T_Logs_ZONEID ON T_Logs
+(
+    [ZONEID] ASC
+)
+with( PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) 
+ON [PRIMARY];
+END;

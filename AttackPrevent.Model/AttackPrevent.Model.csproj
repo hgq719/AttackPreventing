@@ -48,6 +48,9 @@
     <Compile Include="Cloudflare\CloudflareLogReport.cs" />
     <Compile Include="Cloudflare\IpNeedToBan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RateLimitEntity.cs" />
+    <Compile Include="RateLimitRule.cs" />
+    <Compile Include="ZoneEntity.cs" />
     <Compile Include="Cloudflare\CloudflareRateLimitRule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

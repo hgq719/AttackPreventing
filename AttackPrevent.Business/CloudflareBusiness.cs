@@ -204,28 +204,36 @@ namespace AttackPrevent.Business
 
         public List<CloudflareLog> GetLogs(DateTime start, DateTime end, double sample, out bool retry)
         {
-            retry = false;
-            List<CloudflareLog> CloudflareLogs = new List<CloudflareLog>();
-            string fields = "RayID,ClientIP,ClientRequestHost,ClientRequestMethod,ClientRequestURI,EdgeEndTimestamp,EdgeResponseBytes,EdgeResponseStatus,EdgeStartTimestamp,CacheResponseStatus,ClientRequestBytes,CacheCacheStatus,OriginResponseStatus,OriginResponseTime";
-            string startTime = GetUTCTimeString(start);
-            string endTime = GetUTCTimeString(end);
-            string url = "https://{5}/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
-            url = string.Format(url, _zoneId, startTime, endTime, fields, sample, _apiUrlPrefix);
-            string content = HttpGet(url, 1200);
-            if (content.Contains("\"}"))
+            try
             {
-                content = content.Replace("\"}", "\"},");
-                CloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>(string.Format("[{0}]", content));
-            }
-            else
-            {
-                if (content.Contains("429 Too Many Requests"))
+                retry = false;
+                List<CloudflareLog> CloudflareLogs = new List<CloudflareLog>();
+                string fields = "RayID,ClientIP,ClientRequestHost,ClientRequestMethod,ClientRequestURI,EdgeEndTimestamp,EdgeResponseBytes,EdgeResponseStatus,EdgeStartTimestamp,CacheResponseStatus,ClientRequestBytes,CacheCacheStatus,OriginResponseStatus,OriginResponseTime";
+                string startTime = GetUTCTimeString(start);
+                string endTime = GetUTCTimeString(end);
+                string url = "{5}/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
+                url = string.Format(url, _zoneId, startTime, endTime, fields, sample, _apiUrlPrefix);
+                string content = HttpGet(url, 1200);
+                if (content.Contains("\"}"))
                 {
-                    retry = true;
+                    content = content.Replace("\"}", "\"},");
+                    CloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>(string.Format("[{0}]", content));
                 }
-                //logger.Error(content);
+                else
+                {
+                    if (content.Contains("429 Too Many Requests"))
+                    {
+                        retry = true;
+                    }
+                    //logger.Error(content);
+                }
+                return CloudflareLogs;
             }
-            return CloudflareLogs;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
         }
         #endregion
 

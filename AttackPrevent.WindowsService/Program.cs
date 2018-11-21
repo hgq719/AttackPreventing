@@ -13,7 +13,7 @@ namespace AttackPrevent.WindowsService
     {
         static void Main(string[] args)
         {
-            new EmailSendJob().Execute(null);
+            new LogAnalyzeJob().Execute(null);
             //return;
             if (args.Length != 0)
             {

@@ -1,9 +1,12 @@
-﻿using log4net;
+﻿using AttackPrevent.Model;
+using AttackPrevent.Model.Cloudflare;
+using log4net;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -218,6 +221,10 @@ namespace AttackPrevent.Business
 
         private string HttpGet(string authEmail, string authKey, string url, int timeout = 90)
         {
+            //处理HttpWebRequest访问https有安全证书的问题（ 请求被中止: 未能创建 SSL/TLS 安全通道。）
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(timeout);
@@ -229,6 +236,10 @@ namespace AttackPrevent.Business
         }
         private async Task<string> HttpGetAsyc(string authEmail, string authKey, string url, int timeout = 90)
         {
+            //处理HttpWebRequest访问https有安全证书的问题（ 请求被中止: 未能创建 SSL/TLS 安全通道。）
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(timeout);
@@ -241,6 +252,10 @@ namespace AttackPrevent.Business
         }
         private string HttpPost(string authEmail, string authKey, string url, string json, int timeout = 90)
         {
+            //处理HttpWebRequest访问https有安全证书的问题（ 请求被中止: 未能创建 SSL/TLS 安全通道。）
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             using (var client = new HttpClient())
             {
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -253,6 +268,10 @@ namespace AttackPrevent.Business
         }
         private string HttpPut(string authEmail, string authKey, string url, string json, int timeout = 90)
         {
+            //处理HttpWebRequest访问https有安全证书的问题（ 请求被中止: 未能创建 SSL/TLS 安全通道。）
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             using (var client = new HttpClient())
             {
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -265,6 +284,10 @@ namespace AttackPrevent.Business
         }
         private string HttpDelete(string authEmail, string authKey, string url, string json, int timeout = 90)
         {
+            //处理HttpWebRequest访问https有安全证书的问题（ 请求被中止: 未能创建 SSL/TLS 安全通道。）
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             if (!string.IsNullOrWhiteSpace(json))
             {

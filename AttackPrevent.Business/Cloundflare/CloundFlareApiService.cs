@@ -17,19 +17,20 @@ namespace AttackPrevent.Business
     {
         Task<List<CloudflareLog>> GetCloudflareLogsAsync(DateTime start, DateTime end);
         List<CloudflareLog> GetCloudflareLogs(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end, out bool retry);
-        List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, double sample, string ip, string notes);
+        List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, string ip, string notes);
+        List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, EnumMode mode);
         /// <summary>
         /// valid values: block, challenge, whitelist, js_challenge
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        FirewallAccessRuleResponse CreateAccessRule(string zoneId, string authEmail, string authKey, double sample, FirewallAccessRuleRequest request);
-        FirewallAccessRuleResponse EditAccessRule(string zoneId, string authEmail, string authKey, double sample, string id, FirewallAccessRuleRequest request);
-        FirewallAccessRuleResponse DeleteAccessRule(string zoneId, string authEmail, string authKey, double sample, string id);
-        List<RateLimitRule> GetRateLimitRuleList(string zoneId, string authEmail, string authKey, double sample);
-        CreateRateLimitResponse CreateRateLimit(string zoneId, string authEmail, string authKey, double sample, RateLimitRule rateLimitRule);
-        UpdateRateLimitResponse UpdateRateLimit(string zoneId, string authEmail, string authKey, double sample, RateLimitRule rateLimitRule);
-        DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, double sample, string id);
+        FirewallAccessRuleResponse CreateAccessRule(string zoneId, string authEmail, string authKey, FirewallAccessRuleRequest request);
+        FirewallAccessRuleResponse EditAccessRule(string zoneId, string authEmail, string authKey, string id, FirewallAccessRuleRequest request);
+        FirewallAccessRuleResponse DeleteAccessRule(string zoneId, string authEmail, string authKey, string id);
+        List<RateLimitRule> GetRateLimitRuleList(string zoneId, string authEmail, string authKey);
+        CreateRateLimitResponse CreateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule);
+        UpdateRateLimitResponse UpdateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule);
+        DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, string id);
     }
     public class CloundFlareApiService : ICloundFlareApiService
     {
@@ -79,7 +80,7 @@ namespace AttackPrevent.Business
             }
             return CloudflareLogs;
         }        
-        public List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, double sample, string ip, string notes)
+        public List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, string ip, string notes)
         {
             List<FirewallAccessRule> firewallAccessRules = new List<FirewallAccessRule>();
             int page = 1;
@@ -131,7 +132,7 @@ namespace AttackPrevent.Business
             }            
             return firewallAccessRules;
         }
-        public FirewallAccessRuleResponse CreateAccessRule(string zoneId, string authEmail, string authKey, double sample, FirewallAccessRuleRequest request)
+        public FirewallAccessRuleResponse CreateAccessRule(string zoneId, string authEmail, string authKey, FirewallAccessRuleRequest request)
         {
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules";
             url = string.Format(url, zoneId);
@@ -140,7 +141,7 @@ namespace AttackPrevent.Business
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
         }
-        public FirewallAccessRuleResponse EditAccessRule(string zoneId, string authEmail, string authKey, double sample, string id, FirewallAccessRuleRequest request)
+        public FirewallAccessRuleResponse EditAccessRule(string zoneId, string authEmail, string authKey, string id, FirewallAccessRuleRequest request)
         {
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules/{1}";
             url = string.Format(url, zoneId, id);
@@ -149,7 +150,7 @@ namespace AttackPrevent.Business
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
         }
-        public FirewallAccessRuleResponse DeleteAccessRule(string zoneId, string authEmail, string authKey, double sample, string id)
+        public FirewallAccessRuleResponse DeleteAccessRule(string zoneId, string authEmail, string authKey, string id)
         {
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules/{1}";
             url = string.Format(url, zoneId, id);
@@ -158,7 +159,7 @@ namespace AttackPrevent.Business
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
         }
-        public List<RateLimitRule> GetRateLimitRuleList(string zoneId, string authEmail, string authKey, double sample)
+        public List<RateLimitRule> GetRateLimitRuleList(string zoneId, string authEmail, string authKey)
         {
             List<RateLimitRule> rateLimitRules = new List<RateLimitRule>();
             int page = 1;
@@ -188,7 +189,7 @@ namespace AttackPrevent.Business
             }
             return rateLimitRules;
         }
-        public CreateRateLimitResponse CreateRateLimit(string zoneId, string authEmail, string authKey, double sample, RateLimitRule rateLimitRule)
+        public CreateRateLimitResponse CreateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule)
         {
             CreateRateLimitResponse createRateLimitResponse = new CreateRateLimitResponse();
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/rate_limits";
@@ -198,7 +199,7 @@ namespace AttackPrevent.Business
             createRateLimitResponse = JsonConvert.DeserializeObject<CreateRateLimitResponse>(content);
             return createRateLimitResponse;
         }
-        public UpdateRateLimitResponse UpdateRateLimit(string zoneId, string authEmail, string authKey, double sample, RateLimitRule rateLimitRule)
+        public UpdateRateLimitResponse UpdateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule)
         {
             UpdateRateLimitResponse updateRateLimitResponse = new UpdateRateLimitResponse();
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/rate_limits";
@@ -208,7 +209,7 @@ namespace AttackPrevent.Business
             updateRateLimitResponse = JsonConvert.DeserializeObject<UpdateRateLimitResponse>(content);
             return updateRateLimitResponse;
         }
-        public DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, double sample, string id)
+        public DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, string id)
         {
             DeleteRateLimitResponse deleteRateLimitResponse = new DeleteRateLimitResponse();
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/rate_limits/{1}";
@@ -306,6 +307,54 @@ namespace AttackPrevent.Business
         private string GetUTCTimeString(DateTime time)
         {
             return time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
+        }
+
+        public List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, EnumMode mode)
+        {
+            List<FirewallAccessRule> firewallAccessRules = new List<FirewallAccessRule>();
+            int page = 1;
+            while (true)
+            {
+                //?page={1}&per_page={2}&notes=my note
+                string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules?page={1}&per_page=500&mode={2}";
+                url = string.Format(url, zoneId, page, mode.ToString());
+
+                string content = HttpGet(authEmail, authKey, url, 1200);
+                FirewallAccessRuleResponseList firewallAccessRuleResponseList = JsonConvert.DeserializeObject<FirewallAccessRuleResponseList>(content);
+                if (firewallAccessRuleResponseList.success)
+                {
+                    foreach (CreateResult result in firewallAccessRuleResponseList.result)
+                    {
+                        firewallAccessRules.Add(new FirewallAccessRule
+                        {
+                            id = result.id,
+                            notes = result.notes,
+                            mode = result.mode,
+                            configurationTarget = result.configuration.target,
+                            configurationValue = result.configuration.value,
+                            createTime = result.created_on,
+                            modifiedTime = result.modified_on,
+                            scopeId = result.scope.id,
+                            scopeEmail = result.scope.email,
+                            scopeType = result.scope.type,
+                        });
+                    }
+
+                    if (firewallAccessRuleResponseList.result_info.page >= firewallAccessRuleResponseList.result_info.total_pages)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        page++;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return firewallAccessRules;
         }
     }
 }

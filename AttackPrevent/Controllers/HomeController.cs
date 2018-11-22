@@ -3,6 +3,7 @@ using AttackPrevent.Business.Cloundflare;
 using AttackPrevent.Model;
 using AttackPrevent.Model.Cloudflare;
 using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -226,6 +227,26 @@ namespace AttackPrevent.Controllers
                 return new HttpStatusCodeResult(404);
             }
            
+        }
+        public JsonResult GetWhiteLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+            var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult DeleteWhiteList(string zoneID, string ip)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+            var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
     }
     //只有实现IStaticDataSource接口才能实现流操作

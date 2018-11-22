@@ -13,20 +13,22 @@ namespace AttackPrevent
         {
             get
             {
-                return User.Identity.Name;
+                return User.Identity.Name.ToLower();
             }
         }
         public bool IsAdmin
         {
             get
             {
-                string key = "adminUserList";
-                List<dynamic> adminUserList = Utils.GetMemoryCache(key, () =>
-                {
-                    return new List<dynamic>();
-                });
+                //string key = "adminUserList";
+                //List<dynamic> adminUserList = Utils.GetMemoryCache(key, () =>
+                //{
+                //    return UserBusiness.GetUserList();
+                //});
 
-                return adminUserList.Exists(a => a.Name == UserName);
+                //return adminUserList.Exists(a => a.Name == UserName);
+
+                return true;
             }
         }
     }

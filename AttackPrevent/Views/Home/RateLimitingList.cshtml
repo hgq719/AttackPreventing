@@ -6,16 +6,15 @@
 @Styles.Render("~/Content/home.css")
 <div class="logContainer">
     <div class="queryContainer">
-
+        <ol class="breadcrumb">
+            <li class="active">Rate limiting Rule Manage</li>
+        </ol>
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
                 <label for="select-zoneName">Zone Name</label>
             </div>
             <div class="col-md-8">
-                <select id="select-zoneName" class="form-control">
-                    <option>Ent.comm100.com</option>
-                    <option>Hosted.comm100.com</option>
-                </select>
+                @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
             </div>
         </div>
 
@@ -39,132 +38,136 @@
 
         <div class="col-md-4 form-group">
             <div class="col-md-4  label-col">
-                <label for="txt-notes">URL</label>
+                <label for="txt-url">URL</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="notes" id="txt-notes" class="form-control" />
+                <input type="text" name="url" id="txt-url" class="form-control" />
             </div>
         </div>
 
         <div class="col-md-4 col-md-offset-4 form-group  text-right">
-            <button type="button" class="btn btn-primary">Query</button>
+            <button type="button" id="queryRateLimit" class="btn btn-primary">Query</button>
             <a href="~/Home/AddAndEditRateLimiting" class="btn btn-default">Add New</a>
         </div>
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-        <table class="table table-bordered">
-            <thead>
-                <tr class="info">
-                    <th>
-                        #
-                    </th>
-                    <th>
-                        Period
-                    </th>
-                    <th>
-                        Threshold
-                    </th>
-                    <th>
-                        URL
-                    </th>
-                    <th>Order</th>
-                    <th>Enlargement Factor</th>
-                    <th>Rate Limiting Trigger Ip Count</th>
-                    <th>Operation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        1
-                    </td>
-                    <td>
-                        60
-                    </td>
-                    <td>
-                        5
-                    </td>
-                    <td>
-                        /visitor.ashx
-                    </td>
-                    <td>
-                        1
-                    </td>
-                    <td>
-                        4
-                    </td>
-                    <td>
-                        3
-                    </td>
-                    <td>
-                        <a href="javescript:void(0);">Edit</a>
-                        <a href="javescript:void(0);">Delete</a>
-                        <a href="javescript:void(0);">Up</a>
-                        <a href="javescript:void(0);">Down</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        2
-                    </td>
-                    <td>
-                        60
-                    </td>
-                    <td>
-                        12
-                    </td>
-                    <td>
-                        /visitor.ashx
-                    </td>
-                    <td>
-                        2
-                    </td>
-                    <td>
-                        4
-                    </td>
-                    <td>
-                        3
-                    </td>
-                    <td>
-                        <a href="javescript:void(0);">Edit</a>
-                        <a href="javescript:void(0);">Delete</a>
-                        <a href="javescript:void(0);">Up</a>
-                        <a href="javescript:void(0);">Down</a>
-                    </td>
-                </tr>
-
-
-
-            </tbody>
-        </table>
-        <div class="pagination">
-            <ul>
-                <li>
-                    <a href="#">Last Page</a>
-                </li>
-                <li>
-                    <a href="#">1</a>
-                </li>
-                <li>
-                    <a href="#">2</a>
-                </li>
-                <li>
-                    <a href="#">3</a>
-                </li>
-                <li>
-                    <a href="#">4</a>
-                </li>
-                <li>
-                    <a href="#">5</a>
-                </li>
-                <li>
-                    <a href="#">Next Page</a>
-                </li>
-            </ul>
-        </div>
+        <table id="rateLimitingTable" class="table table-bordered">
+            
+        </table>        
     </div>
 </div>
+
+<script type="text/javascript">
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            $('#rateLimitingTable').bootstrapTable({
+                url: '/Home/GetRateLimiting',         //请求后台的URL（*）
+                method: 'get',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 10,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: false,
+                showColumns: false,                  //是否显示所有的列
+                showRefresh: false,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: false,                //是否启用点击选中行
+               // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                //showExport: true,
+                //exportDataType: 'all',
+                columns: [{
+                    field: 'ID',
+                    title: '#',
+                    //formatter: function (value, row, index) {
+                    //    return index + 1;
+                    //}
+                }, {
+                        field: 'Period',
+                        title: 'Period'
+                }, {
+                        field: 'Threshold',
+                        title: 'Threshold'
+                }, {
+                        field: 'Url',
+                        title: 'URL'
+                }, {
+                        field: 'OrderNo',
+                        title: 'Order'
+                    }, {
+                        field: 'EnlargementFactor',
+                        title: 'Enlargement Factor'
+                    }, {
+                        field: 'RateLimitTriggerIpCount',
+                        title: 'Rate Limiting Trigger Ip Count'
+                    }, {
+                        field: '',
+                        title: 'Operation',
+                        events: function () {
+
+                        },
+                        formatter: function (value, row, index) {
+                            var btn_edit = '<a href="/home/AddAndEditRateLimiting?action=2&tableID=' + row.tableID + '" class="rate-edit btn btn-primary btn-sm" >Edit</a>';
+                            var btn_delete = '<a href="/home/RateLimitingList?action=1&tableID=' + row.tableID + '" class="rate-delete btn btn-primary btn-sm" >Delete</a>';
+                            var btn_up = '<a href="/home/RateLimitingList?action=2&tableID=' + row.tableID + '" class="rate-delete btn btn-primary btn-sm" >Delete</a>';
+                            return [
+                                '<a>'
+                            ].join('');
+                        }
+                    }, {
+                        field: 'tableID',
+                        visible: false
+                    }
+                ]
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                limit: params.limit,   //页面大小
+                offset: params.offset,  //页码
+                zoneID: $("#select-zoneName").val(),
+                startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
+                url: $("#txt-url").val(),
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+    var oTable = new TableInit();
+    $(document).ready(function () {
+
+        oTable.Init();
+    });
+
+    $("#queryRateLimit").click(function () {
+        $('#rateLimitingTable').bootstrapTable('refresh');
+    });
+
+    //$('#export').click(function () {
+    //    var para = oTable.queryParams({limit: 10,offset:0});
+    //    var uuu = "/home/ExportAuditLog?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
+    //    $('#export').attr("href", uuu);
+    //    //$.get(uuu);
+    //});
+</script>
 
 
 

@@ -25,8 +25,7 @@ namespace AttackPrevent.WindowsService.Job
 
             #region Get White List
             var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
-            var whitelist = cloudflare.GetAccessRules();
-            var ipList = cloudflare.GetWhitelist(whitelist);
+            var ipList = cloudflare.GetIpWhitelist();
             var rules = cloudflare.GetRateLimits();
             #endregion
 

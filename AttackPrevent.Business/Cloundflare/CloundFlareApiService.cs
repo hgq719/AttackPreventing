@@ -1,4 +1,5 @@
 ﻿using AttackPrevent.Model;
+using AttackPrevent.Model.Cloudflare;
 using log4net;
 using Newtonsoft.Json;
 using System;

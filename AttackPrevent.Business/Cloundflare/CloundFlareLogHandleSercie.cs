@@ -1,4 +1,5 @@
 ﻿using AttackPrevent.Model;
+using AttackPrevent.Model.Cloudflare;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;

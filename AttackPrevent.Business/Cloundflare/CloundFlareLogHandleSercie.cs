@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AttackPrevent.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,11 +18,11 @@ namespace AttackPrevent.Business
         //void InitQueue(DateTime startTime, DateTime endTime);
         //开启任务
         void TaskStart();
-        List<CloudflareLog> GetCloudflareLogs();
+        List<CloudflareLog> GetCloudflareLogs(string key);
     }
     public class CloudflareLogHandleSercie : ICloudflareLogHandleSercie
     {
-        private ConcurrentBag<CloudflareLog> concurrentBagCloudflareLogs=new ConcurrentBag<CloudflareLog>();
+        private ConcurrentDictionary<string, List<CloudflareLog>> dicCloudflareLogs = new ConcurrentDictionary<string, List<CloudflareLog>>();
         private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
         private ILogService logService;
         private double sample = 0.01;
@@ -109,9 +110,15 @@ namespace AttackPrevent.Business
                             cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
                         }
 
-                        if (cloudflareLogs!=null&& cloudflareLogs.Count>0)
+                        if (cloudflareLogs != null && cloudflareLogs.Count > 0)
                         {
-                            concurrentBagCloudflareLogs.Concat(cloudflareLogs);
+                            string key = string.Format("{0}-{1}-{2}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample);
+                            if (!dicCloudflareLogs.Keys.Contains(key))
+                            {
+                                dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
+                            }
+
+                            dicCloudflareLogs[key].AddRange(cloudflareLogs);
                         }
 
                         stopwatch.Stop();                     
@@ -149,9 +156,9 @@ namespace AttackPrevent.Business
             Task.WaitAll(taskList.ToArray());//等待所有线程只都行完毕
         }
 
-        public List<CloudflareLog> GetCloudflareLogs()
+        public List<CloudflareLog> GetCloudflareLogs(string key)
         {
-            return concurrentBagCloudflareLogs.ToList();
+            return dicCloudflareLogs[key];
         }        
     }
 }

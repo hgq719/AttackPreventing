@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cloundflare\BackgroundTaskService.cs" />
-    <Compile Include="Cloundflare\CloudflareLog.cs" />
     <Compile Include="Cloundflare\CloundFlareApiService.cs" />
     <Compile Include="Cloundflare\CloundFlareLogHandleSercie.cs" />
     <Compile Include="Cloundflare\FirewallAccessRule.cs" />

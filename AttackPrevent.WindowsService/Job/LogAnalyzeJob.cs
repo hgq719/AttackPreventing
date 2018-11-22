@@ -1,9 +1,11 @@
 ﻿using AttackPrevent.Business;
+using AttackPrevent.Model;
 using AttackPrevent.Model.Cloudflare;
 using Quartz;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -19,7 +21,144 @@ namespace AttackPrevent.WindowsService.Job
         private string authEmail = "elei.xu@comm100.com";
         private string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
         private string[] agentUrlArr = new string[] { "liveChathanlder3.ashx", "errorcollector.ashx", "formbuilder.ashx", "formconsumer.ashx", "FileUploadHandler.ashx" };
-        double sample = 1;
+        double sample = 0.1;
+        private List<RateLimitEntity> rateLimits;
+
+        private List<RateLimitEntity> GetRateLimitEntities()
+        {
+            List<RateLimitEntity> list = new List<RateLimitEntity>();
+            list.Add(new RateLimitEntity() {
+                ID =1,
+                Period = 60,
+                Threshold =5,
+                Url= "chatserver.comm100.com/prechat.aspx",
+                OrderNo = 1,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 2,
+                Period = 60,
+                Threshold = 5,
+                Url = "chatserver.comm100.com/offlinemessage.aspx",
+                OrderNo = 2,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 3,
+                Period = 60,
+                Threshold = 20,
+                Url = "chatserver.comm100.com/campaign.ashx",
+                OrderNo = 3,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 4,
+                Period = 60,
+                Threshold = 20,
+                Url = "chatserver.comm100.com/livechat.ashx",
+                OrderNo = 4,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 5,
+                Period = 60,
+                Threshold = 20,
+                Url = "chatserver.comm100.com/livechatjs.ashx",
+                OrderNo = 5,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 6,
+                Period = 60,
+                Threshold = 20,
+                Url = "chatserver.comm100.com/chatbutton.aspx",
+                OrderNo = 6,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 7,
+                Period = 60,
+                Threshold = 20,
+                Url = "chatserver.comm100.com/bbs.aspx",
+                OrderNo = 7,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 8,
+                Period = 60,
+                Threshold = 2,
+                Url = "chatserver.comm100.com/chatwindowmobile.aspx",
+                OrderNo = 8,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 9,
+                Period = 60,
+                Threshold = 2,
+                Url = "chatserver.comm100.com/chatwindowembedded.aspx",
+                OrderNo = 9,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 10,
+                Period = 60,
+                Threshold = 10,
+                Url = "chatserver.comm100.com/chatwindow.aspx",
+                OrderNo = 10,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 11,
+                Period = 600,
+                Threshold = 2,
+                Url = "www.comm100.com/secure/register.ashx",
+                OrderNo = 11,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+
+            list.Add(new RateLimitEntity()
+            {
+                ID = 12,
+                Period = 60,
+                Threshold = 5,
+                Url = "chatserver.comm100.com/chatwindow.aspx",
+                OrderNo = 12,
+                RateLimitTriggerIpCount = 5,
+                EnlargementFactor = 3
+            });
+            return list;
+        }
 
         public Task Execute(IJobExecutionContext context)
         {
@@ -27,6 +166,8 @@ namespace AttackPrevent.WindowsService.Job
             var timeSpan = 60; //unit is second
             var dtStart = DateTime.Now.AddMinutes(-9);
             var dtEnd = DateTime.Now.AddMinutes(-8);
+
+            rateLimits = GetRateLimitEntities();
 
             #region Get White List
             var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
@@ -136,8 +277,65 @@ namespace AttackPrevent.WindowsService.Job
 
                         #region 分析日志
                         //OnMessage(new MessageEventArgs("取出数据:" + time + "共" + cloudflareLogs.Count + "条,用时:" + stopwatch.ElapsedMilliseconds / 1000 + "秒"));
+                        #region Analyze Log
+                        var requestDetailList = cloudflareLogs.Select(x => new LogAnalyzeModel()
+                        {
+                            IP = x.ClientIP,
+                            RequestHost = x.ClientRequestHost,
+                            RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
+                            RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
+                        }).ToList();
+
+                        var allIpRequestCountList = requestDetailList.GroupBy(x => new { x.IP, x.RequestUrl }).Select(x => new LogAnalyzeModel()
+                        {
+                            IP = x.Key.IP,
+                            RequestUrl = x.Key.RequestUrl,
+                            RequestCount = x.Count()
+                        }).ToList();
+
+                        #endregion
+
 
                         stopwatch.Restart();
+                        var analyzeResult3 = cloudflareLogs.Select(x => new LogAnalyzeModel()
+                        {
+                            IP = x.ClientIP,
+                            RequestHost = x.ClientRequestHost,
+                            RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
+                            RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
+                        }).Where(x => IfInRateLimitRule(x.RequestUrl));
+                        var analyzeResult4 = cloudflareLogs.Select(x => new LogAnalyzeModel()
+                        {
+                            IP = x.ClientIP,
+                            RequestHost = x.ClientRequestHost,
+                            RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
+                            RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
+                        }).Where(x => IfInRateLimitRule(x.RequestUrl)).ToList();
+                        var result5 = analyzeResult4.GroupBy(x => new { x.IP, x.RequestUrl }).
+                            Select(x=> new LogAnalyzeModel() {
+                            IP = x.Key.IP
+                        });
+                        //analyzeResult4.GroupBy(x => new { x.IP, x.RequestUrl }).Select(x => new LogAnalyzeModel() {
+                        //    IP = x.client
+                        //});
+                        //DataSet ds = cloudflareLogs.to
+                        var analyzeResult1= cloudflareLogs.Select(x => new LogAnalyzeModel()
+                        {
+                            IP = x.ClientIP,
+                            RequestHost = x.ClientRequestHost,
+                            RequestFullUrl = string.Format("{0}{1}",x.ClientRequestHost,x.ClientRequestURI),
+                            RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')))
+                        }).Where(x => IfInRateLimitRule(x.RequestUrl))
+                        ;
+                        var result1 = cloudflareLogs.GroupBy(a => new { a.ClientRequestHost, a.ClientIP, a.ClientRequestURI }).
+    Select(g => new CloudflareLogReportItem
+    {
+        ClientRequestHost = g.Key.ClientRequestHost,
+        ClientIP = g.Key.ClientIP,
+        ClientRequestURI = g.Key.ClientRequestURI,
+        Count = g.Count()
+    });
+
 
                         var result = cloudflareLogs.GroupBy(a => new { a.ClientRequestHost, a.ClientIP, a.ClientRequestURI }).
                             Select(g => new CloudflareLogReportItem
@@ -147,6 +345,8 @@ namespace AttackPrevent.WindowsService.Job
                                 ClientRequestURI = g.Key.ClientRequestURI,
                                 Count = g.Count()
                             });
+
+                        var result2 = cloudflareLogs.Select(x => new CloudflareLogReportItem { ClientIP = x.ClientIP, ClientRequestURI = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?'))) });
 
                         var CloudflareLogReport = new CloudflareLogReport
                         {
@@ -180,6 +380,17 @@ namespace AttackPrevent.WindowsService.Job
                 //logger.Error(e.Message);
             }
 
+        }
+
+        private bool IfInRateLimitRule(string requestUrl)
+        {
+            if (null != rateLimits)
+            {
+                var result = rateLimits.Where(x => requestUrl.Contains(x.Url));
+                if (result != null && result.Count() > 0) return true;
+                   
+            }
+            return false;
         }
 
         public void PushReport(CloudflareLogReport CloudflareLogReport)
@@ -219,43 +430,39 @@ namespace AttackPrevent.WindowsService.Job
                 List<IpNeedToBan> ipNeedToBans = new List<IpNeedToBan>();
 
 
-                //var banItems = new List<CloudflareLogReportItem>();
-                               
-                //var result = (from item in itemsManyGroup
-                //              from config in roteLimitConfig.RateLimits
-                //              where item.ClientRequestURI.ToLower().Contains(config.Url.ToLower())
-                //                    && ((item.Count / (float)((end - start).TotalSeconds * sample)) >= (config.LimitTimes * roteLimitConfig.TriggerRatio / (float)config.Interval))
-                //              select new { item, config.Id }).OrderByDescending(a => a.item.Count).ToList();
+                var banItems = new List<CloudflareLogReportItem>();
 
-                //List<int> handleIdList = new List<int>();
+                var result = (from item in itemsManyGroup
+                              from rateLimit in rateLimits
+                              where item.ClientRequestURI.ToLower().Contains(rateLimit.Url.ToLower())
+                                    && ((item.Count / (float)((end - start).TotalSeconds * sample)) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period))
+                              select new { item, rateLimit.ID }).OrderByDescending(a => a.item.Count).ToList();
 
-                //foreach (var item in result)
-                //{
-                //    var ban = false;
+                List<int> handleIdList = new List<int>();
 
-                //    //存储rotelimit的触发log
-                //    var roteLimit = roteLimitConfig.RateLimits.FirstOrDefault(a => a.Id == item.Id);
-                //    var ipNumber = 0;
-                //    var action = "None";//None/Create/Delete
-                //    var containRoteLimitList = result.Where(a => a.Id == item.Id).ToList();
-                //    //ipNumber = containRoteLimitList.Count;
-                //    //同时有N个IP达到触发某条规则时候开启本条规则或者创建
-                //    var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
-                //    cloudflare.OpenRateLimit(roteLimit.Url, roteLimit.Threshold, roteLimit.Period);
+                foreach (var item in result)
+                {
+                    //存储rotelimit的触发log
+                    var roteLimit = rateLimits.FirstOrDefault(a => a.ID == item.ID);
+                    var containRoteLimitList = result.Where(a => a.ID == item.ID).ToList();
+                    //同时有N个IP达到触发某条规则时候开启本条规则或者创建
+                    var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+                    //-todo 记录日志，自动打开RatelimitRule
+                    cloudflare.OpenRateLimit(roteLimit.Url, roteLimit.Threshold, roteLimit.Period);
+                    //-todo 记录日志，自动Ban Ip
+                    cloudflare.BanIp(item.item.ClientIP,"Ban notes");
 
-                //    cloudflare.BanIp(item.item.ClientIP);
+                }
 
-                //}
-
-                //cloudflareLogReport = new CloudflareLogReport
-                //{
-                //    Guid = Guid.NewGuid().ToString(),
-                //    Time = time,
-                //    Start = start,
-                //    End = end,
-                //    Size = size,
-                //    CloudflareLogReportItems = banItems.ToArray()
-                //};
+                cloudflareLogReport = new CloudflareLogReport
+                {
+                    Guid = Guid.NewGuid().ToString(),
+                    Time = time,
+                    Start = start,
+                    End = end,
+                    Size = size,
+                    CloudflareLogReportItems = banItems.ToArray()
+                };
 
                 stopwatch.Stop();
                 //OnMessage(new MessageEventArgs("报表汇总用时:" + stopwatch.ElapsedMilliseconds / 1000 + "秒"));

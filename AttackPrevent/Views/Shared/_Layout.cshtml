@@ -24,6 +24,9 @@
             </div>
             <div class="headerRight-cm">
                 <a href="javascript:void(0);" class="avatars-cm">
+                    @User.Identity.Name
+                </a>
+                <a href="javascript:void(0);" class="avatars-cm">
                     <img src="~/Images/101.png" alt="" class="imgAvatars">
                 </a>
                 <div class="divAvatarsHasTop" style="display:none;">
@@ -32,7 +35,7 @@
                     <div class="arrow arrowInner"></div>
                     <ul>
                         <li>登出</li>
-                        <li></li>
+                        <li>@User.Identity.Name</li>
                         <li></li>
                         <li></li>
                     </ul>

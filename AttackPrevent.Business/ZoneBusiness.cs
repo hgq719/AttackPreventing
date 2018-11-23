@@ -18,21 +18,30 @@ namespace AttackPrevent.Business
 
         public static List<SelectListItem> GetZoneSelectList()
         {
-            List<SelectListItem> zonelist = new List<SelectListItem>() {
-                new SelectListItem() {Value="111",Text="ent.comm100.com"},
-                new SelectListItem() {Value="222",Text="hosted.comm100.com"},
-                new SelectListItem() {Value="333",Text="app.comm100.com"},
-            };
+            //List<SelectListItem> zonelist = new List<SelectListItem>() {
+            //    new SelectListItem() {Value="111",Text="ent.comm100.com"},
+            //    new SelectListItem() {Value="222",Text="hosted.comm100.com"},
+            //    new SelectListItem() {Value="333",Text="app.comm100.com"},
+            //};
 
-            //List<SelectListItem> zonelist = new List<SelectListItem>();
-            //List<ZoneEntity> alllist = GetAllList();
+            List<SelectListItem> zonelist = new List<SelectListItem>();
+            List<ZoneEntity> alllist = GetAllList();
 
-            //alllist.ForEach(item => {
-            //    zonelist.Add(new SelectListItem() { Value=item.ZoneId,Text=item.ZoneName});
-            //});
+            alllist.ForEach(item =>
+            {
+                zonelist.Add(new SelectListItem() { Value = item.ZoneId, Text = item.ZoneName });
+            });
 
 
             return zonelist;
+        }
+        public static List<ZoneEntity> GetZoneList()
+        {
+            string key = "GetZoneList";
+            return Utils.GetMemoryCache(key, () =>
+            {
+                return GetAllList();
+            }, 5);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AttackPrevent.Model;
+using AttackPrevent.Model.Cloudflare;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

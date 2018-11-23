@@ -320,6 +320,7 @@ namespace AttackPrevent.Controllers
             var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
         public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -349,6 +350,7 @@ namespace AttackPrevent.Controllers
 
             return Json(new { isSuccessed , errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
         public JsonResult DeleteWhiteList(string zoneID, string ip)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -369,6 +371,7 @@ namespace AttackPrevent.Controllers
             var result = blackListBusinees.GetBlackListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
         public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -398,6 +401,7 @@ namespace AttackPrevent.Controllers
 
             return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
         public JsonResult DeleteBlackList(string zoneID, string ip)
         {
             string authEmail = "elei.xu@comm100.com";

@@ -143,21 +143,28 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public ActionResult EditRateLimiting(Models.RateLimitModel rateLimitModel)
         {
-
-            RateLimitEntity item = new RateLimitEntity()
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (ModelState.IsValid)
             {
-                CreatedBy = UserName,
-                EnlargementFactor = rateLimitModel.EnlargementFactor,
-                Period = rateLimitModel.Period,
-                ZoneId = rateLimitModel.ZoneId,
-                RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
-                RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
-                TableID = rateLimitModel.TableID,
-                Threshold = rateLimitModel.Threshold,
-                Url = rateLimitModel.Url
-            };
+                RateLimitEntity item = new RateLimitEntity()
+                {
+                    CreatedBy = UserName,
+                    EnlargementFactor = rateLimitModel.EnlargementFactor,
+                    Period = rateLimitModel.Period,
+                    ZoneId = rateLimitModel.ZoneId,
+                    RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                    RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                    TableID = rateLimitModel.TableID,
+                    Threshold = rateLimitModel.Threshold,
+                    Url = rateLimitModel.Url
+                };
 
-            RateLimitBusiness.Update(item);
+                RateLimitBusiness.Update(item);
+            }
+            else
+            {
+                return View(rateLimitModel);
+            }            
             
             return RedirectToAction("RateLimitingList");
         }

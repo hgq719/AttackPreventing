@@ -14,8 +14,8 @@ namespace AttackPrevent
             get
             {
                 //DESKTOP - KIMCDIR\PC
-                return User.Identity.Name.Split('\\').LastOrDefault();
-                //return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
+                //return User.Identity.Name.Split('\\').LastOrDefault();
+                return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
             }
         }
         public virtual bool IsAdmin

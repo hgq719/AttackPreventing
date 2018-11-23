@@ -67,23 +67,103 @@ namespace AttackPrevent.Controllers
         public ActionResult RateLimitingList()
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            ViewBag.MaxOrder = RateLimitBusiness.GetRateLimitMaxOrder();
             return View();
         }
 
-        public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string url)
+        public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
             dynamic result = RateLimitBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, url);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AddAndEditRateLimiting()
+        public ActionResult AddRateLimiting()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             if (!IsAdmin)
             {
                 return new HttpUnauthorizedResult();
             }
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddRateLimiting(Models.RateLimitModel rateLimitModel)
+        {
+
+            RateLimitEntity item = new RateLimitEntity()
+            {
+                ZoneId = rateLimitModel.ZoneId,
+                Period = rateLimitModel.Period,
+                EnlargementFactor = rateLimitModel.EnlargementFactor,
+                RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                Threshold = rateLimitModel.Threshold,
+                Url = rateLimitModel.Url,
+                CreatedBy = UserName
+            };
+
+            RateLimitBusiness.Add(item);
+            return RedirectToAction("RateLimitingList");
+        }
+
+        public ActionResult EditRateLimiting(int id)
+        {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+
+            Models.RateLimitModel rateLimitModel = new Models.RateLimitModel()
+            {
+                EnlargementFactor = item.EnlargementFactor,
+                Period = item.Period,
+                RateLimitTriggerIpCount = item.RateLimitTriggerIpCount,
+                RateLimitTriggerTime = item.RateLimitTriggerTime,
+                Threshold = item.Threshold,
+                Url = item.Url,
+                ZoneId = item.ZoneId,
+                TableID = item.TableID
+            };
+            return View(rateLimitModel);
+        }
+
+        [HttpPost]
+        public ActionResult EditRateLimiting(Models.RateLimitModel rateLimitModel)
+        {
+
+            RateLimitEntity item = new RateLimitEntity()
+            {
+                CreatedBy = UserName,
+                EnlargementFactor = rateLimitModel.EnlargementFactor,
+                Period = rateLimitModel.Period,
+                ZoneId = rateLimitModel.ZoneId,
+                RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                TableID = rateLimitModel.TableID,
+                Threshold = rateLimitModel.Threshold,
+                Url = rateLimitModel.Url
+            };
+
+            RateLimitBusiness.Update(item);
+            
+            return RedirectToAction("RateLimitingList");
+        }
+
+        public ActionResult DeleteRateLimiting(int id, int order)
+        {
+            RateLimitBusiness.Delete(id, order);
+            return RedirectToAction("RateLimitingList");
+        }
+
+        public ActionResult EditRateLimitingOrder(int id, int order, int actionb)
+        {
+            RateLimitBusiness.UpdateOrder(actionb, id, order);
+            return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult AuditLogs() 

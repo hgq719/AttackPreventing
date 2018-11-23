@@ -13,7 +13,7 @@ namespace AttackPrevent
         {
             get
             {
-                return User.Identity.Name.ToLower();
+                return User.Identity.Name;
             }
         }
         public virtual bool IsAdmin
@@ -26,7 +26,7 @@ namespace AttackPrevent
                 //    return UserBusiness.GetUserList();
                 //});
 
-                //return adminUserList.Exists(a => a.Name == UserName);
+                //return adminUserList.Exists(a => a.Name == UserName.ToLower());
 
                 return true;
             }

@@ -14,6 +14,8 @@ namespace AttackPrevent.Model
 
         public string AuthEmail { get; set; }
 
+        public string AuthKey { get; set; }
+
         public bool IfTestStage { get; set; }
 
         public bool IfEnable { get; set; }

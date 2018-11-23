@@ -64,6 +64,7 @@
     <Compile Include="Cloundflare\FirewallAccessRuleRequest.cs" />
     <Compile Include="Cloundflare\GetCloundflareLogsBackgroundInfo.cs" />
     <Compile Include="Cloundflare\RateLimitRule.cs" />
+    <Compile Include="GlobalConfigBusiness.cs" />
     <Compile Include="LogService.cs" />
     <Compile Include="CloudflareBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

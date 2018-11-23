@@ -44,5 +44,10 @@ namespace AttackPrevent.Access
 
             return result;
         }
+
+        public static void InsertLog(AuditLogEntity logEntity)
+        {
+
+        }
     }
 }

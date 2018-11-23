@@ -80,5 +80,15 @@ namespace AttackPrevent.Business
 
             return ms;
         }
+
+        public static void InsertLog(AuditLogEntity logEntity)
+        {
+
+        }
+
+        public static void InsertLogs(List<AuditLogEntity> logEntities)
+        {
+
+        }
     }
 }

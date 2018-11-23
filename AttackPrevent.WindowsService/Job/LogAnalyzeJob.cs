@@ -16,18 +16,15 @@ namespace AttackPrevent.WindowsService.Job
 {
     public class LogAnalyzeJob : IJob
     {
-        private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
-        private ConcurrentBag<CloudflareLogReport> cloudflareLogReports;
-        private string zoneId = "2068c8964a4dcef78ee5103471a8db03";
-        private string authEmail = "elei.xu@comm100.com";
-        private string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-        private string[] agentUrlArr = new string[] { "liveChathanlder3.ashx", "errorcollector.ashx", "formbuilder.ashx", "formconsumer.ashx", "FileUploadHandler.ashx" };
-        double sample = 1;
-        private List<RateLimitEntity> rateLimits;
+        //private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
+        //private ConcurrentBag<CloudflareLogReport> cloudflareLogReports;
+
+        //private string[] agentUrlArr = new string[] { "liveChathanlder3.ashx", "errorcollector.ashx", "formbuilder.ashx", "formconsumer.ashx", "FileUploadHandler.ashx" };
+        private double sample = 1;
+        //private List<RateLimitEntity> rateLimits;
         private int globalThreshold = 100;
         private int globalPeriod = 60;
-        private int timeStamp = 60;
-        private bool ifTestStage = true;
+        private int timeSpan = 60;
 
         private List<RateLimitEntity> GetRateLimitEntities()
         {
@@ -167,144 +164,106 @@ namespace AttackPrevent.WindowsService.Job
 
         public Task Execute(IJobExecutionContext context)
         {
-           
+            var globalConfiguration = GlobalConfigBusiness.Get();
             var timeSpan = 60; //unit is second
-            var dtStart = DateTime.Now.AddDays(-1).AddHours(-10).AddMinutes(-56);
-            var dtEnd = DateTime.Now.AddDays(-1).AddHours(-10).AddMinutes(-55).AddSeconds(-1);
-            globalThreshold = 200;
-            globalPeriod = 60;
 
-            rateLimits = GetRateLimitEntities();
+            //var zoneList = ZoneBusiness.GetAllList();
 
-            #region Get White List
-            var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
-            var ipList = cloudflare.GetIpWhitelist();
+            var zoneEntity = new ZoneEntity() {
+                ZoneId = "2068c8964a4dcef78ee5103471a8db03",
+                AuthEmail = "elei.xu@comm100.com",
+                AuthKey = "1e26ac28b9837821af730e70163f0604b4c35",
+                IfTestStage = true
+
+    };
+            globalThreshold = globalConfiguration.GlobalThreshold;
+            globalPeriod = globalConfiguration.GlobalPeriod;
+            sample = globalConfiguration.GlobalSample;
+            timeSpan = globalConfiguration.GlobalTimeSpan;
+
+            #region Start Analyze Log
+            StartAnalyze(zoneEntity);
             #endregion
 
-            #region Get logs
-            InitQueue(dtStart, dtEnd, timeSpan);
-
-            TaskStart(4, zoneId, authEmail, authKey, sample, agentUrlArr);
-            #endregion
 
             return Task.FromResult(0);
         }
 
-        private void InitQueue(DateTime dtStart, DateTime dtEnd, int timeSpan)
+        private void StartAnalyze(ZoneEntity zoneEntity)
         {
-            if (keyValuePairs == null)
-            {
-                keyValuePairs = new ConcurrentQueue<KeyValuePair<DateTime, DateTime>>();
-            }
-            DateTime dateTime = dtStart;
-            //OnMessage(new MessageEventArgs("产生队列数据开始"));
+            var dtStart = DateTime.Now.AddDays(-1).AddHours(-10).AddMinutes(-56);
+            var dtEnd = DateTime.Now.AddDays(-1).AddHours(-10).AddMinutes(-55).AddSeconds(-1);
+
+            var timeStageList = new List<KeyValuePair<DateTime, DateTime>>();
             while (true)
             {
-                string time = string.Format("{0}-{1}", dateTime.ToString("yyyyMMddHHmmss"), dateTime.AddSeconds(timeSpan).ToString("yyyyMMddHHmmss"));
+                timeStageList.Add(new KeyValuePair<DateTime, DateTime>(dtStart, dtStart.AddSeconds(timeSpan)));
 
-                if (cloudflareLogReports != null)
-                {
-                    if (!cloudflareLogReports.Any(a => a.Time == time))
-                    {
-                        //OnMessage(new MessageEventArgs(time));
-                        keyValuePairs.Enqueue(new KeyValuePair<DateTime, DateTime>(dateTime, dateTime.AddSeconds(timeSpan)));
-                    }
-                }
-                else
-                {
-                    //OnMessage(new MessageEventArgs(time));
-                    keyValuePairs.Enqueue(new KeyValuePair<DateTime, DateTime>(dateTime, dateTime.AddSeconds(timeSpan)));
-                }
+                dtStart = dtStart.AddSeconds(timeSpan);
 
-                dateTime = dateTime.AddSeconds(timeSpan);
-
-                if (dateTime >= dtEnd)
+                if (dtStart >= dtEnd)
                 {
                     break;
                 }
             }
-            //OnMessage(new MessageEventArgs("产生队列数据结束"));
-        }
+            var cloudflare = new CloudflareBusiness(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
+            var ipWhiteList = cloudflare.GetIpWhitelist();
+            var cloudflareLogs = new List<CloudflareLog>();
+            var rateLimits = GetRateLimitEntities();
 
-        private void TaskStart(int taskCount, string zoneId, string authEmail, string authKey, double sample, string[] agentUrlArr)
-        {
-            List<Task> taskList = new List<Task>(taskCount);
-            for (var i = 0; i < taskCount; i++)
+            foreach (var keyValuePair in timeStageList)
             {
-                var task = Task.Factory.StartNew(() =>
+                var retryCount = 0;
+                dtStart = keyValuePair.Key;
+                dtEnd = keyValuePair.Value;
+
+                var timeStage = string.Format("{0}-{1}", dtStart.ToString("yyyyMMddHHmmss"), dtEnd.ToString("yyyyMMddHHmmss"));
+                Console.WriteLine(string.Format("开始获取[{0}]的日志", timeStage));
+                AuditLogBusiness.InsertLog(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("开始获取[{0}]的日志", timeStage)));
+                
+                cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
+
+                while (retry && retryCount < 10)
                 {
-                    Dequeue(zoneId, authEmail, authKey, sample, agentUrlArr);
-                });
-                taskList.Add(task);
+                    retryCount++;
+                    cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
+                }
+                Console.WriteLine(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("获取[{0}]的日志结束,总计[{1}]条", timeStage, cloudflareLogs.Count)).Detail);
+                AuditLogBusiness.InsertLog(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("获取[{0}]的日志结束,总计[{1}]条", timeStage, cloudflareLogs.Count)));
 
-                Thread.Sleep(500);
-            }
-
-            Task.WaitAll(taskList.ToArray());//等待所有线程只都行完毕
-
-        }
-
-        private void Dequeue(string zoneId, string authEmail, string authKey, double sample, string[] agentUrlArr)
-        {
-            try
-            {
-                while (true)
+                if (cloudflareLogs.Count > 0)
                 {
-
-                    //OnMessage(new MessageEventArgs("取队列数据处理开始"));
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    var retryCount = 0;
-                    if (keyValuePairs.TryDequeue(out KeyValuePair<DateTime, DateTime> keyValuePair))
+                    #region 分析日志
+                    var requestDetailList = cloudflareLogs.Where(x => !ipWhiteList.Contains(x.ClientIP)).Select(x => new LogAnalyzeModel()
                     {
-                        DateTime dtStart = keyValuePair.Key;
-                        DateTime dtEnd = keyValuePair.Value;
+                        IP = x.ClientIP,
+                        RequestHost = x.ClientRequestHost,
+                        RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
+                        RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
+                    }).ToList();
 
-                        string time = string.Format("{0}-{1}", dtStart.ToString("yyyyMMddHHmmss"), dtEnd.ToString("yyyyMMddHHmmss"));
-                        var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
-                        var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
+                    Console.WriteLine(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("除去白名单后日志总计[{0}]条", requestDetailList.Count)).Detail);
+                    AuditLogBusiness.InsertLog(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("除去白名单后日志总计[{0}]条", requestDetailList.Count)));
 
-                        while (retry && retryCount < 10)
-                        {
-                            retryCount++;
-                            cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
-                        }
-
-                        #region 分析日志
-                        var requestDetailList = cloudflareLogs.Select(x => new LogAnalyzeModel()
-                        {
-                            IP = x.ClientIP,
-                            RequestHost = x.ClientRequestHost,
-                            RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
-                            RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
-                        }).ToList();
-
-                        AnalyzeLog(requestDetailList);
-                        #endregion
-                    }
-                    else
+                    if (requestDetailList.Count > 0)
                     {
-                        break;
+                        AnalyzeLog(requestDetailList, zoneEntity, rateLimits);
                     }
-
-                    //OnMessage(new MessageEventArgs("取队列数据处理结束"));
-
+                    
+                    #endregion
                 }
             }
-            catch (Exception )
-            {
-                //logger.Error(e.Message);
-            }
-
         }
 
-        private void AnalyzeLog(List<LogAnalyzeModel> logsAll)
+        private void AnalyzeLog(List<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits)
         {
             var systemLogList = new List<AuditLogEntity>();
+            var zoneId = zoneEntity.ZoneId;
+            var ifTestStage = zoneEntity.IfTestStage;
             try
             {
                 CloudflareAccessRuleResponse cloudflareAccessRuleResponse = null;
-                var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+                var cloudflare = new CloudflareBusiness(zoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
                 var alertFlag = false;
                 systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, "开始日志分析"));
                 var dtNow = DateTime.Now;
@@ -313,7 +272,7 @@ namespace AttackPrevent.WindowsService.Job
                     IP = x.Key.IP,
                     RequestHost = x.Key.RequestHost,
                     RequestCount = x.Count()
-                }).Where(x => x.RequestCount / (float)(timeStamp * sample) >= ((float)globalThreshold / globalPeriod)).ToList();
+                }).Where(x => x.RequestCount / (float)(timeSpan * sample) >= ((float)globalThreshold / globalPeriod)).ToList();
 
                 if (logsIpAll.Count() > 0)
                 {
@@ -400,7 +359,7 @@ namespace AttackPrevent.WindowsService.Job
                     //抽取出所有违反规则的IP请求列表
                     var brokenRuleIpList = (from item in ipRequestList
                                             where item.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())
-                                                  && item.RequestCount / (float)(timeStamp * sample) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period)
+                                                  && item.RequestCount / (float)(timeSpan * sample) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period)
                                             select new LogAnalyzeModel()
                                             {
                                                 IP = item.IP,
@@ -495,6 +454,7 @@ namespace AttackPrevent.WindowsService.Job
             }
             finally
             {
+                AuditLogBusiness.InsertLogs(systemLogList);
                 foreach (var log in systemLogList)
                 {
                     Console.WriteLine(log.Detail);
@@ -519,98 +479,197 @@ namespace AttackPrevent.WindowsService.Job
             return false;
         }
 
-        private bool IfInRateLimitRule(string requestUrl)
-        {
-            if (null != rateLimits)
-            {
-                var result = rateLimits.Where(x => requestUrl.Contains(x.Url));
-                if (result != null && result.Count() > 0) return true;
+        //private bool IfInRateLimitRule(string requestUrl)
+        //{
+        //    if (null != rateLimits)
+        //    {
+        //        var result = rateLimits.Where(x => requestUrl.Contains(x.Url));
+        //        if (result != null && result.Count() > 0) return true;
                    
-            }
-            return false;
-        }
+        //    }
+        //    return false;
+        //}
 
-        public void PushReport(CloudflareLogReport CloudflareLogReport)
-        {
-            if (cloudflareLogReports == null)
-            {
-                cloudflareLogReports = new ConcurrentBag<CloudflareLogReport>();
-            }
+        //public void PushReport(CloudflareLogReport CloudflareLogReport)
+        //{
+        //    if (cloudflareLogReports == null)
+        //    {
+        //        cloudflareLogReports = new ConcurrentBag<CloudflareLogReport>();
+        //    }
 
-            cloudflareLogReports.Add(CloudflareLogReport);
+        //    cloudflareLogReports.Add(CloudflareLogReport);
 
-        }
+        //}
 
-        //获取实时报表
-        public CloudflareLogReport GetCloudflareLogReport(DateTime startTime, DateTime endTime)
-        {
-            CloudflareLogReport cloudflareLogReport = new CloudflareLogReport();
-            try
-            {
-                Stopwatch stopwatch = new Stopwatch();
+        ////获取实时报表
+        //public CloudflareLogReport GetCloudflareLogReport(DateTime startTime, DateTime endTime)
+        //{
+        //    CloudflareLogReport cloudflareLogReport = new CloudflareLogReport();
+        //    try
+        //    {
+        //        Stopwatch stopwatch = new Stopwatch();
 
-                var orderby = cloudflareLogReports.Where(a => a.Start >= startTime && a.End <= endTime).OrderBy(a => a.Time).ToList();
-                CloudflareLogReport minCloudflareLogReport = orderby?.First();
-                CloudflareLogReport maxCloudflareLogReport = orderby?.Last();
+        //        var orderby = cloudflareLogReports.Where(a => a.Start >= startTime && a.End <= endTime).OrderBy(a => a.Time).ToList();
+        //        CloudflareLogReport minCloudflareLogReport = orderby?.First();
+        //        CloudflareLogReport maxCloudflareLogReport = orderby?.Last();
 
-                DateTime start = minCloudflareLogReport.Start;
-                DateTime end = maxCloudflareLogReport.End;
-                int size = orderby.Sum(a => a.Size);
-                string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
+        //        DateTime start = minCloudflareLogReport.Start;
+        //        DateTime end = maxCloudflareLogReport.End;
+        //        int size = orderby.Sum(a => a.Size);
+        //        string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
 
-                var cloudflareLogReportItemsMany = orderby.SelectMany(a => a.CloudflareLogReportItems).ToList();
+        //        var cloudflareLogReportItemsMany = orderby.SelectMany(a => a.CloudflareLogReportItems).ToList();
 
-                //合并处理
-                var itemsManyGroup = cloudflareLogReportItemsMany.GroupBy(a => new { a.ClientIP, a.ClientRequestHost, a.ClientRequestURI })
-                    .Select(g => new { g.Key.ClientRequestHost, g.Key.ClientIP, g.Key.ClientRequestURI, Ban = false, Count = g.Sum(c => c.Count) }).OrderByDescending(a => a.Count).ToList();
+        //        //合并处理
+        //        var itemsManyGroup = cloudflareLogReportItemsMany.GroupBy(a => new { a.ClientIP, a.ClientRequestHost, a.ClientRequestURI })
+        //            .Select(g => new { g.Key.ClientRequestHost, g.Key.ClientIP, g.Key.ClientRequestURI, Ban = false, Count = g.Sum(c => c.Count) }).OrderByDescending(a => a.Count).ToList();
 
-                List<IpNeedToBan> ipNeedToBans = new List<IpNeedToBan>();
+        //        List<IpNeedToBan> ipNeedToBans = new List<IpNeedToBan>();
 
 
-                var banItems = new List<CloudflareLogReportItem>();
+        //        var banItems = new List<CloudflareLogReportItem>();
 
-                var result = (from item in itemsManyGroup
-                              from rateLimit in rateLimits
-                              where item.ClientRequestURI.ToLower().Contains(rateLimit.Url.ToLower())
-                                    && ((item.Count / (float)((end - start).TotalSeconds * sample)) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period))
-                              select new { item, rateLimit.ID }).OrderByDescending(a => a.item.Count).ToList();
+        //        var result = (from item in itemsManyGroup
+        //                      from rateLimit in rateLimits
+        //                      where item.ClientRequestURI.ToLower().Contains(rateLimit.Url.ToLower())
+        //                            && ((item.Count / (float)((end - start).TotalSeconds * sample)) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period))
+        //                      select new { item, rateLimit.ID }).OrderByDescending(a => a.item.Count).ToList();
 
-                List<int> handleIdList = new List<int>();
+        //        List<int> handleIdList = new List<int>();
 
-                foreach (var item in result)
-                {
-                    //存储rotelimit的触发log
-                    var roteLimit = rateLimits.FirstOrDefault(a => a.ID == item.ID);
-                    var containRoteLimitList = result.Where(a => a.ID == item.ID).ToList();
-                    //同时有N个IP达到触发某条规则时候开启本条规则或者创建
-                    var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
-                    //-todo 记录日志，自动打开RatelimitRule
-                    //cloudflare.OpenRateLimit(roteLimit.Url, roteLimit.Threshold, roteLimit.Period);
-                    //-todo 记录日志，自动Ban Ip
-                    //cloudflare.BanIp(item.item.ClientIP,"Ban notes");
+        //        foreach (var item in result)
+        //        {
+        //            //存储rotelimit的触发log
+        //            var roteLimit = rateLimits.FirstOrDefault(a => a.ID == item.ID);
+        //            var containRoteLimitList = result.Where(a => a.ID == item.ID).ToList();
+        //            //同时有N个IP达到触发某条规则时候开启本条规则或者创建
+        //            var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+        //            //-todo 记录日志，自动打开RatelimitRule
+        //            //cloudflare.OpenRateLimit(roteLimit.Url, roteLimit.Threshold, roteLimit.Period);
+        //            //-todo 记录日志，自动Ban Ip
+        //            //cloudflare.BanIp(item.item.ClientIP,"Ban notes");
 
-                }
+        //        }
 
-                cloudflareLogReport = new CloudflareLogReport
-                {
-                    Guid = Guid.NewGuid().ToString(),
-                    Time = time,
-                    Start = start,
-                    End = end,
-                    Size = size,
-                    CloudflareLogReportItems = banItems.ToArray()
-                };
+        //        cloudflareLogReport = new CloudflareLogReport
+        //        {
+        //            Guid = Guid.NewGuid().ToString(),
+        //            Time = time,
+        //            Start = start,
+        //            End = end,
+        //            Size = size,
+        //            CloudflareLogReportItems = banItems.ToArray()
+        //        };
 
-                stopwatch.Stop();
-                //OnMessage(new MessageEventArgs("报表汇总用时:" + stopwatch.ElapsedMilliseconds / 1000 + "秒"));
+        //        stopwatch.Stop();
+        //        //OnMessage(new MessageEventArgs("报表汇总用时:" + stopwatch.ElapsedMilliseconds / 1000 + "秒"));
 
-            }
-            catch (Exception e)
-            {
-                //logger.Error(e.Message);
-            }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //logger.Error(e.Message);
+        //    }
 
-            return cloudflareLogReport;
-        }
+        //    return cloudflareLogReport;
+        //}
+
+        //private void InitQueue(DateTime dtStart, DateTime dtEnd, int timeSpan)
+        //{
+        //    if (keyValuePairs == null)
+        //    {
+        //        keyValuePairs = new ConcurrentQueue<KeyValuePair<DateTime, DateTime>>();
+        //    }
+        //    DateTime dateTime = dtStart;
+        //    //OnMessage(new MessageEventArgs("产生队列数据开始"));
+        //    while (true)
+        //    {
+        //        string time = string.Format("{0}-{1}", dateTime.ToString("yyyyMMddHHmmss"), dateTime.AddSeconds(timeSpan).ToString("yyyyMMddHHmmss"));
+
+        //        keyValuePairs.Enqueue(new KeyValuePair<DateTime, DateTime>(dateTime, dateTime.AddSeconds(timeSpan)));
+
+        //        dateTime = dateTime.AddSeconds(timeSpan);
+
+        //        if (dateTime >= dtEnd)
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    //OnMessage(new MessageEventArgs("产生队列数据结束"));
+        //}
+
+        //private void TaskStart(int taskCount, string zoneId, string authEmail, string authKey, double sample, string[] agentUrlArr)
+        //{
+        //    List<Task> taskList = new List<Task>(taskCount);
+        //    for (var i = 0; i < taskCount; i++)
+        //    {
+        //        var task = Task.Factory.StartNew(() =>
+        //        {
+        //            Dequeue(zoneId, authEmail, authKey, sample, agentUrlArr);
+        //        });
+        //        taskList.Add(task);
+
+        //        Thread.Sleep(500);
+        //    }
+
+        //    Task.WaitAll(taskList.ToArray());//等待所有线程只都行完毕
+
+        //}
+
+        //private void Dequeue(string zoneId, string authEmail, string authKey, double sample, string[] agentUrlArr)
+        //{
+        //    try
+        //    {
+        //        while (true)
+        //        {
+
+        //            //OnMessage(new MessageEventArgs("取队列数据处理开始"));
+        //            var stopwatch = new Stopwatch();
+        //            stopwatch.Start();
+        //            var retryCount = 0;
+        //            if (keyValuePairs.TryDequeue(out KeyValuePair<DateTime, DateTime> keyValuePair))
+        //            {
+        //                DateTime dtStart = keyValuePair.Key;
+        //                DateTime dtEnd = keyValuePair.Value;
+
+        //                var timeStage = string.Format("{0}-{1}", dtStart.ToString("yyyyMMddHHmmss"), dtEnd.ToString("yyyyMMddHHmmss"));
+        //                Console.WriteLine(string.Format("开始获取[{0}]的日志", timeStage));
+        //                AuditLogBusiness.InsertLog(new AuditLogEntity(zoneId, LogLevel.App, string.Format("开始获取[{0}]的日志",timeStage)));
+        //                var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+        //                var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
+
+        //                while (retry && retryCount < 10)
+        //                {
+        //                    retryCount++;
+        //                    cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
+        //                }
+        //                Console.WriteLine(string.Format("获取[{0}]的日志结束", timeStage));
+        //                AuditLogBusiness.InsertLog(new AuditLogEntity(zoneId, LogLevel.App, string.Format("获取[{0}]的日志结束", timeStage)));
+        //                #region 分析日志
+        //                var requestDetailList = cloudflareLogs.Select(x => new LogAnalyzeModel()
+        //                {
+        //                    IP = x.ClientIP,
+        //                    RequestHost = x.ClientRequestHost,
+        //                    RequestFullUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI),
+        //                    RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
+        //                }).ToList();
+
+        //                AnalyzeLog(requestDetailList);
+        //                #endregion
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
+
+        //            //OnMessage(new MessageEventArgs("取队列数据处理结束"));
+
+        //        }
+        //    }
+        //    catch (Exception )
+        //    {
+        //        //logger.Error(e.Message);
+        //    }
+
+        //}
     }
 }

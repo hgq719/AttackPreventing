@@ -395,6 +395,15 @@ namespace AttackPrevent.Controllers
                     {
                         break;
                     }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.Now,
+                        Detail = JsonConvert.SerializeObject(new { comment,remark= "Add WhiteList", isSuccessed }),
+                    });
                 }
             }
             else
@@ -418,6 +427,15 @@ namespace AttackPrevent.Controllers
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = ip,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = zoneID,
+                LogOperator = UserName,
+                LogTime = DateTime.Now,
+                Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
+            });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
@@ -463,6 +481,15 @@ namespace AttackPrevent.Controllers
                     {
                         break;
                     }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.Now,
+                        Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
+                    });
                 }
             }
             else
@@ -486,6 +513,15 @@ namespace AttackPrevent.Controllers
 
             IBlackListBusinees blackListBusinees = new BlackListBusinees();
             var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = ip,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = zoneID,
+                LogOperator = UserName,
+                LogTime = DateTime.Now,
+                Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
+            });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

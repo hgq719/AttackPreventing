@@ -118,7 +118,8 @@
                         title: 'Operation',
                         align: 'center',
                         events: operateEvents,
-                        formatter: operateFormatter
+                        formatter: operateFormatter,
+                        visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
                     },
                 ]
             });
@@ -159,7 +160,7 @@
     function operateFormatter(value, row, index) {
         if ('@ViewBag.IsAdmin'.toLowerCase() === 'true') {
             return [
-                '<button id="btn-delete" type="button" class="rate-delete btn btn-danger btn-sm">Delete</button>'
+                '<a id="btn-delete" href="#" class="rate-delete"><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>'
             ].join('');
         }
         else {

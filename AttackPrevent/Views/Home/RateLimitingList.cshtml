@@ -47,7 +47,12 @@
 
         <div class="col-md-4 col-md-offset-4 form-group  text-right">
             <button type="button" id="queryRateLimit" class="btn btn-primary">Query</button>
-            <a href="~/Home/AddRateLimiting" class="btn btn-default">Add New</a>
+            @{ 
+                if (ViewBag.IsAdmin)
+                {
+                    <a href="~/Home/AddRateLimiting" class="btn btn-default">Add New</a>
+                }
+            }            
         </div>
     </div>
 
@@ -132,7 +137,8 @@
                                 btn_down = '';
                             }
                             return btn_edit + btn_delete + btn_up + btn_down;
-                        }
+                        },
+                        visible: '@ViewBag.IsAdmin' == 'True'
                     }, {
                         field: 'TableID',
                         visible: false

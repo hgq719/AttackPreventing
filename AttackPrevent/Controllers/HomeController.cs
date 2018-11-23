@@ -66,6 +66,7 @@ namespace AttackPrevent.Controllers
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             ViewBag.MaxOrder = RateLimitBusiness.GetRateLimitMaxOrder();
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
@@ -89,21 +90,28 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public ActionResult AddRateLimiting(Models.RateLimitModel rateLimitModel)
         {
-
-            RateLimitEntity item = new RateLimitEntity()
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (ModelState.IsValid)
             {
-                ZoneId = rateLimitModel.ZoneId,
-                Period = rateLimitModel.Period,
-                EnlargementFactor = rateLimitModel.EnlargementFactor,
-                RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
-                RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
-                Threshold = rateLimitModel.Threshold,
-                Url = rateLimitModel.Url,
-                CreatedBy = UserName
-            };
+                RateLimitEntity item = new RateLimitEntity()
+                {
+                    ZoneId = rateLimitModel.ZoneId,
+                    Period = rateLimitModel.Period,
+                    EnlargementFactor = rateLimitModel.EnlargementFactor,
+                    RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                    RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                    Threshold = rateLimitModel.Threshold,
+                    Url = rateLimitModel.Url,
+                    CreatedBy = UserName
+                };
 
-            RateLimitBusiness.Add(item);
-            return RedirectToAction("RateLimitingList");
+                RateLimitBusiness.Add(item);
+                return RedirectToAction("RateLimitingList");
+            }
+            else
+            {
+                return View(rateLimitModel);
+            }
         }
 
         public ActionResult EditRateLimiting(int id)

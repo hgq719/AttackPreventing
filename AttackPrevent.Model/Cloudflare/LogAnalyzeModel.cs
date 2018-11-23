@@ -13,5 +13,7 @@ namespace AttackPrevent.Model.Cloudflare
         public string RequestUrl { get; set; }
         public string RequestFullUrl { get; set; }
         public int RequestCount { get; set; }
+        public int RateLimitId { get; set; }
+        public int RateLimitTriggerIpCount { get; set; }
     }
 }

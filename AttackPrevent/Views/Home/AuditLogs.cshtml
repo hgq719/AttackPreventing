@@ -161,8 +161,8 @@
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 zoneID: $("#select-zoneName").val(),
-                startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
-                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
+                startTime: $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val(),
                 logType: logtypeStr,
                 detail: $("#txt-detail").val(),
             };

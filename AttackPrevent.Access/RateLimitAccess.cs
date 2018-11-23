@@ -53,7 +53,7 @@ namespace AttackPrevent.Access
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    int index = 0;
+                    int index = 1;
                     while (reader.Read())
                     {
                         RateLimitEntity item = new RateLimitEntity();

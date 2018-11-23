@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,10 @@ namespace AttackPrevent.Access
                 {
                     while (reader.Read())
                     {
-                        result.Add(new { Name= reader.GetString(0).ToLower()});
+                        //result.Add(new { Name= reader.GetString(0).ToLower()});
+                        dynamic expando = new ExpandoObject();
+                        expando.Name = reader.GetString(0).ToLower();
+                        result.Add(expando);
                     }
                 }
             }

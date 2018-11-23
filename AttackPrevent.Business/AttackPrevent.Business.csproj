@@ -68,6 +68,7 @@
     <Compile Include="CloudflareBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RateLimitBusiness.cs" />
+    <Compile Include="GlobalConfigurationBusiness.cs" />
     <Compile Include="UserBusiness.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="BlackListBusinees.cs" />

@@ -1,4 +1,5 @@
-﻿using AttackPrevent.Model.Cloudflare;
+﻿using AttackPrevent.Model;
+using AttackPrevent.Model.Cloudflare;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -302,18 +303,41 @@ namespace AttackPrevent.Business
             return null;
         }
 
-        public bool OpenRateLimit(string url, int threshold, int period)
+        public bool OpenRateLimit(string url, int threshold, int period, out List<AuditLogEntity> auditLogs)
         {
+            auditLogs = new List<AuditLogEntity>();
+            auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit,"正式打开规则"));
+            //return new CloudflareAccessRuleResponse() { Success = true };
             var ratelimit = GetRateLimitRule(url);
             if (null != ratelimit&& ratelimit.Threshold == threshold && ratelimit.Period == period)
             {
+                auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("在Cloudflare中找到规则[URL=[{0}],Threshold=[{1}],Period=[{2}]]，直接打开",url,threshold,period)));
+                return true;
                 ratelimit.Disabled = false;
                 var response = UpdateRateLimit(ratelimit);
+                if (response.success)
+                {
+                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, "Cloudflare规则打开成功."));
+                }
+                else
+                {
+                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("Cloudflare规则打开失败，原因是[0].", response.errors.Count() > 0 ? response.errors[0].message : "Cloudflare没有返回错误信息")));
+                }
                 return response.success;
             }
             else
             {
+                auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("在Cloudflare中找不到规则[URL=[{0}],Threshold=[{1}],Period=[{2}]]，直接创建", url, threshold, period)));
+                return true;
                 var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period));
+                if (response.success)
+                {
+                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, "Cloudflare规则创建成功."));
+                }
+                else
+                {
+                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("Cloudflare规则创建失败，原因是[0].", response.errors.Count() > 0 ? response.errors[0].message : "Cloudflare没有返回错误信息")));
+                }
                 return response.success;
             }
         }
@@ -334,6 +358,8 @@ namespace AttackPrevent.Business
         public CloudflareAccessRuleResponse BanIp(string ip, string notes)
         {
             var blackListRequest = new CloudflareAccessRuleRequest(ip,"challenge", false, notes);
+            Console.Write(string.Format("正式Baning IP[{0}]", ip));
+            return new CloudflareAccessRuleResponse() { Success = true };
             return CreateAccessRule(blackListRequest);
         }
 

@@ -13,22 +13,24 @@ namespace AttackPrevent
         {
             get
             {
-                return User.Identity.Name;
+                //DESKTOP - KIMCDIR\PC
+                //return User.Identity.Name.Split('\\').LastOrDefault();
+                return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
             }
         }
         public virtual bool IsAdmin
         {
             get
             {
-                //string key = "adminUserList";
-                //List<dynamic> adminUserList = Utils.GetMemoryCache(key, () =>
-                //{
-                //    return UserBusiness.GetUserList();
-                //});
+                string key = "adminUserList";
+                List<dynamic> adminUserList = Utils.GetMemoryCache(key, () =>
+                {
+                    return UserBusiness.GetUserList();
+                }, 5);
 
-                //return adminUserList.Exists(a => a.Name == UserName.ToLower());
+                return adminUserList.Exists(a => a.Name.ToString().ToLower() == UserName.ToLower());
 
-                return true;
+                //return true;
             }
         }
     }

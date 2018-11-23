@@ -33,3 +33,8 @@ table .btn-sm {
     margin-left: 10px;
     margin-right: 10px;
 }
+
+.btn-in-table {
+    margin-right: 8px;
+    color: #333333;
+}

@@ -16,5 +16,23 @@ namespace AttackPrevent.Model
         public string Detail { get; set; }
 
         public string IP { get; set; }
+
+        public AuditLogEntity() { }
+
+        public AuditLogEntity(string zoneId, LogLevel logType, string detail)
+        {
+            ZoneID = zoneId;
+            LogType = logType.ToString();
+            LogTime = DateTime.Now;
+            Detail = string.Format("[{0}] {1} {2}", LogType, LogTime.ToString("yyyy-MM-dd HH:mm:ss fff"), detail);
+            LogOperator = "System";
+        }
+    }
+
+    public enum LogLevel
+    {
+        App,
+        Error,
+        Audit
     }
 }

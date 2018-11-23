@@ -35,9 +35,6 @@ namespace AttackPrevent.Access
                 }
                 query.Remove(query.Length - 1, 1);
                 query.Append(") ");
-                //logType = "'" + logType + "'";
-                //logType = logType.Replace(",", "','");
-                //query.AppendFormat(" and LogLevel in ({0}) ", logType);
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {

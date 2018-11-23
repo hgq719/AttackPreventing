@@ -70,13 +70,9 @@
     <Compile Include="RateLimitBusiness.cs" />
     <Compile Include="UserBusiness.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="BlackListBusinees.cs" />
+    <Compile Include="WhiteListBusinees.cs" />
     <Compile Include="ZoneBusiness.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
-      <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
-      <Name>AttackPrevent.Model</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -85,6 +81,10 @@
     <ProjectReference Include="..\AttackPrevent.Access\AttackPrevent.Access.csproj">
       <Project>{9f5700af-be6a-4ad1-be92-abf6cacc151b}</Project>
       <Name>AttackPrevent.Access</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
+      <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>
+      <Name>AttackPrevent.Model</Name>
     </ProjectReference>
     <ProjectReference Include="..\AttackPrevent.Model\AttackPrevent.Model.csproj">
       <Project>{4eac386c-ffc3-4f95-accd-ff352d0df1e3}</Project>

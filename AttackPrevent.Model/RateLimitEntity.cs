@@ -31,5 +31,7 @@ namespace AttackPrevent.Model
         public int RateLimitTriggerIpCount { get; set; }
 
         public int RateLimitTriggerTime { get; set; }
+
+        public string CreatedBy { get; set; }
     }
 }

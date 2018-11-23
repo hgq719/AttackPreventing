@@ -17,10 +17,14 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort>44301</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
-    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
+    <IISExpressSSLPort>
+    </IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>
+    </IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>
+    </IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>
+    </IISExpressUseClassicPipelineMode>
     <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <Use64BitIISExpress />
     <UseGlobalApplicationHostFile />
@@ -150,6 +154,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\RateLimitModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -218,13 +223,13 @@
     <Content Include="Views\Home\AuditLogs.cshtml" />
     <Content Include="Views\Home\AddWhiteList.cshtml" />
     <Content Include="Views\Home\AddBlackList.cshtml" />
-    <Content Include="Views\Home\AddAndEditRateLimiting.cshtml" />
+    <Content Include="Views\Home\AddRateLimiting.cshtml" />
     <Content Include="Views\Home\ZoneList.cshtml" />
     <Content Include="Views\Home\AddZone.cshtml" />
+    <Content Include="Views\Home\EditRateLimiting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

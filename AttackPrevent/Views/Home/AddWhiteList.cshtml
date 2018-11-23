@@ -9,6 +9,17 @@
     </ol>
     <div class="row form-group">
         <div class="col-md-4 label-col">
+            <label for="select-zoneName">Zone Name</label>
+        </div>
+        <div class="col-md-8">
+            <select id="select-zoneName" class="form-control">
+                <option>Ent.comm100.com</option>
+                <option>Hosted.comm100.com</option>
+            </select>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-md-4 label-col">
             <label for="ip-content">IP</label>
         </div>
         <div class="col-md-8">
@@ -17,15 +28,58 @@
 
     </div>
     <div class="row form-group">
-        <label class="col-md-4 label-col">Verification Code</label>
+        <div class="col-md-4 label-col">
+            <label for="txt-comment">Comment</label>
+        </div>
+        <div class="col-md-8">
+            <textarea id="txt-comment" class="form-control" style="height: 100px;"></textarea>
+        </div>
+
+    </div>
+    <div class="row form-group">
+        <label for="vcode-content" class="col-md-4 label-col">Verification Code</label>
         <div class="col-md-8 ">
-            <input class="form-control" id="vcode-content" type="text"/>
-        </div>        
+            <input class="form-control" id="vcode-content" type="text" />
+        </div>
     </div>
     <div class="form-group">
         <div class="col-md-8 col-md-offset-4 text-right">
-            <button class="btn btn-primary ">Save</button>
-            <button class="btn btn-default">Cancel</button>
+            <button id="btn-save" class="btn btn-primary ">Save</button>
+            <button id="btn-cancel" class="btn btn-default">Cancel</button>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#btn-save").click(function () {
+            var zoneID = $("#select-zoneName").val();
+            var ips = $("#ip-content").val().split('\n').join(',');
+            var comment = $("#txt-comment").val(); 
+            var vcode = $("#vcode-content").val(); 
+            save(zoneID, ips, comment, vcode);
+        });
+        $('#btn-cancel').click(function () {
+            history.go(-1);
+        });
+    });
+    function save(zoneID, ips, comment, vcode) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/SaveWhiteList?zoneID=" + zoneID + "&ips=" + ips + "&comment=" + comment + "&vcode=" + vcode,
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                if (data.isSuccessed) {
+                    history.go(-1);
+                } else {
+                    alert(data.errorMsg);
+                }
+            },
+            error: function (jqXHR) {
+                console.log("Error: " + jqXHR.status);
+            }
+        });
+    }
+</script>

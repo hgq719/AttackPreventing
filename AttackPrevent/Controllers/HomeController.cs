@@ -3,6 +3,7 @@ using AttackPrevent.Business.Cloundflare;
 using AttackPrevent.Model;
 using AttackPrevent.Model.Cloudflare;
 using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -53,34 +54,131 @@ namespace AttackPrevent.Controllers
 
         public ActionResult WhiteList()
         {
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
         public ActionResult BlackList()
         {
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
         public ActionResult RateLimitingList()
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            ViewBag.MaxOrder = RateLimitBusiness.GetRateLimitMaxOrder();
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
-        public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string url)
+        public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
             dynamic result = RateLimitBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, url);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AddAndEditRateLimiting()
+        public ActionResult AddRateLimiting()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             if (!IsAdmin)
             {
                 return new HttpUnauthorizedResult();
             }
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddRateLimiting(Models.RateLimitModel rateLimitModel)
+        {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (ModelState.IsValid)
+            {
+                RateLimitEntity item = new RateLimitEntity()
+                {
+                    ZoneId = rateLimitModel.ZoneId,
+                    Period = rateLimitModel.Period,
+                    EnlargementFactor = rateLimitModel.EnlargementFactor,
+                    RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                    RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                    Threshold = rateLimitModel.Threshold,
+                    Url = rateLimitModel.Url,
+                    CreatedBy = UserName
+                };
+
+                RateLimitBusiness.Add(item);
+                return RedirectToAction("RateLimitingList");
+            }
+            else
+            {
+                return View(rateLimitModel);
+            }
+        }
+
+        public ActionResult EditRateLimiting(int id)
+        {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+
+            Models.RateLimitModel rateLimitModel = new Models.RateLimitModel()
+            {
+                EnlargementFactor = item.EnlargementFactor,
+                Period = item.Period,
+                RateLimitTriggerIpCount = item.RateLimitTriggerIpCount,
+                RateLimitTriggerTime = item.RateLimitTriggerTime,
+                Threshold = item.Threshold,
+                Url = item.Url,
+                ZoneId = item.ZoneId,
+                TableID = item.TableID
+            };
+            return View(rateLimitModel);
+        }
+
+        [HttpPost]
+        public ActionResult EditRateLimiting(Models.RateLimitModel rateLimitModel)
+        {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (ModelState.IsValid)
+            {
+                RateLimitEntity item = new RateLimitEntity()
+                {
+                    CreatedBy = UserName,
+                    EnlargementFactor = rateLimitModel.EnlargementFactor,
+                    Period = rateLimitModel.Period,
+                    ZoneId = rateLimitModel.ZoneId,
+                    RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
+                    RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
+                    TableID = rateLimitModel.TableID,
+                    Threshold = rateLimitModel.Threshold,
+                    Url = rateLimitModel.Url
+                };
+
+                RateLimitBusiness.Update(item);
+            }
+            else
+            {
+                return View(rateLimitModel);
+            }            
+            
+            return RedirectToAction("RateLimitingList");
+        }
+
+        public ActionResult DeleteRateLimiting(int id, int order)
+        {
+            RateLimitBusiness.Delete(id, order);
+            return RedirectToAction("RateLimitingList");
+        }
+
+        public ActionResult EditRateLimitingOrder(int id, int order, int actionb)
+        {
+            RateLimitBusiness.UpdateOrder(actionb, id, order);
+            return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult AuditLogs() 
@@ -226,6 +324,108 @@ namespace AttackPrevent.Controllers
                 return new HttpStatusCodeResult(404);
             }
            
+        }
+        public JsonResult GetWhiteLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+            var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            bool isSuccessed = false;
+            string errorMsg = "";
+            if (vcode == "123")
+            {
+                IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+                string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string ip in ipList)
+                {
+                    isSuccessed = backgroundTaskService.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                errorMsg = "Verification code error.";
+            }
+
+            return Json(new { isSuccessed , errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult DeleteWhiteList(string zoneID, string ip)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+            var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IBlackListBusinees blackListBusinees = new BlackListBusinees();
+            var result = blackListBusinees.GetBlackListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            bool isSuccessed = false;
+            string errorMsg = "";
+            if (vcode == "123")
+            {
+                IBlackListBusinees blackListBusinees = new BlackListBusinees();
+                string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string ip in ipList)
+                {
+                    isSuccessed = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                errorMsg = "Verification code error.";
+            }
+
+            return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult DeleteBlackList(string zoneID, string ip)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IBlackListBusinees blackListBusinees = new BlackListBusinees();
+            var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
     }
     //只有实现IStaticDataSource接口才能实现流操作

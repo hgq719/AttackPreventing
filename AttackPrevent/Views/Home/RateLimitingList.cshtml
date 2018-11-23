@@ -130,7 +130,7 @@
                             if (row.OrderNo === 1) {
                                 btnUp = '';
                             }
-                            var btn_down = '<a href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true"></span></a>';
+                            var btnDown = '<a href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true"></span></a>';
                             if (row.OrderNo === @ViewBag.MaxOrder) {
                                 btnDown = '';
                             }

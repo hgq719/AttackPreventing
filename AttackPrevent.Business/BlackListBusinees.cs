@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
-    public interface IWhiteListBusinees
+    public interface IBlackListBusinees
     {
-        dynamic GetWhiteListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes);
+        dynamic GetBlackListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes);
         bool CreateAccessRule(string zoneId, string authEmail, string authKey, string ip, string comment);
         bool DeleteAccessRule(string zoneId, string authEmail, string authKey, string ip);
     }
-    public class WhiteListBusinees : IWhiteListBusinees
+    public class BlackListBusinees : IBlackListBusinees
     {
         ICloundFlareApiService cloundFlareApiService;
-        public WhiteListBusinees()
+        public BlackListBusinees()
         {
             cloundFlareApiService = new CloundFlareApiService();
         }
@@ -30,12 +30,13 @@ namespace AttackPrevent.Business
                     target = "ip",
                     value = ip,
                 },
-                mode = EnumMode.whitelist,
+                mode = EnumMode.challenge,
                 notes = comment,
             });
+            
             if (response.success)
             {
-                string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
                 Utils.RemoveMemoryCache(key);
             }
             return response.success;
@@ -50,7 +51,7 @@ namespace AttackPrevent.Business
                 FirewallAccessRuleResponse response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
                 if (response.success)
                 {
-                    string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                    string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
                     Utils.RemoveMemoryCache(key);
                 }
                 return response.success;
@@ -58,13 +59,13 @@ namespace AttackPrevent.Business
             return false;
         }
 
-        public dynamic GetWhiteListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes)
+        public dynamic GetBlackListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes)
         {
-            string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
-            var query = Utils.GetMemoryCache<List<WhiteListModel>>(key, () =>
+            string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+            var query = Utils.GetMemoryCache<List<BlackListModel>>(key, () =>
             {
-                var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
-                return list.Select(a => new WhiteListModel
+                var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
+                return list.Select(a => new BlackListModel
                 {
                     IP = a.configurationValue,
                     CreateTime = a.createTime.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -72,8 +73,8 @@ namespace AttackPrevent.Business
                 }).ToList();
             }, 5).AsQueryable();
 
-            //var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
-            //var query = list.Select(a => new WhiteListModel
+            //var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
+            //var query = list.Select(a => new BlackListModel
             //{
             //    IP = a.configurationValue,
             //    CreateTime = a.createTime.ToString("yyyy-MM-dd HH:mm:ss"),

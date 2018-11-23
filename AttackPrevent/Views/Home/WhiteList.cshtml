@@ -62,7 +62,10 @@
 
         <div class="col-md-4 form-group" style="text-align: right">
             <button id="btn-query" type="button" class="btn btn-primary">Query</button>
-            <a href="~/Home/AddWhiteList" class="btn btn-default">Add New</a>
+            @if (ViewBag.IsAdmin)
+            {
+                <a href="~/Home/AddWhiteList" class="btn btn-default">Add New</a>
+            }
         </div>
     </div>
 
@@ -157,16 +160,22 @@
         $('#table').bootstrapTable('refresh');
     }
     function operateFormatter(value, row, index) {
-        return [
-            '<button id="btn-delete" type="button" class="btn btn-default">Delete</button>'
-        ].join('');
+        if ('@ViewBag.IsAdmin'.toLowerCase() === 'true') {
+            return [
+                '<button id="btn-delete" type="button" class="btn btn-default">Delete</button>'
+            ].join('');
+        }
+        else {
+            return [].join('');
+        }
     }
     window.operateEvents = {
         'click #btn-delete': function (e, value, row, index) {
             if (confirm('Confirm deletion?')) {
                 var para = oTable.queryParams({ limit: 10, offset: 0 });
                 var zoneID = para.zoneID;
-                var ip = row.ip;
+                var ip = row.IP;
+                debugger
 
                 $.ajax({
                     type: "POST",

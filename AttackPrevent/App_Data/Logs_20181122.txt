@@ -24,3 +24,11 @@
 </body>
 </html>
 
+2018-11-22 17:23:13,595 [12] ERROR WebLogger - <html>
+<head><title>429 Too Many Requests</title></head>
+<body bgcolor="white">
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+

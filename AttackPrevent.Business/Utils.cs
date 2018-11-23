@@ -15,11 +15,11 @@ namespace AttackPrevent.Business
             T t = (T)cache.Get(key);
             return t;
         }
-        public static void SetMemoryCache<T>(string key, T value)
+        public static void SetMemoryCache<T>(string key, T value, int timeout = 30)
         {
             MemoryCache cache = MemoryCache.Default;
             CacheItemPolicy policy = new CacheItemPolicy();
-            policy.AbsoluteExpiration = new DateTimeOffset(DateTime.UtcNow.AddDays(1));
+            policy.AbsoluteExpiration = new DateTimeOffset(DateTime.UtcNow.AddMinutes(timeout));
             cache.Set(key, value, policy);
         }
         public static void RemoveMemoryCache(string key)
@@ -27,13 +27,13 @@ namespace AttackPrevent.Business
             MemoryCache cache = MemoryCache.Default;
             cache.Remove(key);
         }
-        public static T GetMemoryCache<T>(string key, Func<T> func)
+        public static T GetMemoryCache<T>(string key, Func<T> func, int timeout = 30)
         {
             T t = GetMemoryCache<T>(key);
             if (t == null)
             {
                 t = func();
-                SetMemoryCache<T>(key, t);
+                SetMemoryCache<T>(key, t, timeout);
             }
 
             return t;

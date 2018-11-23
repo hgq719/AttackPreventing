@@ -70,6 +70,7 @@
     <Compile Include="RateLimitBusiness.cs" />
     <Compile Include="UserBusiness.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="BlackListBusinees.cs" />
     <Compile Include="WhiteListBusinees.cs" />
     <Compile Include="ZoneBusiness.cs" />
   </ItemGroup>

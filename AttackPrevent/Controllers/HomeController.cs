@@ -54,11 +54,13 @@ namespace AttackPrevent.Controllers
 
         public ActionResult WhiteList()
         {
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
         public ActionResult BlackList()
         {
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
@@ -326,6 +328,35 @@ namespace AttackPrevent.Controllers
             var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+        public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            bool isSuccessed = false;
+            string errorMsg = "";
+            if (vcode == "123")
+            {
+                IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+                string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string ip in ipList)
+                {
+                    isSuccessed = backgroundTaskService.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                errorMsg = "Verification code error.";
+            }
+
+            return Json(new { isSuccessed , errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
+        }
         public JsonResult DeleteWhiteList(string zoneID, string ip)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -334,6 +365,55 @@ namespace AttackPrevent.Controllers
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IBlackListBusinees blackListBusinees = new BlackListBusinees();
+            var result = blackListBusinees.GetBlackListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            bool isSuccessed = false;
+            string errorMsg = "";
+            if (vcode == "123")
+            {
+                IBlackListBusinees blackListBusinees = new BlackListBusinees();
+                string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string ip in ipList)
+                {
+                    isSuccessed = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                errorMsg = "Verification code error.";
+            }
+
+            return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult DeleteBlackList(string zoneID, string ip)
+        {
+            string authEmail = "elei.xu@comm100.com";
+            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            IBlackListBusinees blackListBusinees = new BlackListBusinees();
+            var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

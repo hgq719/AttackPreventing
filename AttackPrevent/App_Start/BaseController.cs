@@ -16,7 +16,7 @@ namespace AttackPrevent
                 return User.Identity.Name;
             }
         }
-        public bool IsAdmin
+        public virtual bool IsAdmin
         {
             get
             {

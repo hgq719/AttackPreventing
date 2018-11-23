@@ -14,5 +14,7 @@ namespace AttackPrevent.Model
         public DateTime LogTime { get; set; }
         public string LogOperator { get; set; }
         public string Detail { get; set; }
+
+        public string IP { get; set; }
     }
 }

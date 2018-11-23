@@ -8,56 +8,56 @@ using System.Web.Mvc;
 using System.IO;
 using System.Web;
 using AttackPrevent.Access;
-
+using System.Data;
 
 namespace AttackPrevent.Business
 {
     public class AuditLogBusiness
     {
-        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string logType, string detail)
+        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {
-            List<AuditLogEntity> list = new List<AuditLogEntity>();
-            for (int i = 0; i < 50; i++)
-            {
-                AuditLogEntity en = new AuditLogEntity();
-                en.ID = i;
-                en.LogType = "App";
-                en.Detail = "detail" + i;
-                en.LogTime = DateTime.Now;
-                en.LogOperator = "Michael.he";
+            //List<AuditLogEntity> list = new List<AuditLogEntity>();
+            //for (int i = 0; i < 50; i++)
+            //{
+            //    AuditLogEntity en = new AuditLogEntity();
+            //    en.ID = i;
+            //    en.LogType = "App";
+            //    en.Detail = "detail" + i;
+            //    en.LogTime = DateTime.Now;
+            //    en.LogOperator = "Michael.he";
 
-                list.Add(en);
-            }
+            //    list.Add(en);
+            //}
 
-            //List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
+            List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
 
             var total = list.Count;
             var rows = list.Skip(offset).Take(limit).ToList();
 
-            return new { total = total, rows = rows };
+            return new { total, rows };
         }
 
-        public static MemoryStream ExportAuditLog(string zoneID, DateTime startTime, DateTime endTime, string logType, string detail)
+        public static MemoryStream ExportAuditLog(string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {
             //创建Excel文件的对象
             NPOI.HSSF.UserModel.HSSFWorkbook book = new NPOI.HSSF.UserModel.HSSFWorkbook();
             //添加一个sheet
             NPOI.SS.UserModel.ISheet sheet1 = book.CreateSheet("Sheet1");
             //获取list数据
-            List<AuditLogEntity> list = new List<AuditLogEntity>();
-            for (int i = 0; i < 50; i++)
-            {
-                AuditLogEntity en = new AuditLogEntity();
-                en.ID = i;
-                en.LogType = "App";
-                en.Detail = "detail" + i;
-                en.LogTime = DateTime.Now;
-                en.LogOperator = "Michael.he";
+            //List<AuditLogEntity> list = new List<AuditLogEntity>();
+            //for (int i = 0; i < 50; i++)
+            //{
+            //    AuditLogEntity en = new AuditLogEntity();
+            //    en.ID = i;
+            //    en.LogType = "App";
+            //    en.Detail = "detail" + i;
+            //    en.LogTime = DateTime.Now;
+            //    en.LogOperator = "Michael.he";
 
-                list.Add(en);
-            }
+            //    list.Add(en);
+            //}
 
-            //List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
+            List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
             //给sheet1添加第一行的头部标题
             NPOI.SS.UserModel.IRow row1 = sheet1.CreateRow(0);
             row1.CreateCell(0).SetCellValue("Log Type");
@@ -79,6 +79,36 @@ namespace AttackPrevent.Business
             ms.Seek(0, SeekOrigin.Begin);
 
             return ms;
+        }
+
+        public static void Add(AuditLogEntity item)
+        {
+            AuditLogAccess.Add(item);
+        }
+
+        public static void AddList(List<AuditLogEntity> list)
+        {
+            DataTable data = new DataTable();
+            data.Columns.AddRange(new DataColumn[] {
+                new DataColumn("ZoneId",typeof(string)),
+                new DataColumn("LogLevel", typeof(string)),
+                new DataColumn("LogOperator", typeof(string)),
+                new DataColumn("IP", typeof(string)),
+                new DataColumn("Detail", typeof(string)),
+            });
+
+            list.ForEach(item =>
+            {
+                DataRow row = data.NewRow();
+                row["ZoneId"] = item.ZoneID;
+                row["LogLevel"] = item.LogType;
+                row["LogOperator"] = item.LogOperator;
+                row["IP"] = item.IP;
+                row["Detail"] = item.Detail;
+                data.Rows.Add(row);
+            });
+
+            AuditLogAccess.AddList(data);
         }
     }
 }

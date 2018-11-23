@@ -215,14 +215,14 @@ namespace AttackPrevent.Controllers
             return View();
         }
 
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string logType, string detail)
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {   
             dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public FileResult ExportAuditLog(string zoneID, DateTime startTime, DateTime endTime, string logType, string detail) 
+        public FileResult ExportAuditLog(string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail) 
         {
             MemoryStream ms = AuditLogBusiness.ExportAuditLog(zoneID, startTime, endTime, logType, detail);
             return File(ms, "application/vnd.ms-excel", "AuditLog.xls");

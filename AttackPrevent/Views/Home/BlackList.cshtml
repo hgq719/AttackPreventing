@@ -3,6 +3,8 @@
 }
 
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+@Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
+@Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
 <div class="logContainer">
     <div class="queryContainer">
         <ol class="breadcrumb">
@@ -65,9 +67,7 @@
     </div>
 
     <div class="resultContainer">
-        <table id="table" class="table table-bordered">
-
-        </table>        
+        <table id="table" class="table table-bordered"></table>
     </div>
 </div>
 
@@ -119,7 +119,15 @@
                         formatter: operateFormatter,
                         visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
                     },
-                ]
+                ],
+                formatLoadingMessage: function () {
+                    $("body").mLoading({
+                        text: "Processing..."
+                    }, "show");
+                },
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                }
             });
         };
 

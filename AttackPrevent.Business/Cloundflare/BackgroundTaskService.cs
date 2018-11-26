@@ -24,7 +24,7 @@ namespace AttackPrevent.Business.Cloundflare
         private ConcurrentQueue<GetCloundflareLogsBackgroundInfo> backgroundInfos;
         private static object obj_Sync = new object();
         private static BackgroundTaskService backgroundTaskService;
-
+        private ILogService logger = new LogService();
         private BackgroundTaskService()
         {
             backgroundInfos = new ConcurrentQueue<GetCloundflareLogsBackgroundInfo>();
@@ -78,29 +78,36 @@ namespace AttackPrevent.Business.Cloundflare
         {
             while (true)
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                GetCloundflareLogsBackgroundInfo backgroundInfo;
-                if (backgroundInfos.TryDequeue(out backgroundInfo))
+                try
                 {
-                    double sample = backgroundInfo.Sample;
-                    DateTime startTime= backgroundInfo.StartTime;
-                    DateTime endTime= backgroundInfo.EndTime;
-                    string zoneId= backgroundInfo.ZoneId;
-                    string authEmail= backgroundInfo.AuthEmail;
-                    string authKey= backgroundInfo.AuthKey;
-                    string key = string.Format("{0}-{1}-{2}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample);
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    GetCloundflareLogsBackgroundInfo backgroundInfo;
+                    if (backgroundInfos.TryDequeue(out backgroundInfo))
+                    {
+                        double sample = backgroundInfo.Sample;
+                        DateTime startTime = backgroundInfo.StartTime;
+                        DateTime endTime = backgroundInfo.EndTime;
+                        string zoneId = backgroundInfo.ZoneId;
+                        string authEmail = backgroundInfo.AuthEmail;
+                        string authKey = backgroundInfo.AuthKey;
+                        string key = string.Format("{0}-{1}-{2}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample);
 
-                    ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
-                    cloudflareLogHandleSercie.TaskStart();
-                    List<CloudflareLog> cloudflareLogs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
-                    backgroundInfo.CloudflareLogs = cloudflareLogs;
-                    backgroundInfo.Status = EnumBackgroundStatus.Succeeded;
-                    Utils.SetMemoryCache(backgroundInfo.Guid, backgroundInfo);
-                    
-                    stopwatch.Stop();
+                        ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                        cloudflareLogHandleSercie.TaskStart();
+                        List<CloudflareLog> cloudflareLogs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+                        backgroundInfo.CloudflareLogs = cloudflareLogs;
+                        backgroundInfo.Status = EnumBackgroundStatus.Succeeded;
+                        Utils.SetMemoryCache(backgroundInfo.Guid, backgroundInfo);
 
+                        stopwatch.Stop();
+
+                    }
                 }
+                catch(Exception e)
+                {
+                    logger.Error(e);
+                }                
             }
         }
 

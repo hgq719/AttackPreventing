@@ -139,12 +139,12 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
 
                 SqlCommand cmd = new SqlCommand(query.ToString(), conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
-                cmd.Parameters.AddWithValue("@zoneName", item.ZoneId);
-                cmd.Parameters.AddWithValue("@authEmail", item.ZoneId);
-                cmd.Parameters.AddWithValue("@authKey", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifTest", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifEnable", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifAttacking", item.ZoneId);
+                cmd.Parameters.AddWithValue("@zoneName", item.ZoneName);
+                cmd.Parameters.AddWithValue("@authEmail", item.AuthEmail);
+                cmd.Parameters.AddWithValue("@authKey", item.AuthKey);
+                cmd.Parameters.AddWithValue("@ifTest", item.IfTestStage);
+                cmd.Parameters.AddWithValue("@ifEnable", item.IfEnable);
+                cmd.Parameters.AddWithValue("@ifAttacking", item.IfAttacking);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -162,12 +162,12 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
 
                 SqlCommand cmd = new SqlCommand(query.ToString(), conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
-                cmd.Parameters.AddWithValue("@zoneName", item.ZoneId);
-                cmd.Parameters.AddWithValue("@authEmail", item.ZoneId);
-                cmd.Parameters.AddWithValue("@authKey", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifTest", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifEnable", item.ZoneId);
-                cmd.Parameters.AddWithValue("@ifAttacking", item.ZoneId);
+                cmd.Parameters.AddWithValue("@zoneName", item.ZoneName);
+                cmd.Parameters.AddWithValue("@authEmail", item.AuthEmail);
+                cmd.Parameters.AddWithValue("@authKey", item.AuthKey);
+                cmd.Parameters.AddWithValue("@ifTest", item.IfTestStage);
+                cmd.Parameters.AddWithValue("@ifEnable", item.IfEnable);
+                cmd.Parameters.AddWithValue("@ifAttacking", item.IfAttacking);
                 cmd.Parameters.AddWithValue("@id", item.TableID);
                 conn.Open();
 

@@ -27,9 +27,12 @@ namespace AttackPrevent
                     return UserBusiness.GetUserList();
                 }, 5);
 
+#if DEBUG
+                return true;
+#else
                 return adminUserList.Exists(a => a.Name.ToString().ToLower() == UserName.ToLower());
-
-                //return true;
+                
+#endif
             }
         }
     }

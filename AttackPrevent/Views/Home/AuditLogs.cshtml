@@ -238,11 +238,7 @@
     $(document).ready(function () {
         var date = new Date();
         $("#txt-EndTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' ' + getFormatDate(date.getHours()) + ':' + getFormatDate(date.getMinutes()));
-
-        date.setDate(date.getDate() - 1);
         $("#txt-StartTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' 00:00');
-        
-        
         
         oTable.Init();
     });

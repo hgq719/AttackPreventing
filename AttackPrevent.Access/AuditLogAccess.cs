@@ -38,8 +38,9 @@ namespace AttackPrevent.Access
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                query.Append(" and Detail like'%'+@detail+'%'");
+                query.Append(" and Detail like'%'+@detail+'%' ");
             }
+            query.Append("order by LogTime");
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 

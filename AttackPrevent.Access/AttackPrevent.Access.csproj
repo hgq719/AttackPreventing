@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuditLogAccess.cs" />
+    <Compile Include="HostConfigurationAccess.cs" />
     <Compile Include="RateLimitAccess.cs" />
     <Compile Include="GlobalConfigurationAccess.cs" />
     <Compile Include="ZoneAccess.cs" />

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AttackPrevent.WindowsService
@@ -13,7 +14,22 @@ namespace AttackPrevent.WindowsService
     {
         static void Main(string[] args)
         {
-            new LogAnalyzeJob().Execute(null);
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine(string.Format("[app] [{0}] AttackPrevent service start...", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")));
+                    new LogAnalyzeJob().Execute(null);
+                    Console.WriteLine(string.Format("[app] [{0}] AttackPrevent service has analyzed log, 5 second later will start new loop.", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")));
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.Message);
+                }
+                
+                Thread.Sleep(5000);
+            }
+            //new LogAnalyzeJob().Execute(null);
             //return;
             if (args.Length != 0)
             {

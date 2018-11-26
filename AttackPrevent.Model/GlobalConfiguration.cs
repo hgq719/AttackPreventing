@@ -12,7 +12,6 @@ namespace AttackPrevent.Model
         public int CancelBanIPTime { get; set; }
         public int GlobalThreshold { get; set; }
         public int GlobalPeriod { get; set; }
-        public string UrlCheckForAlert { get; set; }
         public string ValidateCode { get; set; }
         public double GlobalSample { get; set; }
         public int GlobalTimeSpan { get; set; }

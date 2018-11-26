@@ -43,5 +43,10 @@ namespace AttackPrevent.Business
                 return GetAllList();
             }, 5);
         }
+
+        public static bool UpdateAttackFlag(bool ifAttacking, string zoneId)
+        {
+            return ZoneAccess.UpdateAttackFlag(ifAttacking,zoneId);
+        }
     }
 }

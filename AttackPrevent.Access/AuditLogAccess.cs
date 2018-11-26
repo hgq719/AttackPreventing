@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Configuration;
 
 namespace AttackPrevent.Access
 {
@@ -107,7 +108,7 @@ namespace AttackPrevent.Access
         )
 VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           @logLevel , -- LogLevel - nvarchar(256)
-          GETDATE() , -- LogTime - datetime
+          @logTime , -- LogTime - datetime
           @operator , -- LogOperator - nvarchar(256)
           @ip , -- IP - nvarchar(256)
           @detail , -- Detail - nvarchar(max)
@@ -117,6 +118,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneID);
                 cmd.Parameters.AddWithValue("@logLevel", item.LogType);
                 cmd.Parameters.AddWithValue("@operator", item.LogOperator);
+                cmd.Parameters.AddWithValue("@logTime", item.LogTime);
                 cmd.Parameters.AddWithValue("@ip", item.IP);
                 cmd.Parameters.AddWithValue("@detail", item.Detail);
                 conn.Open();
@@ -136,6 +138,65 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                 bulkCopy.BatchSize = data.Rows.Count;
                 conn.Open();
                 bulkCopy.WriteToServer(data);
+            }
+        }
+
+        public static void Add(AuditLogEntity log, SqlTransaction trans, SqlConnection conn)
+        {
+            string insertSql = @"INSERT INTO dbo.t_Logs
+        ( ZoneId ,
+          LogLevel ,
+          LogTime ,
+          LogOperator ,
+          IP ,
+          Detail ,
+          Remark
+        )
+VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
+          @logLevel , -- LogLevel - nvarchar(256)
+          @logTime , -- LogTime - datetime
+          @operator , -- LogOperator - nvarchar(256)
+          @ip , -- IP - nvarchar(256)
+          @detail , -- Detail - nvarchar(max)
+          N''  -- Remark - nvarchar(1024)
+        )";
+            SqlCommand cmd = new SqlCommand(insertSql, conn, trans);
+            cmd.Parameters.AddWithValue("@zoneID", log.ZoneID);
+            cmd.Parameters.AddWithValue("@logLevel", log.LogType);
+            cmd.Parameters.AddWithValue("@operator", log.LogOperator);
+            cmd.Parameters.AddWithValue("@logTime", log.LogTime);
+            cmd.Parameters.AddWithValue("@ip", log.IP);
+            cmd.Parameters.AddWithValue("@detail", log.Detail);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public static void Add(List<AuditLogEntity> logs)
+        {
+            string zoneId = logs[0].ZoneID;
+            string connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlTransaction tran = conn.BeginTransaction();
+                try
+                {
+                    foreach (var log in logs)
+                    {
+                        Add(log, tran, conn);
+                    }
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    Add(new AuditLogEntity(zoneId, LogLevel.Error, string.Format("程序出现错误，原因是:[{0}]", ex.Message)));
+                }
+                finally
+                {
+                    conn.Close();
+                }
             }
         }
     }

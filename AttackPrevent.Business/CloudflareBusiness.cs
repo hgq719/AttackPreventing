@@ -88,7 +88,7 @@ namespace AttackPrevent.Business
                 var url = string.Empty;
                 if (string.IsNullOrEmpty(ip))
                 {
-                    requestUrl = @"{3}/zones/{0}/firewall/access_rules/rules?mode={1}&per_page=20&page={2}";
+                    requestUrl = @"{3}/zones/{0}/firewall/access_rules/rules?mode={1}&per_page=200&page={2}";
                     url = string.Format(requestUrl, _zoneId, CONST_WHITELIST, firstPage, _apiUrlPrefix);
                 }
                 else
@@ -103,7 +103,7 @@ namespace AttackPrevent.Business
                 {
                     var resultInfo = pageWhitelist.Result_Info;
                     whitelist.AddRange(pageWhitelist.Result);
-                    if (!string.IsNullOrEmpty(ip))
+                    if (string.IsNullOrEmpty(ip))
                     {
                         for (int pageIndex = 2; pageIndex <= resultInfo.Total_Pages; pageIndex++)
                         {
@@ -186,6 +186,10 @@ namespace AttackPrevent.Business
                     var ipArr = ipRange.Split('/');
                     var startIp = ipArr[0];
                     var startIpArr = ipArr[0].Split('.');
+                    if (ipArr[1] == "24")
+                    {
+                        ipArr[1] = "254";
+                    }
                     var endIp = string.Format("{0}.{1}.{2}.{3}", startIpArr[0], startIpArr[1], startIpArr[2], ipArr[1]);
                     for (int start = int.Parse(startIpArr[3]); start <= int.Parse(ipArr[1]); start++)
                     {
@@ -358,7 +362,6 @@ namespace AttackPrevent.Business
         public CloudflareAccessRuleResponse BanIp(string ip, string notes)
         {
             var blackListRequest = new CloudflareAccessRuleRequest(ip,"challenge", false, notes);
-            Console.Write(string.Format("正式Baning IP[{0}]", ip));
             return new CloudflareAccessRuleResponse() { Success = true };
             return CreateAccessRule(blackListRequest);
         }

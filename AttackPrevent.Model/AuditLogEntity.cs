@@ -25,6 +25,7 @@ namespace AttackPrevent.Model
             LogType = logType.ToString();
             LogTime = DateTime.Now;
             Detail = string.Format("[{0}] {1} {2}", LogType, LogTime.ToString("yyyy-MM-dd HH:mm:ss fff"), detail);
+            IP = "127.0.0.1";
             LogOperator = "System";
         }
     }

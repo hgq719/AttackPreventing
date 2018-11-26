@@ -86,29 +86,36 @@ namespace AttackPrevent.Business
             AuditLogAccess.Add(item);
         }
 
-        public static void AddList(List<AuditLogEntity> list)
+        public static void AddList(List<AuditLogEntity> logs)
         {
-            DataTable data = new DataTable();
-            data.Columns.AddRange(new DataColumn[] {
-                new DataColumn("ZoneId",typeof(string)),
-                new DataColumn("LogLevel", typeof(string)),
-                new DataColumn("LogOperator", typeof(string)),
-                new DataColumn("IP", typeof(string)),
-                new DataColumn("Detail", typeof(string)),
-            });
+            if (null != logs && logs.Count > 0) AuditLogAccess.Add(logs);
+            //DataTable data = new DataTable();
+            //data.Columns.AddRange(new DataColumn[] {
+            //    new DataColumn("ZoneId",typeof(string)),
+            //    new DataColumn("LogLevel", typeof(string)),
+            //    new DataColumn("LogOperator", typeof(string)),
+            //    new DataColumn("LogTime", typeof(DateTime)),
+            //    new DataColumn("IP", typeof(string)),
+            //    new DataColumn("Detail", typeof(string)),
+            //    new DataColumn("Remark", typeof(string))
+            //});
 
-            list.ForEach(item =>
-            {
-                DataRow row = data.NewRow();
-                row["ZoneId"] = item.ZoneID;
-                row["LogLevel"] = item.LogType;
-                row["LogOperator"] = item.LogOperator;
-                row["IP"] = item.IP;
-                row["Detail"] = item.Detail;
-                data.Rows.Add(row);
-            });
+            //list.ForEach(item =>
+            //{
+            //    DataRow row = data.NewRow();
+            //    row["ZoneId"] = item.ZoneID;
+            //    row["LogLevel"] = item.LogType;
+            //    row["LogOperator"] = item.LogOperator;
+            //    row["LogTime"] = item.LogTime;
+            //    row["IP"] = item.IP;
+            //    row["Detail"] = item.Detail;
+            //    row["Remark"] = string.Empty;
+            //    data.Rows.Add(row);
+            //});
 
-            AuditLogAccess.AddList(data);
+            //AuditLogAccess.AddList(data);
+
         }
     }
 }
+

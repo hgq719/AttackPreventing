@@ -9,6 +9,7 @@ using System.IO;
 using System.Web;
 using AttackPrevent.Access;
 using System.Data;
+using NPOI.SS.UserModel;
 
 namespace AttackPrevent.Business
 {
@@ -64,15 +65,21 @@ namespace AttackPrevent.Business
             row1.CreateCell(1).SetCellValue("Detail");
             row1.CreateCell(2).SetCellValue("Log Time");
             row1.CreateCell(3).SetCellValue("Log Operator");
+            ICellStyle notesStyle = book.CreateCellStyle();
+            notesStyle.WrapText = true;//设置换行这个要先设置
             //将数据逐步写入sheet1各个行
             for (int i = 0; i < list.Count; i++)
             {
                 NPOI.SS.UserModel.IRow rowtemp = sheet1.CreateRow(i + 1);
                 rowtemp.CreateCell(0).SetCellValue(list[i].LogType);
-                rowtemp.CreateCell(1).SetCellValue(list[i].Detail);
+                rowtemp.CreateCell(1).SetCellValue(list[i].Detail.Replace("<br />","\n"));
+                rowtemp.Cells[1].CellStyle = notesStyle;
                 rowtemp.CreateCell(2).SetCellValue(list[i].LogTime.ToString());
                 rowtemp.CreateCell(3).SetCellValue(list[i].LogOperator);
             }
+
+            sheet1.SetColumnWidth(1, 160 * 256);
+            sheet1.SetColumnWidth(2, 20 * 256);
             // 写入到客户端 
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             book.Write(ms);

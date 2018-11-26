@@ -281,6 +281,56 @@ namespace AttackPrevent.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public ActionResult EditZone(Models.ZoneModel zoneModel)
+        {
+            if (ModelState.IsValid)
+            {
+                ZoneEntity item = new ZoneEntity()
+                {
+                    ZoneId = zoneModel.ZoneId,
+                    ZoneName = zoneModel.ZoneName,
+                    AuthEmail = zoneModel.AuthEmail,
+                    AuthKey = zoneModel.AuthKey,
+                    IfAttacking = false,
+                    IfEnable = zoneModel.IfEnable,
+                    IfTestStage = zoneModel.IfTestStage,
+                    TableID = zoneModel.TableID,
+                };
+
+                ZoneBusiness.Update(item);
+                return RedirectToAction("ZoneList");
+            }
+            else
+            {
+                return View(zoneModel);
+            }
+        }
+
+        public ActionResult EditZoneIfTest(int id, bool ifTest)
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+            ZoneEntity entity = ZoneBusiness.GetZone(id);
+            entity.IfTestStage = ifTest;
+            ZoneBusiness.Update(entity);
+            return RedirectToAction("ZoneList");
+        }
+
+        public ActionResult EditZoneIfEnable(int id, bool ifEnable)
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+            ZoneEntity entity = ZoneBusiness.GetZone(id);
+            entity.IfEnable = ifEnable;
+            ZoneBusiness.Update(entity);
+            return RedirectToAction("ZoneList");
+        }
+
         public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {   
             dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);

@@ -49,18 +49,21 @@ namespace AttackPrevent.Controllers
 
         public ActionResult CloundflareDownloadLogs()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             return View();
         }
 
         public ActionResult WhiteList()
         {
             ViewBag.IsAdmin = IsAdmin;
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             return View();
         }
 
         public ActionResult BlackList()
         {
             ViewBag.IsAdmin = IsAdmin;
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             return View();
         }
 
@@ -190,12 +193,21 @@ namespace AttackPrevent.Controllers
 
         public ActionResult AddWhiteList()
         {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
             return View();
         }
 
         public ActionResult AddBlackList()
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
             return View();
         }        
 
@@ -215,14 +227,14 @@ namespace AttackPrevent.Controllers
             return View();
         }
 
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string logType, string detail)
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {   
             dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public FileResult ExportAuditLog(string zoneID, DateTime startTime, DateTime endTime, string logType, string detail) 
+        public FileResult ExportAuditLog(string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail) 
         {
             MemoryStream ms = AuditLogBusiness.ExportAuditLog(zoneID, startTime, endTime, logType, detail);
             return File(ms, "application/vnd.ms-excel", "AuditLog.xls");
@@ -233,7 +245,12 @@ namespace AttackPrevent.Controllers
   
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
             string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
@@ -248,7 +265,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
             string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
@@ -259,7 +281,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
             string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
@@ -329,7 +356,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
@@ -340,11 +372,18 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             bool isSuccessed = false;
             string errorMsg = "";
-            if (vcode == "123")
+
+            var configuration = GlobalConfigurationBusiness.GetConfigurationList().FirstOrDefault();
+            if (vcode == configuration?.ValidateCode)
             {
                 IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
                 string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -370,7 +409,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
@@ -380,7 +424,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IBlackListBusinees blackListBusinees = new BlackListBusinees();
             var result = blackListBusinees.GetBlackListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
@@ -391,11 +440,18 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             bool isSuccessed = false;
             string errorMsg = "";
-            if (vcode == "123")
+
+            var configuration = GlobalConfigurationBusiness.GetConfigurationList().FirstOrDefault();
+            if (vcode == configuration?.ValidateCode)
             {
                 IBlackListBusinees blackListBusinees = new BlackListBusinees();
                 string[] ipList = ips.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -421,7 +477,12 @@ namespace AttackPrevent.Controllers
         {
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            authEmail = zone.AuthEmail;
+            authKey = zone.AuthKey;
 
             IBlackListBusinees blackListBusinees = new BlackListBusinees();
             var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);

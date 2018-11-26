@@ -16,7 +16,7 @@ namespace AttackPrevent.Access
             List<ZoneEntity> result = new List<ZoneEntity>();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "select [ZoneId],[ZoneName],[AuthEmail],[IfTestStage],[IfEnable],[IfAttacking] from [t_Zone_Info] ";
+                string query = "select [ZoneId],[ZoneName],[AuthEmail],[IfTestStage],[IfEnable],[IfAttacking],[AuthKey] from [t_Zone_Info] ";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 
@@ -28,9 +28,10 @@ namespace AttackPrevent.Access
                         item.ZoneId = reader.GetString(0);
                         item.ZoneName = reader.GetString(1);
                         item.AuthEmail = reader.GetString(2);
-                        item.IfTestStage = reader.GetBoolean(3);
-                        item.IfEnable = reader.GetBoolean(4);
-                        item.IfAttacking = reader.GetBoolean(5);
+                        item.IfTestStage = reader.GetInt32(3) > 0;
+                        item.IfEnable = reader.GetInt32(4) > 0;
+                        item.IfAttacking = reader.GetInt32(5) > 0;
+                        item.AuthKey = reader.GetString(6);
                         result.Add(item);
                     }
                 }

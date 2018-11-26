@@ -15,6 +15,8 @@ namespace AttackPrevent.Model
         public string LogOperator { get; set; }
         public string Detail { get; set; }
 
+        public string IP { get; set; }
+
         public AuditLogEntity() { }
 
         public AuditLogEntity(string zoneId, LogLevel logType, string detail)

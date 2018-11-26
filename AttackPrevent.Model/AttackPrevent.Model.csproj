@@ -50,6 +50,7 @@
     <Compile Include="Cloudflare\CloudflareLog.cs" />
     <Compile Include="Cloudflare\CloudflareLogReport.cs" />
     <Compile Include="Cloudflare\IpNeedToBan.cs" />
+    <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="Cloudflare\LogAnalyzeModel.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

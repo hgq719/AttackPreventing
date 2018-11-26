@@ -13,6 +13,7 @@ namespace AttackPrevent.Model
         public string ZoneName { get; set; }
 
         public string AuthEmail { get; set; }
+        public string AuthKey { get; set; }
 
         public string AuthKey { get; set; }
 

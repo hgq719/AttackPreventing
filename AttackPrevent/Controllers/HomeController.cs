@@ -331,9 +331,9 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("ZoneList");
         }
 
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache, string guid)
         {   
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);
+            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache, guid);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

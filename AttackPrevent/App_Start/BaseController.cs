@@ -13,8 +13,13 @@ namespace AttackPrevent
         {
             get
             {
-                return User.Identity.Name.Split('\\').LastOrDefault();
-                //return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
+#if DEBUG
+                return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
+#else
+                return User.Identity.Name.Split('\\').LastOrDefault();                
+#endif
+
+
             }
         }
         public virtual bool IsAdmin

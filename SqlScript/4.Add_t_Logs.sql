@@ -11,7 +11,7 @@ CREATE TABLE [dbo].[t_Logs] (
     [Id]          INT             IDENTITY (1, 1) NOT NULL,
     [ZoneId]      NVARCHAR (512)  DEFAULT ('') NOT NULL,
     [LogLevel]    NVARCHAR (256)  DEFAULT ('') NOT NULL,
-    [LogTime]     DATETIME        NOT NULL,
+    [LogTime]     DATETIME        DEFAULT GETUTCDATE() NOT NULL,
     [LogOperator] NVARCHAR (256)  DEFAULT ('') NOT NULL,
     [IP]          NVARCHAR (256)  DEFAULT ('') NOT NULL,
     [Detail]      NVARCHAR (MAX)  DEFAULT ('') NOT NULL,

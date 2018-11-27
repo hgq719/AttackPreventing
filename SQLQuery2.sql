@@ -1,1 +1,1 @@
-﻿delete from t_Logs;
+﻿SELECT * FROM t_Zone_Info;

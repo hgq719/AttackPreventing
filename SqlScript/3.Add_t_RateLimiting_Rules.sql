@@ -20,7 +20,7 @@ CREATE TABLE [dbo].[t_RateLimiting_Rules] (
     [RateLimitTriggerTime]    INT             DEFAULT ((1)) NOT NULL,
     [Remark]                  NVARCHAR (1024) DEFAULT ('') NOT NULL,
     [CreatedBy]               NVARCHAR (128)  DEFAULT ('') NOT NULL,
-    [CreatedTime]             DATETIME        NOT NULL,
+    [CreatedTime]             DATETIME      DEFAULT GETUTCDATE() NOT NULL,
     CONSTRAINT [PK_t_RateLimiting_Rules] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 

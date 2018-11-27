@@ -101,12 +101,12 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           @period , -- Period - int
           N'challenge' , -- Action - nvarchar(256)
           @enlargement , -- EnlargementFactor - int
-          GETDATE() , -- LatestTriggerTime - datetime
+          GETUTCDATE() , -- LatestTriggerTime - datetime
           @triggerIpCount , -- RateLimitTriggerIpCount - int
           @triggerTime , -- RateLimitTriggerTime - int
           N'' , -- Remark - nvarchar(1024)
           @user , -- CreatedBy - 
-          GETDATE()  -- CreatedTime - datetime
+          GETUTCDATE()  -- CreatedTime - datetime
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);

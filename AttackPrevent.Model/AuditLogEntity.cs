@@ -23,8 +23,8 @@ namespace AttackPrevent.Model
         {
             ZoneID = zoneId;
             LogType = logType.ToString();
-            LogTime = DateTime.Now;
-            Detail = string.Format("[{0}] {1} {2}", LogType, LogTime.ToString("MM/dd/yyyy HH:mm:ss fff"), detail);
+            LogTime = DateTime.UtcNow;
+            Detail = $"[{LogType}] {LogTime:MM/dd/yyyy HH:mm:ss fff} {detail}";
             IP = "127.0.0.1";
             LogOperator = "System";
         }

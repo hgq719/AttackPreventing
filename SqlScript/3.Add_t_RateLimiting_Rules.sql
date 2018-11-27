@@ -19,8 +19,8 @@ CREATE TABLE [dbo].[t_RateLimiting_Rules] (
     [RateLimitTriggerIpCount] INT             DEFAULT ((1)) NOT NULL,
     [RateLimitTriggerTime]    INT             DEFAULT ((1)) NOT NULL,
     [Remark]                  NVARCHAR (1024) DEFAULT ('') NOT NULL,
-    [CreatedBy]               INT             DEFAULT ((0)) NOT NULL,
-    [CreatedTime]             DATETIME        NOT NULL,
+    [CreatedBy]               NVARCHAR (128)  DEFAULT ('') NOT NULL,
+    [CreatedTime]             DATETIME      DEFAULT GETUTCDATE() NOT NULL,
     CONSTRAINT [PK_t_RateLimiting_Rules] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 

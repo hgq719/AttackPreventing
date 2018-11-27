@@ -44,9 +44,29 @@ namespace AttackPrevent.Business
             }, 5);
         }
 
-        public static bool UpdateAttackFlag(bool ifAttacking, string zoneId)
+        public static dynamic GetList(int limit, int offset, string zoneID, string zoneName, bool ifTest, bool ifEnabel)
         {
-            return ZoneAccess.UpdateAttackFlag(ifAttacking,zoneId);
+            List<ZoneEntity> list = ZoneAccess.GetList(zoneID, zoneName, ifTest, ifEnabel);
+
+            var total = list.Count;
+            var rows = list.Skip(offset).Take(limit).ToList();
+
+            return new { total, rows };
+        }
+
+        public static void Add(ZoneEntity item)
+        {
+            ZoneAccess.Add(item);
+        }
+
+        public static void Update(ZoneEntity item)
+        {
+            ZoneAccess.Edit(item);
+        }
+
+        public static ZoneEntity GetZone(int id)
+        {
+            return ZoneAccess.GetZone(id);
         }
     }
 }

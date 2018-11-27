@@ -13,9 +13,8 @@ namespace AttackPrevent
         {
             get
             {
-                //DESKTOP - KIMCDIR\PC
-                //return User.Identity.Name.Split('\\').LastOrDefault();
-                return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
+                return User.Identity.Name.Split('\\').LastOrDefault();
+                //return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
             }
         }
         public virtual bool IsAdmin
@@ -28,9 +27,12 @@ namespace AttackPrevent
                     return UserBusiness.GetUserList();
                 }, 5);
 
+#if DEBUG
+                return true;
+#else
                 return adminUserList.Exists(a => a.Name.ToString().ToLower() == UserName.ToLower());
-
-                //return true;
+                
+#endif
             }
         }
     }

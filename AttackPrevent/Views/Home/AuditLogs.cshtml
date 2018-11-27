@@ -13,7 +13,7 @@
                 <label for="select-zoneName">Zone Name</label>
             </div>
             <div class="col-md-8">
-                @Html.DropDownList("select-zoneName",  new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+                @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
             </div>
         </div>
 
@@ -50,25 +50,25 @@
                     <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
                 </label>
                 @*<div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="logtype" id="check-app" value="App" /> App
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
-                    </label>
-                </div>*@
+                        <label>
+                            <input type="checkbox" name="logtype" id="check-app" value="App" /> App
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
+                        </label>
+                    </div>*@
                 @*<select id="select-logType" class="form-control">
-                    <option>App</option>
-                    <option>Audit</option>
-                    <option>Error</option>
-                </select>*@
+                        <option>App</option>
+                        <option>Audit</option>
+                        <option>Error</option>
+                    </select>*@
             </div>
         </div>
         <div class="col-md-4 form-group">
@@ -88,13 +88,42 @@
     </div>
 
     <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
-        <table id="auditLogTable" class="table table-bordered">
-            
-        </table>
+        <table id="auditLogTable" class="table table-bordered"></table>
+    </div>
+    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    @*<h4 class="modal-title" id="myModalLabel">
+                        模态框（Modal）标题
+                    </h4>*@
+                </div>
+                <div class="modal-body">
+                    在这里添加一些文本
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        提交更改
+                    </button>
+                </div>*@
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
     </div>
 </div>
 
 <script type="text/javascript">
+    window.detailClickEvent = {
+        'click .rowDetail': function (e, value, row, index) {
+            $('.modal-body').text(row.Detail);
+            $('#detailModal').modal('show');
+        }
+    }
     var TableInit = function () {
         var oTableInit = new Object();
         //初始化Table
@@ -137,7 +166,28 @@
                     title: 'Log Type'
                 }, {
                     field: 'Detail',
-                    title: 'Detail'
+                        title: 'Detail',
+                        //style: {
+                        //    "overflow": "hidden",
+                        //    "text-overflow": "ellipsis",
+                        //    "white-space": "nowrap"
+                        //},
+                        //formatter: function (value, row, index) {
+                        //    return '<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">' + value+ '</div>'
+                        //    //if (value.length > 50) {
+                        //    //    return value.substring(0, 50);
+                        //    //} else {
+                        //    //    value;
+                        //    //}
+                        //},
+                        //escape: true,
+                        //cellStyle: function () {
+                        //    return {
+                        //        "overflow": "hidden",
+                        //        "text-overflow": "ellipsis",
+                        //        "white-space": "nowrap"
+                        //    };
+                        //},
                 }, {
                     field: 'LogTime',
                     title: 'Log Time',
@@ -147,7 +197,21 @@
                 }, {
                     field: 'LogOperator',
                     title: 'Log Operator'
-                }, ]
+                    //}, {
+                    //    field: '',
+                    //    title: '',
+                    //    formatter: function (value, row, index) {
+                    //        var detail_btn = '<a href="javascript: viod(0)" class="rowDetail">detail</a>';
+                    //        return detail_btn;
+                    //    },
+                    //    events: detailClickEvent,
+                    },],
+                formatLoadingMessage: function () {
+                    $("body").mLoading({ text: "Processing..." }, "show");
+                },
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                }
             });
         };
 
@@ -172,18 +236,10 @@
     };
     var oTable = new TableInit();
     $(document).ready(function () {
-
-        @*@{
-            foreach (var item in ViewBag.ZoneList)
-            {
-                $("#select-zoneName").add("<option value='"+item.Value+"'>"+item.Key+"</option>");
-            }
-        }
-        var zonelist = JSON.parse(@ViewBag.ZoneList);
-        $.each(zonelist, function (index, item) {
-            $("#select-zoneName").add("<option value='"+item.Value+"'>"+item.Key+"</option>")
-        });*@
-        //var oTable = new TableInit();
+        var date = new Date();
+        $("#txt-EndTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' ' + getFormatDate(date.getHours()) + ':' + getFormatDate(date.getMinutes()));
+        $("#txt-StartTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' 00:00');
+        
         oTable.Init();
     });
 

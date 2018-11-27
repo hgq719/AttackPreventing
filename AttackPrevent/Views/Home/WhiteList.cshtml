@@ -3,9 +3,11 @@
 }
 
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+@Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
+@Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
 <div class="logContainer">
 
-    
+
     <div class="queryContainer">
         <ol class="breadcrumb">
             <li class="active">Whitelist Manage</li>
@@ -67,9 +69,7 @@
     </div>
 
     <div class="resultContainer">
-        <table id="table" class="table table-bordered">
-
-        </table>        
+        <table id="table" class="table table-bordered"></table>
     </div>
 </div>
 
@@ -118,9 +118,18 @@
                         title: 'Operation',
                         align: 'center',
                         events: operateEvents,
-                        formatter: operateFormatter
+                        formatter: operateFormatter,
+                        visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
                     },
-                ]
+                ],
+                formatLoadingMessage: function () {
+                    $("body").mLoading({
+                        text: "Processing..."
+                    }, "show");
+                },
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                }
             });
         };
 
@@ -131,7 +140,7 @@
                 offset: params.offset,  //页码
                 zoneID: $("#select-zoneName").val(),
                 startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
-                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),                
+                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
                 ip: $("#txt-IP").val(),
                 notes: $("#txt-notes").val(),
             };
@@ -159,7 +168,7 @@
     function operateFormatter(value, row, index) {
         if ('@ViewBag.IsAdmin'.toLowerCase() === 'true') {
             return [
-                '<button id="btn-delete" type="button" class="rate-delete btn btn-danger btn-sm">Delete</button>'
+                '<a id="btn-delete" href="#" class="rate-delete"><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>'
             ].join('');
         }
         else {
@@ -190,7 +199,7 @@
                         console.log("Error: " + jqXHR.status);
                     }
                 });
-            } 
+            }
         }
     }
 </script>

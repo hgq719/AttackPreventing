@@ -213,18 +213,122 @@ namespace AttackPrevent.Controllers
 
         public ActionResult ZoneList()
         {
-            //return new HttpUnauthorizedResult();
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 
-        //private void ck()
-        //{
-        //    throw new HttpUnauthorizedResult();
-        //}
+        public JsonResult GetZoneList(int limit, int offset, string zoneID, string zoneName, bool ifTest, bool ifEnabel)
+        {
+            dynamic result = ZoneBusiness.GetList(limit, offset, zoneID, zoneName, ifTest, ifEnabel);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult AddZone()
         {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddZone(Models.ZoneModel zoneModel)
+        {
+            if (ModelState.IsValid)
+            {
+                ZoneEntity item = new ZoneEntity()
+                {
+                    ZoneId = zoneModel.ZoneId,
+                    ZoneName = zoneModel.ZoneName,
+                    AuthEmail = zoneModel.AuthEmail,
+                    AuthKey = zoneModel.AuthKey,
+                    IfAttacking = false,
+                    IfEnable = true,
+                    IfTestStage = zoneModel.IfTestStage
+                };
+
+                ZoneBusiness.Add(item);
+                return RedirectToAction("ZoneList");
+            }
+            else
+            {
+                return View(zoneModel);
+            }
+        }
+
+        public ActionResult EditZone(int id)
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+
+            ZoneEntity entity = ZoneBusiness.GetZone(id);
+
+            Models.ZoneModel model = new Models.ZoneModel()
+            {
+                AuthEmail = entity.AuthEmail,
+                AuthKey = entity.AuthKey,
+                IfEnable = entity.IfEnable,
+                IfTestStage = entity.IfTestStage,
+                TableID = entity.TableID,
+                ZoneId = entity.ZoneId,
+                ZoneName = entity.ZoneName
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult EditZone(Models.ZoneModel zoneModel)
+        {
+            if (ModelState.IsValid)
+            {
+                ZoneEntity item = new ZoneEntity()
+                {
+                    ZoneId = zoneModel.ZoneId,
+                    ZoneName = zoneModel.ZoneName,
+                    AuthEmail = zoneModel.AuthEmail,
+                    AuthKey = zoneModel.AuthKey,
+                    IfAttacking = false,
+                    IfEnable = zoneModel.IfEnable,
+                    IfTestStage = zoneModel.IfTestStage,
+                    TableID = zoneModel.TableID,
+                };
+
+                ZoneBusiness.Update(item);
+                return RedirectToAction("ZoneList");
+            }
+            else
+            {
+                return View(zoneModel);
+            }
+        }
+
+        public ActionResult EditZoneIfTest(int id, bool ifTest)
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+            ZoneEntity entity = ZoneBusiness.GetZone(id);
+            entity.IfTestStage = ifTest;
+            ZoneBusiness.Update(entity);
+            return RedirectToAction("ZoneList");
+        }
+
+        public ActionResult EditZoneIfEnable(int id, bool ifEnable)
+        {
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+            ZoneEntity entity = ZoneBusiness.GetZone(id);
+            entity.IfEnable = ifEnable;
+            ZoneBusiness.Update(entity);
+            return RedirectToAction("ZoneList");
         }
 
         public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
@@ -395,6 +499,15 @@ namespace AttackPrevent.Controllers
                     {
                         break;
                     }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.Now,
+                        Detail = JsonConvert.SerializeObject(new { comment,remark= "Add WhiteList", isSuccessed }),
+                    });
                 }
             }
             else
@@ -418,6 +531,15 @@ namespace AttackPrevent.Controllers
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = ip,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = zoneID,
+                LogOperator = UserName,
+                LogTime = DateTime.Now,
+                Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
+            });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
@@ -463,6 +585,15 @@ namespace AttackPrevent.Controllers
                     {
                         break;
                     }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.Now,
+                        Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
+                    });
                 }
             }
             else
@@ -486,6 +617,15 @@ namespace AttackPrevent.Controllers
 
             IBlackListBusinees blackListBusinees = new BlackListBusinees();
             var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = ip,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = zoneID,
+                LogOperator = UserName,
+                LogTime = DateTime.Now,
+                Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
+            });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

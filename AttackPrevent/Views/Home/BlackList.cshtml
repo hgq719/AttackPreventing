@@ -3,6 +3,8 @@
 }
 
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+@Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
+@Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
 <div class="logContainer">
     <div class="queryContainer">
         <ol class="breadcrumb">
@@ -65,9 +67,7 @@
     </div>
 
     <div class="resultContainer">
-        <table id="table" class="table table-bordered">
-
-        </table>        
+        <table id="table" class="table table-bordered"></table>
     </div>
 </div>
 
@@ -116,9 +116,18 @@
                         title: 'Operation',
                         align: 'center',
                         events: operateEvents,
-                        formatter: operateFormatter
+                        formatter: operateFormatter,
+                        visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
                     },
-                ]
+                ],
+                formatLoadingMessage: function () {
+                    $("body").mLoading({
+                        text: "Processing..."
+                    }, "show");
+                },
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                }
             });
         };
 
@@ -157,7 +166,7 @@
     function operateFormatter(value, row, index) {
         if ('@ViewBag.IsAdmin'.toLowerCase() === 'true') {
             return [
-                '<button id="btn-delete" type="button" class="rate-delete btn btn-danger btn-sm">Delete</button>'
+                '<a id="btn-delete" href="#" class="rate-delete"><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>'
             ].join('');
         }
         else {

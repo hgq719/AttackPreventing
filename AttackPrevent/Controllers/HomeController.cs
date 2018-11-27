@@ -499,14 +499,16 @@ namespace AttackPrevent.Controllers
                     {
                         break;
                     }
+
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
                         LogType = LogLevel.Audit.ToString(),
                         ZoneID = zoneID,
                         LogOperator = UserName,
-                        LogTime = DateTime.Now,
-                        Detail = JsonConvert.SerializeObject(new { comment,remark= "Add WhiteList", isSuccessed }),
+                        LogTime = DateTime.UtcNow,
+                        //Detail = JsonConvert.SerializeObject(new { comment,remark= "Add WhiteList", isSuccessed }),
+                        Detail = string.Format("[Audit] {1} [{0}] Add White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
                     });
                 }
             }
@@ -537,8 +539,9 @@ namespace AttackPrevent.Controllers
                 LogType = LogLevel.Audit.ToString(),
                 ZoneID = zoneID,
                 LogOperator = UserName,
-                LogTime = DateTime.Now,
-                Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
+                LogTime = DateTime.UtcNow,
+                //Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
+                Detail = string.Format("[Audit] {1} [{0}] Delete White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
             });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -591,8 +594,9 @@ namespace AttackPrevent.Controllers
                         LogType = LogLevel.Audit.ToString(),
                         ZoneID = zoneID,
                         LogOperator = UserName,
-                        LogTime = DateTime.Now,
-                        Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
+                        LogTime = DateTime.UtcNow,
+                        //Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
+                        Detail = string.Format("[Audit] {1} [{0}] Add Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
                     });
                 }
             }
@@ -623,8 +627,9 @@ namespace AttackPrevent.Controllers
                 LogType = LogLevel.Audit.ToString(),
                 ZoneID = zoneID,
                 LogOperator = UserName,
-                LogTime = DateTime.Now,
-                Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
+                LogTime = DateTime.UtcNow,
+                //Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
+                Detail = string.Format("[Audit] {1} [{0}] Delete Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
             });
             return Json(result, JsonRequestBehavior.AllowGet);
         }

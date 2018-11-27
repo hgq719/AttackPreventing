@@ -13,27 +13,28 @@ namespace AttackPrevent.WindowsService
         {
             while (true)
             {
+                var sleepTime = 1000;
                 try
                 {
                     var sw = new Stopwatch();
                     sw.Start();
 
                     Console.WriteLine(
-                        $"[app] [{DateTime.Now:yyyy-MM-dd hh:mm:ss}] Start to get logs and analysis data.");
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Start to get logs and analysis data.");
 
                     new LogAnalyzeJob().Execute(null);
                     sw.Stop();
 
                     Console.WriteLine(
-                        $"[app] [{DateTime.Now:yyyy-MM-dd hh:mm:ss}] Finished to get logs and analysis data, time elapsed：{sw.ElapsedMilliseconds/1000} seconds.");
-                    
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Finished to get logs and analysis data, time elapsed：{sw.ElapsedMilliseconds/1000} seconds.");
+                    sleepTime = 2*60*1000 - (int)sw.ElapsedMilliseconds;
                 }
                 catch (Exception ex)
                 {
                     Console.Write(ex.Message);
                 }
                 
-                Thread.Sleep(3000);
+                Thread.Sleep(sleepTime > 0 ? sleepTime: 1000);
             }
             //new LogAnalyzeJob().Execute(null);
             //return;

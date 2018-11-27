@@ -86,34 +86,34 @@ namespace AttackPrevent.Access
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"INSERT INTO dbo.t_RateLimiting_Rules
-                                ( ZoneId ,
-                                  OrderNo ,
-                                  Url ,
-                                  Threshold ,
-                                  Period ,
-                                  Action ,
-                                  EnlargementFactor ,
-                                  LatestTriggerTime ,
-                                  RateLimitTriggerIpCount ,
-                                  RateLimitTriggerTime ,
-                                  Remark ,
-                                  CreatedBy ,
-                                  CreatedTime
-                                )
-                        VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
-                                  (SELECT COUNT(1) FROM dbo.t_RateLimiting_Rules) + 1 , -- OrderNo - int
-                                  @url , -- Url - nvarchar(512)
-                                  @threshold , -- Threshold - int
-                                  @period , -- Period - int
-                                  N'challenge' , -- Action - nvarchar(256)
-                                  @enlargement , -- EnlargementFactor - int
-                                  GETDATE() , -- LatestTriggerTime - datetime
-                                  @triggerIpCount , -- RateLimitTriggerIpCount - int
-                                  @triggerTime , -- RateLimitTriggerTime - int
-                                  N'' , -- Remark - nvarchar(1024)
-                                  @user , -- CreatedBy - 
-                                  GETDATE()  -- CreatedTime - datetime
-                                )";
+        ( ZoneId ,
+          OrderNo ,
+          Url ,
+          Threshold ,
+          Period ,
+          Action ,
+          EnlargementFactor ,
+          LatestTriggerTime ,
+          RateLimitTriggerIpCount ,
+          RateLimitTriggerTime ,
+          Remark ,
+          CreatedBy ,
+          CreatedTime
+        )
+VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
+          (SELECT COUNT(1) FROM dbo.t_RateLimiting_Rules) + 1 , -- OrderNo - int
+          @url , -- Url - nvarchar(512)
+          @threshold , -- Threshold - int
+          @period , -- Period - int
+          N'challenge' , -- Action - nvarchar(256)
+          @enlargement , -- EnlargementFactor - int
+          GETUTCDATE() , -- LatestTriggerTime - datetime
+          @triggerIpCount , -- RateLimitTriggerIpCount - int
+          @triggerTime , -- RateLimitTriggerTime - int
+          N'' , -- Remark - nvarchar(1024)
+          @user , -- CreatedBy - 
+          GETUTCDATE()  -- CreatedTime - datetime
+        )";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);

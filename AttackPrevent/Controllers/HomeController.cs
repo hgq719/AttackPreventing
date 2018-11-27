@@ -192,9 +192,9 @@ namespace AttackPrevent.Controllers
 
         public ActionResult DeleteRateLimiting(int id, int order)
         {
-            
-            RateLimitBusiness.Delete(id, order);
             RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+            RateLimitBusiness.Delete(id, order);
+            
             AuditLogBusiness.Add(new AuditLogEntity
             {
                 IP = Request.UserHostAddress,

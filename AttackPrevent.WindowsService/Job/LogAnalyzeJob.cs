@@ -347,124 +347,124 @@ namespace AttackPrevent.WindowsService.Job
                 #endregion
 
                 #region Analyze log by rate limit rules
-                foreach (var rateLimit in rateLimits)
-                {
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Start analyzing rule [ID=[{0}],Url=[{1}],Period=[{2}],Threshold=[{3}]]", rateLimit.ID, rateLimit.Url, rateLimit.Period, rateLimit.Threshold)));
-                    //抽取出所有ratelimit规则中的请求列表
-                    var logAnalyzeDetailList = logs.Where(x => x.RequestUrl.Equals(rateLimit.Url)).ToList();
+                //foreach (var rateLimit in rateLimits)
+                //{
+                //    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Start analyzing rule [ID=[{0}],Url=[{1}],Period=[{2}],Threshold=[{3}]]", rateLimit.ID, rateLimit.Url, rateLimit.Period, rateLimit.Threshold)));
+                //    //抽取出所有ratelimit规则中的请求列表
+                //    var logAnalyzeDetailList = logs.Where(x => x.RequestUrl.Equals(rateLimit.Url)).ToList();
 
-                    //对IP的请求地址(不包含querystring)进行分组
-                    var ipRequestListIncludingQueryString = logAnalyzeDetailList.GroupBy(x => new { x.IP, x.RequestUrl, x.RequestFullUrl }).Select(x => new LogAnalyzeModel()
-                    {
-                        IP = x.Key.IP,
-                        RequestUrl = x.Key.RequestUrl,
-                        RequestFullUrl = x.Key.RequestFullUrl,
-                        RequestCount = x.Count()
-                    }).ToList();
+                //    //对IP的请求地址(不包含querystring)进行分组
+                //    var ipRequestListIncludingQueryString = logAnalyzeDetailList.GroupBy(x => new { x.IP, x.RequestUrl, x.RequestFullUrl }).Select(x => new LogAnalyzeModel()
+                //    {
+                //        IP = x.Key.IP,
+                //        RequestUrl = x.Key.RequestUrl,
+                //        RequestFullUrl = x.Key.RequestFullUrl,
+                //        RequestCount = x.Count()
+                //    }).ToList();
 
-                    //对IP的请求地址(不包含querystring)进行分组
-                    var ipRequestList = logAnalyzeDetailList.GroupBy(x => new { x.IP, x.RequestUrl }).Select(x => new LogAnalyzeModel()
-                    {
-                        IP = x.Key.IP,
-                        RequestUrl = x.Key.RequestUrl,
-                        RequestCount = x.Count()
-                    }).ToList();
+                //    //对IP的请求地址(不包含querystring)进行分组
+                //    var ipRequestList = logAnalyzeDetailList.GroupBy(x => new { x.IP, x.RequestUrl }).Select(x => new LogAnalyzeModel()
+                //    {
+                //        IP = x.Key.IP,
+                //        RequestUrl = x.Key.RequestUrl,
+                //        RequestCount = x.Count()
+                //    }).ToList();
 
-                    //抽取出所有违反规则的IP请求列表
-                    var brokenRuleIpList = (from item in ipRequestList
-                                            where item.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())
-                                                  && item.RequestCount / (float)(timeSpan * sample) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period)
-                                            select new LogAnalyzeModel()
-                                            {
-                                                IP = item.IP,
-                                                RequestUrl = item.RequestUrl,
-                                                RequestCount = item.RequestCount,
-                                                RateLimitId = rateLimit.ID,
-                                                RateLimitTriggerIpCount = rateLimit.RateLimitTriggerIpCount
-                                            }).ToList();
-
-
-                    var brokenIpCountList = brokenRuleIpList.GroupBy(x => new { x.RateLimitId, x.RequestUrl, x.RateLimitTriggerIpCount }).Select(x => new LogAnalyzeModel()
-                    {
-                        RateLimitTriggerIpCount = x.Key.RateLimitTriggerIpCount,
-                        RateLimitId = x.Key.RateLimitId,
-                        RequestUrl = x.Key.RequestUrl,
-                        RequestCount = x.Count()
-                    }).ToList();
-
-                    //抽取出超过IP数量的规则列表，需要新增或OPEN Cloudflare的Rate Limiting Rule
-                    var brokenRuleList = brokenIpCountList.Where(x => x.RateLimitTriggerIpCount <= x.RequestCount).ToList();
+                //    //抽取出所有违反规则的IP请求列表
+                //    var brokenRuleIpList = (from item in ipRequestList
+                //                            where item.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())
+                //                                  && item.RequestCount / (float)(timeSpan * sample) >= (rateLimit.Threshold * rateLimit.EnlargementFactor / (float)rateLimit.Period)
+                //                            select new LogAnalyzeModel()
+                //                            {
+                //                                IP = item.IP,
+                //                                RequestUrl = item.RequestUrl,
+                //                                RequestCount = item.RequestCount,
+                //                                RateLimitId = rateLimit.ID,
+                //                                RateLimitTriggerIpCount = rateLimit.RateLimitTriggerIpCount
+                //                            }).ToList();
 
 
-                    if (brokenRuleList.Count > 0)
-                    {
-                        ifAttacking = true;
-                        ZoneBusiness.UpdateAttackFlag(true, zoneId);
-                        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Suspected of an attack in ZoneName [{0}], modified the attack token and trigger an alert.", zoneEntity.ZoneName)));
+                //    var brokenIpCountList = brokenRuleIpList.GroupBy(x => new { x.RateLimitId, x.RequestUrl, x.RateLimitTriggerIpCount }).Select(x => new LogAnalyzeModel()
+                //    {
+                //        RateLimitTriggerIpCount = x.Key.RateLimitTriggerIpCount,
+                //        RateLimitId = x.Key.RateLimitId,
+                //        RequestUrl = x.Key.RequestUrl,
+                //        RequestCount = x.Count()
+                //    }).ToList();
 
-                        var sbDetail = new StringBuilder(string.Format("Exceeded rate limiting threshold(Threshold=[{0}],Period=[{1}]), details：<br />", rateLimit.Threshold, rateLimit.Period));
-                        foreach (var rule in logsIpAll)
-                        {
-                            sbDetail.AppendFormat("[{0}] {1} times.<br /> ", rule.IP, rule.RequestCount);
-                        }
-                        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
+                //    //抽取出超过IP数量的规则列表，需要新增或OPEN Cloudflare的Rate Limiting Rule
+                //    var brokenRuleList = brokenIpCountList.Where(x => x.RateLimitTriggerIpCount <= x.RequestCount).ToList();
 
-                        foreach (var rule in brokenRuleIpList)
-                        {
-                            sbDetail = new StringBuilder();
-                            var ipRequestUrlList = ipRequestListIncludingQueryString.Where(x => x.IP.Equals(rule.IP)).ToList().OrderByDescending(x => x.RequestCount);
-                            foreach (var ipRequestUrl in ipRequestUrlList)
-                            {
-                                sbDetail.AppendFormat("IP [{0}] visited [{2}] [{3}] times, time range is [{1}].<br />", rule.IP, timeStage, ipRequestUrl.RequestFullUrl, ipRequestUrl.RequestCount);
-                            }
-                        }
-                        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
-                        sbDetail.AppendFormat("Start to open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
-                        if (ifTestStage)
-                        {
-                            sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
-                        }
-                        else
-                        {
+                //    if (brokenRuleList.Count > 0)
+                //    {
+                //        ifAttacking = true;
+                //        ZoneBusiness.UpdateAttackFlag(true, zoneId);
+                //        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Suspected of an attack in ZoneName [{0}], modified the attack token and trigger an alert.", zoneEntity.ZoneName)));
 
-                            if (cloudflare.OpenRateLimit(rateLimit.Url, rateLimit.Threshold, rateLimit.Period, out var openRateLimitLogs))
-                            {
-                                sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
-                            }
-                            else
-                            {
-                                foreach (var errorLog in openRateLimitLogs)
-                                {
-                                    sbDetail.AppendFormat(errorLog.Detail).Append("<br />");
-                                }
-                            }
-                        }
+                //        var sbDetail = new StringBuilder(string.Format("Exceeded rate limiting threshold(Threshold=[{0}],Period=[{1}]), details：<br />", rateLimit.Threshold, rateLimit.Period));
+                //        foreach (var rule in logsIpAll)
+                //        {
+                //            sbDetail.AppendFormat("[{0}] {1} times.<br /> ", rule.IP, rule.RequestCount);
+                //        }
+                //        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
-                        foreach (var rule in brokenRuleIpList)
-                        {
-                            if (ifTestStage)
-                            {
-                                sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", rule.IP);
-                            }
-                            else
-                            {
-                                cloudflareAccessRuleResponse = cloudflare.BanIp(rule.IP, "Ban Ip By Attack Prevent Windows service!");
-                                if (cloudflareAccessRuleResponse.Success)
-                                {
-                                    sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", rule.IP);
-                                }
-                                else
-                                {
-                                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", rule.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "Cloudflare没有返回错误信息");
-                                }
-                            }
-                        }
-                        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit, sbDetail.ToString()));
-                    }
+                //        foreach (var rule in brokenRuleIpList)
+                //        {
+                //            sbDetail = new StringBuilder();
+                //            var ipRequestUrlList = ipRequestListIncludingQueryString.Where(x => x.IP.Equals(rule.IP)).ToList().OrderByDescending(x => x.RequestCount);
+                //            foreach (var ipRequestUrl in ipRequestUrlList)
+                //            {
+                //                sbDetail.AppendFormat("IP [{0}] visited [{2}] [{3}] times, time range is [{1}].<br />", rule.IP, timeStage, ipRequestUrl.RequestFullUrl, ipRequestUrl.RequestCount);
+                //            }
+                //        }
+                //        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Finished to analyze rule [ID={0},Url={1}].", rateLimit.ID, rateLimit.Url)));
-                }
+                //        sbDetail.AppendFormat("Start to open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                //        if (ifTestStage)
+                //        {
+                //            sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                //        }
+                //        else
+                //        {
+
+                //            if (cloudflare.OpenRateLimit(rateLimit.Url, rateLimit.Threshold, rateLimit.Period, out var openRateLimitLogs))
+                //            {
+                //                sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                //            }
+                //            else
+                //            {
+                //                foreach (var errorLog in openRateLimitLogs)
+                //                {
+                //                    sbDetail.AppendFormat(errorLog.Detail).Append("<br />");
+                //                }
+                //            }
+                //        }
+
+                //        foreach (var rule in brokenRuleIpList)
+                //        {
+                //            if (ifTestStage)
+                //            {
+                //                sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", rule.IP);
+                //            }
+                //            else
+                //            {
+                //                cloudflareAccessRuleResponse = cloudflare.BanIp(rule.IP, "Ban Ip By Attack Prevent Windows service!");
+                //                if (cloudflareAccessRuleResponse.Success)
+                //                {
+                //                    sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", rule.IP);
+                //                }
+                //                else
+                //                {
+                //                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", rule.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "Cloudflare没有返回错误信息");
+                //                }
+                //            }
+                //        }
+                //        systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit, sbDetail.ToString()));
+                //    }
+
+                //    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Finished to analyze rule [ID={0},Url={1}].", rateLimit.ID, rateLimit.Url)));
+                //}
                 #endregion
 
                 systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Finished to analyze logs, time range is [{0}].", timeStage)));

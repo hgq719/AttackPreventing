@@ -306,7 +306,8 @@ namespace AttackPrevent.Business
         }
         private string GetUTCTimeString(DateTime time)
         {
-            return time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
+            //return time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
+            return time.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
         }
 
         public List<FirewallAccessRule> GetAccessRuleList(string zoneId, string authEmail, string authKey, EnumMode mode)

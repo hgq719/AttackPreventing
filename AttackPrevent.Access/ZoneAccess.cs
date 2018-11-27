@@ -16,7 +16,13 @@ namespace AttackPrevent.Access
             List<ZoneEntity> result = new List<ZoneEntity>();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "select [ZoneId],[ZoneName],[AuthEmail],[IfTestStage],[IfEnable],[IfAttacking],[AuthKey] from [t_Zone_Info] ";
+                string query = @"SELECT [ZoneId],
+                                        [ZoneName],
+                                        [AuthEmail],
+                                        [IfTestStage],
+                                        [IfEnable],
+                                        [IfAttacking],
+                                        [AuthKey] FROM [t_Zone_Info] ";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 
@@ -25,13 +31,13 @@ namespace AttackPrevent.Access
                     while (reader.Read())
                     {
                         ZoneEntity item = new ZoneEntity();
-                        item.ZoneId = reader.GetString(0);
-                        item.ZoneName = reader.GetString(1);
-                        item.AuthEmail = reader.GetString(2);
-                        item.IfTestStage = reader.GetInt32(3) > 0;
-                        item.IfEnable = reader.GetInt32(4) > 0;
-                        item.IfAttacking = reader.GetInt32(5) > 0;
-                        item.AuthKey = reader.GetString(6);
+                        item.ZoneId = Convert.ToString( reader["ZoneId"]);
+                        item.ZoneName = Convert.ToString(reader["ZoneName"]);
+                        item.AuthEmail = Convert.ToString(reader["AuthEmail"]);
+                        item.IfTestStage =Convert.ToInt32( reader["IfTestStage"]) > 0;
+                        item.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
+                        item.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
+                        item.AuthKey = Convert.ToString(reader["AuthKey"]);
                         result.Add(item);
                     }
                 }
@@ -44,28 +50,34 @@ namespace AttackPrevent.Access
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             List<ZoneEntity> result = new List<ZoneEntity>();
-            StringBuilder query = new StringBuilder("select [ZoneId],[ZoneName],[AuthEmail],[IfTestStage],[IfEnable],[IfAttacking], [Id] from [t_Zone_Info] ");
+            StringBuilder query = new StringBuilder(@"SELECT [ZoneId],
+                                                             [ZoneName],
+                                                             [AuthEmail],
+                                                             [IfTestStage],
+                                                             [IfEnable],
+                                                             [IfAttacking], 
+                                                             [Id] FROM [t_Zone_Info] ");
             StringBuilder where = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(zoneID))
             {
-                where.Append(" ZoneId like'%'+@zoneID+'%' and ");
+                where.Append(" ZoneId LIKE'%'+@zoneID+'%' AND ");
             }
             if (!string.IsNullOrWhiteSpace(zoneName))
             {
-                where.Append(" ZoneName like'%'+@zoneName+'%' and ");
+                where.Append(" ZoneName LIKE'%'+@zoneName+'%' AND ");
             }
             if (ifTest)
             {
-                where.Append(" IfTestStage = @ifTest and ");
+                where.Append(" IfTestStage = @ifTest AND ");
             }
             if (ifEnabel)
             {
-                where.Append(" IfEnable = @ifEnabel and ");
+                where.Append(" IfEnable = @ifEnabel AND ");
             }
             if (where.Length > 4)
             {
                 where.Remove(where.Length - 4, 4);
-                query.AppendFormat(" where {0}", where.ToString());
+                query.AppendFormat(" WHERE {0}", where.ToString());
             }
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -97,13 +109,13 @@ namespace AttackPrevent.Access
                     {
                         ZoneEntity item = new ZoneEntity();
                         item.ID = index++;
-                        item.ZoneId = reader.GetString(0);
-                        item.ZoneName = reader.GetString(1);
-                        item.AuthEmail = reader.GetString(2);
-                        item.IfTestStage = reader.GetInt32(3) > 0;
-                        item.IfEnable = reader.GetInt32(4) > 0;
-                        item.IfAttacking = reader.GetInt32(5) > 0;
-                        item.TableID = reader.GetInt32(6);
+                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneName = Convert.ToString(reader["ZoneName"]);
+                        item.AuthEmail = Convert.ToString(reader["AuthEmail"]);
+                        item.IfTestStage = Convert.ToInt32(reader["IfTestStage"]) > 0;
+                        item.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
+                        item.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
+                        item.TableID = Convert.ToInt32(reader["Id"]);
                         result.Add(item);
                     }
                 }
@@ -117,22 +129,22 @@ namespace AttackPrevent.Access
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             
             StringBuilder query = new StringBuilder(@"INSERT INTO dbo.t_Zone_Info
-        ( ZoneId ,
-          ZoneName ,
-          AuthEmail ,
-          AuthKey ,
-          IfTestStage ,
-          IfEnable ,
-          IfAttacking
-        )
-VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
-          @zoneName , -- ZoneName - nvarchar(256)
-          @authEmail , -- AuthEmail - nvarchar(256)
-          @authKey , -- AuthKey - nvarchar(256)
-          @ifTest , -- IfTestStage - int
-          @ifEnable , -- IfEnable - int
-          @ifAttacking  -- IfAttacking - int
-        )");
+                                                        ( ZoneId ,
+                                                          ZoneName ,
+                                                          AuthEmail ,
+                                                          AuthKey ,
+                                                          IfTestStage ,
+                                                          IfEnable ,
+                                                          IfAttacking
+                                                        )
+                                                VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
+                                                          @zoneName , -- ZoneName - nvarchar(256)
+                                                          @authEmail , -- AuthEmail - nvarchar(256)
+                                                          @authKey , -- AuthKey - nvarchar(256)
+                                                          @ifTest , -- IfTestStage - int
+                                                          @ifEnable , -- IfEnable - int
+                                                          @ifAttacking  -- IfAttacking - int
+                                                        )");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -155,7 +167,14 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
-            StringBuilder query = new StringBuilder(@"UPDATE dbo.t_Zone_Info SET ZoneId=@zoneID,ZoneName=@zoneName,AuthEmail=@authEmail,AuthKey=@authKey,IfTestStage=@ifTest,IfEnable=@ifEnable,IfAttacking=@ifAttacking WHERE Id=@id");
+            StringBuilder query = new StringBuilder(@"UPDATE dbo.t_Zone_Info 
+                                                        SET ZoneId=@zoneID,
+                                                            ZoneName=@zoneName,
+                                                            AuthEmail=@authEmail,
+                                                            AuthKey=@authKey,
+                                                            IfTestStage=@ifTest,
+                                                            IfEnable=@ifEnable,
+                                                            IfAttacking=@ifAttacking WHERE Id=@id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -179,7 +198,14 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             ZoneEntity result = new ZoneEntity();
-            StringBuilder query = new StringBuilder("select [ZoneId],[ZoneName],[AuthEmail],[IfTestStage],[IfEnable],[IfAttacking], [Id], [AuthKey] from [t_Zone_Info] where [Id] = @id");
+            StringBuilder query = new StringBuilder(@"SELECT [ZoneId],
+                                                             [ZoneName],
+                                                             [AuthEmail],
+                                                             [IfTestStage],
+                                                             [IfEnable],
+                                                             [IfAttacking], 
+                                                             [Id], 
+                                                             [AuthKey] from [t_Zone_Info] WHERE [Id] = @id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -193,14 +219,14 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                     if (reader.Read())
                     {
                         result = new ZoneEntity();
-                        result.ZoneId = reader.GetString(0);
-                        result.ZoneName = reader.GetString(1);
-                        result.AuthEmail = reader.GetString(2);
-                        result.IfTestStage = reader.GetInt32(3) > 0;
-                        result.IfEnable = reader.GetInt32(4) > 0;
-                        result.IfAttacking = reader.GetInt32(5) > 0;
-                        result.TableID = reader.GetInt32(6);
-                        result.AuthKey = reader.GetString(7);
+                        result.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        result.ZoneName = Convert.ToString(reader["ZoneName"]);
+                        result.AuthEmail = Convert.ToString(reader["AuthEmail"]);
+                        result.IfTestStage = Convert.ToInt32(reader["IfTestStage"]) > 0;
+                        result.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
+                        result.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
+                        result.TableID = Convert.ToInt32(reader["Id"]);
+                        result.AuthKey = Convert.ToString(reader["AuthKey"]);
                     }
                 }
             }
@@ -214,7 +240,8 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = @"UPDATE T_ZONE_INFO SET IfAttacking = @IfAttacking where ZoneId = @ZoneId";
+                string query = @"UPDATE T_ZONE_INFO 
+                                    SET IfAttacking = @IfAttacking WHERE ZoneId = @ZoneId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@ZoneId", zoneId);
                 cmd.Parameters.AddWithValue("@IfAttacking", ifAttacking ? 1 : 0);

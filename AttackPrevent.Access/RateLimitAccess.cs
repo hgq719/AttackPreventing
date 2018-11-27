@@ -264,7 +264,8 @@ WHERE   Id = @id;";
                 string query = "SELECT MAX(OrderNo) FROM dbo.t_RateLimiting_Rules";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
-                count = (int)cmd.ExecuteScalar();
+                string counts = cmd.ExecuteScalar().ToString();
+                count = string.IsNullOrWhiteSpace(counts) ? 0 : int.Parse(counts);
             }
 
             return count;

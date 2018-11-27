@@ -10,7 +10,8 @@ namespace AttackPrevent.Business
 {
     public class AuditLogBusiness
     {
-        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache, string guid)
+        public static readonly string cacheKey = "auditLogCache";
+        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {
             //List<AuditLogEntity> list = new List<AuditLogEntity>();
             //for (int i = 0; i < 50; i++)
@@ -25,9 +26,13 @@ namespace AttackPrevent.Business
             //    list.Add(en);
             //}
 
-            if (ifUseCache && !string.IsNullOrWhiteSpace(guid))
+            if (ifUseCache)
             {
-                List<AuditLogEntity> list = Utils.GetMemoryCache<List<AuditLogEntity>>(guid);
+                List<AuditLogEntity> list = Utils.GetMemoryCache<List<AuditLogEntity>>(cacheKey);
+                if (list == null)
+                {
+                    list = new List<AuditLogEntity>();
+                }
                 var total = list.Count;
                 var rows = list.Skip(offset).Take(limit).ToList();
 
@@ -35,8 +40,8 @@ namespace AttackPrevent.Business
             }
             else
             {
+                Utils.RemoveMemoryCache(cacheKey);
                 List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
-                string cacheKey = Guid.NewGuid().ToString();
                 Utils.SetMemoryCache(cacheKey, list);
 
                 return new { cacheKey };

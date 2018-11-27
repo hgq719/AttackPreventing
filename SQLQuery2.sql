@@ -1,1 +1,1 @@
-﻿select * from t_Logs
+﻿delete from t_Logs;

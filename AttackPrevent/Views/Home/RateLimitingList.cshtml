@@ -126,7 +126,7 @@
                     }, {
                         field: '',
                         title: 'Operation',
-                        //events: detailClickEvent,
+                        events: detailClickEvent,
                         formatter: function (value, row, index) {
                             var btnEdit = '<a href="/home/EditRateLimiting?id=' + row.TableID + '" class="rate-edit " ><span class="glyphicon glyphicon-edit btn-in-table" aria-hidden="true" title="Edit"></span></a>';
                             var btnDelete = '<a href="/home/DeleteRateLimiting?id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-delete " ><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>';

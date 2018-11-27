@@ -234,6 +234,47 @@ namespace AttackPrevent.Access
             return result;
         }
 
+        public static ZoneEntity GetZone(string zoneID, string zoneName)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            ZoneEntity result = new ZoneEntity();
+            StringBuilder query = new StringBuilder(@"SELECT [ZoneId],
+                                                             [ZoneName],
+                                                             [AuthEmail],
+                                                             [IfTestStage],
+                                                             [IfEnable],
+                                                             [IfAttacking], 
+                                                             [Id], 
+                                                             [AuthKey] from [t_Zone_Info] WHERE [ZoneId] LIKE'%'+@zoneID+'%' or [ZoneName] LIKE'%'+@zoneName+'%'");
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+
+                SqlCommand cmd = new SqlCommand(query.ToString(), conn);
+                cmd.Parameters.AddWithValue("@zoneID", zoneID);
+                cmd.Parameters.AddWithValue("@zoneName", zoneName);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        result = new ZoneEntity();
+                        result.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        result.ZoneName = Convert.ToString(reader["ZoneName"]);
+                        result.AuthEmail = Convert.ToString(reader["AuthEmail"]);
+                        result.IfTestStage = Convert.ToInt32(reader["IfTestStage"]) > 0;
+                        result.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
+                        result.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
+                        result.TableID = Convert.ToInt32(reader["Id"]);
+                        result.AuthKey = Convert.ToString(reader["AuthKey"]);
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public static bool UpdateAttackFlag(bool ifAttacking, string zoneId)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();

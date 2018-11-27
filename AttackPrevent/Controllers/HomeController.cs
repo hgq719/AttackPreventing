@@ -390,6 +390,12 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("ZoneList");
         }
 
+        public ActionResult GetZoneIfAttacking(string zone)
+        {
+            ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
+            return View();
+        }
+
         public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {   
 

@@ -251,7 +251,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
-                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where where Id=@id";
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where Id=@id";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
                 conn.Open();

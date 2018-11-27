@@ -20,7 +20,7 @@ namespace AttackPrevent.Access
                                                              OrderNo, 
                                                              EnlargementFactor, 
                                                              RateLimitTriggerIpCount, 
-                                                             Id from t_RateLimiting_Rules where ZoneId=@zoneID");
+                                                             Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
                 query.Append(" AND LogTime >= @startTime ");
@@ -211,7 +211,7 @@ namespace AttackPrevent.Access
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
-                                        RateLimitTriggerTime from t_RateLimiting_Rules where OrderNo=@order";
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@order", order);
                 conn.Open();
@@ -251,7 +251,7 @@ namespace AttackPrevent.Access
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
-                                        RateLimitTriggerTime from t_RateLimiting_Rules where where Id=@id";
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where where Id=@id";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
                 conn.Open();

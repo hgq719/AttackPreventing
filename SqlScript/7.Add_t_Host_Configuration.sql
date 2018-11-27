@@ -18,4 +18,10 @@ CREATE TABLE [dbo].[t_Host_Configuration]
 	)with( PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 	) ON [PRIMARY] ;
 
+INSERT INTO t_Host_Configuration VALUES('entchatserver.comm100.com',300,60);
+INSERT INTO t_Host_Configuration VALUES('chatserver.comm100.com',300,60);
+INSERT INTO t_Host_Configuration VALUES('chatserver7.comm100.com',300,60);
+INSERT INTO t_Host_Configuration VALUES('www.comm100.com',200,60);
+INSERT INTO t_Host_Configuration VALUES('ent.comm100.com',300,60);
+INSERT INTO t_Host_Configuration VALUES('hosted.comm100.com',300,60);
 END;

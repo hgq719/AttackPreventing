@@ -16,6 +16,7 @@ CREATE TABLE [dbo].[t_Zone_Info]
 	[IfTestStage] int NOT NULL DEFAULT 1, 
 	[IfEnable] int NOT NULL DEFAULT 1, 
 	[IfAttacking] int NOT NULL DEFAULT 0, 
+	[IfAnalyzing] int NOT NULL DEFAULT 0, 
 	Constraint [PK_t_Zone_Info] primary key clustered
 	(
 	  [Id] ASC
@@ -34,4 +35,6 @@ CREATE NONCLUSTERED INDEX IX_T_ZONE_INFO_ZONEID ON T_ZONE_INFO
 )
 with( PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) 
 ON [PRIMARY];
+
+INSERT INTO T_ZONE_INFO VALUES('2068c8964a4dcef78ee5103471a8db03', 'comm100.com', 'elei.xu@comm100.com','1e26ac28b9837821af730e70163f0604b4c35',1, 1, 0, 0)
 END;

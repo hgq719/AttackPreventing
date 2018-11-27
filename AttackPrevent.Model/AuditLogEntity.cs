@@ -24,7 +24,7 @@ namespace AttackPrevent.Model
             ZoneID = zoneId;
             LogType = logType.ToString();
             LogTime = DateTime.Now;
-            Detail = string.Format("[{0}] {1} {2}", LogType, LogTime.ToString("yyyy-MM-dd HH:mm:ss fff"), detail);
+            Detail = string.Format("[{0}] {1} {2}", LogType, LogTime.ToString("MM/dd/yyyy HH:mm:ss fff"), detail);
             IP = "127.0.0.1";
             LogOperator = "System";
         }

@@ -220,7 +220,7 @@ namespace AttackPrevent.WindowsService.Job
                 dtEnd = keyValuePair.Value;
 
                 var timeStage = string.Format("{0}]-[{1}", dtStart.ToString("yyyy-MM-dd HH:mm:ss"), dtEnd.ToString("yyyy-MM-dd HH:mm:ss"));
-                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("开始获取 [{0}] 的日志", timeStage)));
+                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("Start to get logs, the realted time range is [{0}].", timeStage)));
                 
                 cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
 
@@ -230,7 +230,7 @@ namespace AttackPrevent.WindowsService.Job
                     cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
                 }
 
-                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("获取 [{0}] 的日志结束,总计 [{1}] 条", timeStage, cloudflareLogs.Count)));
+                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("Finished to get logs of [{0}], total [{1}] records.", timeStage, cloudflareLogs.Count)));
 
                 if (cloudflareLogs.Count > 0)
                 {
@@ -243,7 +243,7 @@ namespace AttackPrevent.WindowsService.Job
                         RequestUrl = string.Format("{0}{1}", x.ClientRequestHost, x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)
                     }).ToList();
 
-                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("除去白名单后日志总计 [{0}] 条", requestDetailList.Count)));
+                    //AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, string.Format("除去白名单后日志总计 [{0}] 条", requestDetailList.Count)));
 
                     if (requestDetailList.Count > 0)
                     {
@@ -265,7 +265,7 @@ namespace AttackPrevent.WindowsService.Job
             {
                 CloudflareAccessRuleResponse cloudflareAccessRuleResponse = null;
                 var cloudflare = new CloudflareBusiness(zoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-                systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, "开始日志分析"));
+                systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, "Start analyzing logs."));
                 var dtNow = DateTime.Now;
 
                 var logsIpAll = logsAll.GroupBy(x => new { x.IP, x.RequestHost }).Select(x => new LogAnalyzeModel()
@@ -280,13 +280,13 @@ namespace AttackPrevent.WindowsService.Job
                 {
                     ifAttacking = true;
                     ZoneBusiness.UpdateAttackFlag(true, zoneId);
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("怀疑存在攻击，修改ZoneName=[{0}]的攻击标记，触发警报.", zoneEntity.ZoneName)));
+                    //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Suspected of an attack, modified the attack token and trigger an alert.", zoneEntity.ZoneName)));
 
                     var sbDetail = new StringBuilder();
-                    sbDetail.AppendFormat("时间区间[{0}]内访问次数超过Host访问阈值的IP共{1}个.<br />", timeStage, logsIpAll.Count());
+                    sbDetail.AppendFormat("{1} IPs exceeded the host access threshold, the related time range is [{0}].<br />", timeStage, logsIpAll.Count());
                     foreach (var rule in logsIpAll)
                     {
-                        sbDetail.AppendFormat("[{0}]访问了[{1}]共({2}次)]; <br />", rule.IP,rule.RequestHost, rule.RequestCount);
+                        sbDetail.AppendFormat("[{0}] visited [{1}] total ({2} times)]; <br />", rule.IP,rule.RequestHost, rule.RequestCount);
                     }
 
                     systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
@@ -297,7 +297,9 @@ namespace AttackPrevent.WindowsService.Job
                     {
                         sbDetail = new StringBuilder();
                         currentHostConfigList = hostConfigList.Where(x => x.Host.Equals(rule.RequestHost)).ToList();
-                        sbDetail.AppendFormat("[{0}]在[{1}]内访问了[{2}]共[{3}]次<br />超过了阈值(Period=[{4}],Threshold=[{5}])，访问前10的详情如下：<br />", rule.IP, timeStage, rule.RequestHost, rule.RequestCount, currentHostConfigList.Count > 0 ? currentHostConfigList[0].Period : globalPeriod, currentHostConfigList.Count > 0 ? currentHostConfigList[0].Threshold : globalThreshold);
+                        sbDetail.AppendFormat("[{0}] visited [{2}] [{3}] times, time range：[{1}].<br /> Exceeded host access threshold(Period=[{4}],Threshold=[{5}])，details(only list the top 10 records)：<br />", 
+                            rule.IP, timeStage, rule.RequestHost, rule.RequestCount, 
+                            currentHostConfigList.Count > 0 ? currentHostConfigList[0].Period : globalPeriod, currentHostConfigList.Count > 0 ? currentHostConfigList[0].Threshold : globalThreshold);
 
                         var ipRequestList = logsAll.Where(x => x.IP.Equals(rule.IP)).GroupBy(x => new { x.RequestFullUrl }).Select(x => new LogAnalyzeModel()
                         {
@@ -307,25 +309,25 @@ namespace AttackPrevent.WindowsService.Job
 
                         for (var index = 0; index < Math.Min(ipRequestList.Count(), 10); index++)
                         {
-                            sbDetail.AppendFormat("[{0}] {1}次.<br />", ipRequestList[index].RequestFullUrl, ipRequestList[index].RequestCount);
+                            sbDetail.AppendFormat("[{0}] {1}times.<br />", ipRequestList[index].RequestFullUrl, ipRequestList[index].RequestCount);
                         }
 
                         systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
                         
                         if (ifTestStage)
                         {
-                            sbDetail.AppendFormat("测试阶段Ban IP [{0}] 成功, 只打印日志;", rule.IP);
+                            sbDetail.AppendFormat("Ban IP [{0}] successfully.", rule.IP);
                         }
                         else
                         {
                             cloudflareAccessRuleResponse = cloudflare.BanIp(rule.IP, "Ban Ip By Attack Prevent Windows service!");
                             if (cloudflareAccessRuleResponse.Success)
                             {
-                                sbDetail.AppendFormat("Ban IP [{0}] 成功;", rule.IP);
+                                sbDetail.AppendFormat("Ban IP [{0}] successfully.", rule.IP);
                             }
                             else
                             {
-                                sbDetail.AppendFormat("Ban IP [{0}] 失败, 原因是：[{1}]", rule.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "Cloudflare没有返回错误信息");
+                                sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}]", rule.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "Cloudflare does not return any error message");
                             }
                         }
 
@@ -344,7 +346,7 @@ namespace AttackPrevent.WindowsService.Job
                 
                 foreach (var rateLimit in rateLimits)
                 {
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("开始分析规则[ID=[{0}],Url=[{1}],Period=[{2}],Threshold=[{3}]]", rateLimit.ID, rateLimit.Url, rateLimit.Period, rateLimit.Threshold)));
+                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Start analyzing rule [ID=[{0}],Url=[{1}],Period=[{2}],Threshold=[{3}]]", rateLimit.ID, rateLimit.Url, rateLimit.Period, rateLimit.Threshold)));
                     //抽取出所有ratelimit规则中的请求列表
                     var logAnalyzeDetailList = logs.Where(x => x.RequestUrl.Equals(rateLimit.Url)).ToList();
 

@@ -192,7 +192,7 @@ namespace AttackPrevent.WindowsService.Job
 
         private void StartAnalyze(ZoneEntity zoneEntity)
         {
-            var dtNow = DateTime.Now;
+            var dtNow = DateTime.UtcNow;
             var dtStart = dtNow.AddMinutes(-7).AddSeconds(0-dtNow.Second);
             var dtEnd = dtStart.AddMinutes(2);
 

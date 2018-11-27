@@ -286,7 +286,7 @@ namespace AttackPrevent.WindowsService.Job
                     sbDetail.AppendFormat("{1} IPs exceeded the host access threshold, the related time range is [{0}].<br />", timeStage, logsIpAll.Count());
                     foreach (var rule in logsIpAll)
                     {
-                        sbDetail.AppendFormat("[{0}] visited [{1}] total ({2} times)]; <br />", rule.IP,rule.RequestHost, rule.RequestCount);
+                        sbDetail.AppendFormat("IP[{0}] visited [{1}] total ({2} times)]; <br />", rule.IP,rule.RequestHost, rule.RequestCount);
                     }
 
                     systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
@@ -297,7 +297,7 @@ namespace AttackPrevent.WindowsService.Job
                     {
                         sbDetail = new StringBuilder();
                         currentHostConfigList = hostConfigList.Where(x => x.Host.Equals(rule.RequestHost)).ToList();
-                        sbDetail.AppendFormat("[{0}] visited [{2}] [{3}] times, time range：[{1}].<br /> Exceeded host access threshold(Period=[{4}],Threshold=[{5}])，details(only list the top 10 records)：<br />", 
+                        sbDetail.AppendFormat(" IP[{0}] visited [{2}] [{3}] times, time range：[{1}].<br /> Exceeded host access threshold(Period=[{4}],Threshold=[{5}])，details(only list the top 10 records)：<br />", 
                             rule.IP, timeStage, rule.RequestHost, rule.RequestCount, 
                             currentHostConfigList.Count > 0 ? currentHostConfigList[0].Period : globalPeriod, currentHostConfigList.Count > 0 ? currentHostConfigList[0].Threshold : globalThreshold);
 

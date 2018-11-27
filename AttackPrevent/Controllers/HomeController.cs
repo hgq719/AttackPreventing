@@ -290,6 +290,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 ZoneBusiness.Add(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = item.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"AddZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                });
                 return RedirectToAction("ZoneList");
             }
             else
@@ -315,7 +324,8 @@ namespace AttackPrevent.Controllers
                 IfTestStage = entity.IfTestStage,
                 TableID = entity.TableID,
                 ZoneId = entity.ZoneId,
-                ZoneName = entity.ZoneName
+                ZoneName = entity.ZoneName,
+                IfAttacking = entity.IfAttacking,
             };
 
             return View(model);
@@ -332,13 +342,22 @@ namespace AttackPrevent.Controllers
                     ZoneName = zoneModel.ZoneName,
                     AuthEmail = zoneModel.AuthEmail,
                     AuthKey = zoneModel.AuthKey,
-                    IfAttacking = false,
+                    IfAttacking = zoneModel.IfAttacking,
                     IfEnable = zoneModel.IfEnable,
                     IfTestStage = zoneModel.IfTestStage,
                     TableID = zoneModel.TableID,
                 };
 
                 ZoneBusiness.Update(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = item.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"EditZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                });
                 return RedirectToAction("ZoneList");
             }
             else

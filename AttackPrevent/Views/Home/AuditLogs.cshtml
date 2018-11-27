@@ -239,8 +239,8 @@
     var oTable = new TableInit();
     $(document).ready(function () {
         var date = new Date();
-        $("#txt-EndTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' ' + getFormatDate(date.getHours()) + ':' + getFormatDate(date.getMinutes()));
-        $("#txt-StartTime").val(date.getFullYear() + '-' + getFormatDate(date.getMonth() + 1) + '-' + getFormatDate(date.getDate()) + ' 00:00');
+        $("#txt-EndTime").val(date.getUTCFullYear() + '-' + getFormatDate(date.getUTCMonth() + 1) + '-' + getFormatDate(date.getUTCDate()) + ' ' + getFormatDate(date.getUTCHours()) + ':' + getFormatDate(date.getUTCMinutes()));
+        $("#txt-StartTime").val(date.getUTCFullYear() + '-' + getFormatDate(date.getUTCMonth() + 1) + '-' + getFormatDate(date.getUTCDate()) + ' 00:00');
         
         oTable.Init();
     });

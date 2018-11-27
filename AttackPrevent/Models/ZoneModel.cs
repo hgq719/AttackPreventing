@@ -23,5 +23,7 @@ namespace AttackPrevent.Models
         public bool IfTestStage { get; set; }
         public bool IfEnable { get; set; }
 
+        public bool IfAttacking { get; set; }
+
     }
 }

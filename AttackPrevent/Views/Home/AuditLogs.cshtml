@@ -115,6 +115,7 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
+    @Html.Hidden("cacheKey")
 </div>
 
 <script type="text/javascript">
@@ -206,12 +207,12 @@
                     //    },
                     //    events: detailClickEvent,
                     },],
-                formatLoadingMessage: function () {
-                    $("body").mLoading({ text: "Processing..." }, "show");
-                },
-                onLoadSuccess: function () {
-                    $("body").mLoading("hide");
-                }
+                //formatLoadingMessage: function () {
+                //    $("body").mLoading({ text: "Processing..." }, "show");
+                //},
+                //onLoadSuccess: function () {
+                //    $("body").mLoading("hide");
+                //}
             });
         };
 
@@ -229,6 +230,7 @@
                 endTime: $("#txt-EndTime").val(),
                 logType: logtypeStr,
                 detail: $("#txt-detail").val(),
+                ifUseCache: true,
             };
             return temp;
         };
@@ -244,7 +246,25 @@
     });
 
     $("#queryLog").click(function () {
-        $('#auditLogTable').bootstrapTable('refresh');
+        $("body").mLoading({ text: "Processing..." }, "show");
+        var para = oTable.queryParams({ limit: 10, offset: 0 });
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetAuditLog",
+            data: Object.assign(para, { ifUseCache: false, }),
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                $("body").mLoading("hide");
+                $("#cacheKey").val(data.cacheKey);
+                $('#auditLogTable').bootstrapTable('refresh');
+            },
+            error: function (jqXHR) {
+                $("body").mLoading("hide");
+                //console.log("Error: " + jqXHR.status);
+            }
+        });
+        
     });
 
     $('#export').click(function () {

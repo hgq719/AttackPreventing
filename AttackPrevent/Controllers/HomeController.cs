@@ -111,6 +111,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 RateLimitBusiness.Add(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = rateLimitModel.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                });
                 return RedirectToAction("RateLimitingList");
             }
             else
@@ -163,6 +172,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 RateLimitBusiness.Update(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = rateLimitModel.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"EditRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                });
             }
             else
             {
@@ -174,20 +192,42 @@ namespace AttackPrevent.Controllers
 
         public ActionResult DeleteRateLimiting(int id, int order)
         {
+            
             RateLimitBusiness.Delete(id, order);
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = Request.UserHostAddress,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = item.ZoneId,
+                LogOperator = UserName,
+                LogTime = DateTime.UtcNow,
+                Detail = $"[Audit] {"DeleteRateLimit"} {JsonConvert.SerializeObject(item)}",
+            });
             return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult EditRateLimitingOrder(int id, int order, int actionb)
         {
             RateLimitBusiness.UpdateOrder(actionb, id, order);
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+            string optionStr = actionb == 1 ? "up" : "down";
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = Request.UserHostAddress,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = item.ZoneId,
+                LogOperator = UserName,
+                LogTime = DateTime.UtcNow,
+                Detail = $"[Audit] {"EditRateLimit order"} [{optionStr}] {JsonConvert.SerializeObject(item)}",
+            });
             return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult AuditLogs() 
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
-            
+            Utils.RemoveMemoryCache(AuditLogBusiness.cacheKey);
             return View();
         }
 
@@ -331,9 +371,10 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("ZoneList");
         }
 
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {   
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);
+
+            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

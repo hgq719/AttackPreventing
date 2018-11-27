@@ -46,7 +46,7 @@ namespace AttackPrevent.Business.Cloundflare
             string key = string.Empty;
             if ( Convert.ToDateTime( end.ToString("yyyy-MM-dd HH:mm") ) > Convert.ToDateTime(start.ToString("yyyy-MM-dd HH:mm")))
             {
-                key = string.Format("{0}-{1}-{2}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"), sample);
+                key = string.Format("{0}-{1}-{2}-{3}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"), sample, zoneId);
                 if (Utils.GetMemoryCache<GetCloundflareLogsBackgroundInfo>(key) != null)
                 {
 
@@ -91,7 +91,7 @@ namespace AttackPrevent.Business.Cloundflare
                         string zoneId = backgroundInfo.ZoneId;
                         string authEmail = backgroundInfo.AuthEmail;
                         string authKey = backgroundInfo.AuthKey;
-                        string key = string.Format("{0}-{1}-{2}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample);
+                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
                         ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
                         cloudflareLogHandleSercie.TaskStart();

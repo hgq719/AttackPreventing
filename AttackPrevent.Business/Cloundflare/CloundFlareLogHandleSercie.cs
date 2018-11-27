@@ -27,10 +27,10 @@ namespace AttackPrevent.Business
         private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
         private ILogService logService;
         private double sample = 0.01;
-        private int timeSpan = 10;
+        private int timeSpan = 20;
         private DateTime startTime;
         private DateTime endTime;
-        private int taskCount = 5;
+        private int taskCount = 3;
         private string zoneId;
         private string authEmail;
         private string authKey;
@@ -113,7 +113,7 @@ namespace AttackPrevent.Business
 
                         if (cloudflareLogs != null && cloudflareLogs.Count > 0)
                         {
-                            string key = string.Format("{0}-{1}-{2}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample);
+                            string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample,zoneId);
                             if (!dicCloudflareLogs.Keys.Contains(key))
                             {
                                 dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());

@@ -17,7 +17,13 @@ namespace AttackPrevent.Access
             List<GlobalConfiguration> result = new List<GlobalConfiguration>();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "SELECT [EmailAddForWhiteList],[CancelBanIPTime],[ValidateCode],[GlobalThreshold],[GlobalPeriod],[GlobalSample],[GlobalTimeSpan] FROM [t_Global_Configuration] ";
+                string query = @"SELECT [EmailAddForWhiteList],
+                                        [CancelBanIPTime],
+                                        [ValidateCode],
+                                        [GlobalThreshold],
+                                        [GlobalPeriod],
+                                        [GlobalSample],
+                                        [GlobalTimeSpan] FROM [t_Global_Configuration] ";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 

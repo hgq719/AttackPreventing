@@ -223,9 +223,9 @@ namespace AttackPrevent.WindowsService.Job
                 IfTestStage = true
             };
 
-            #region Start Analyze Log
+           
             StartAnalyze(zoneEntity);
-            #endregion
+          
 
             return Task.FromResult(0);
         }
@@ -320,6 +320,7 @@ namespace AttackPrevent.WindowsService.Job
 
                 if (logsIpAll.Count() > 0)
                 {
+                    //Code review by michael, 只有几行代码，注释一下就好了. 不需要Region
                     #region 发送警报
                     ifAttacking = true;
                     ZoneBusiness.UpdateAttackFlag(true, zoneId);
@@ -531,16 +532,16 @@ namespace AttackPrevent.WindowsService.Job
                 systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Finished to analyze logs, time range is [{0}].", timeStage)));
 
             }
-            catch (Exception ex)
+            catch (Exception ex) //code review by michael. 要加堆栈信息的.
             {
-                systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Error, string.Format("Error in analyzing logs, time range is [{1}], the reason is:[{0}]", ex.Message, timeStage)));
+                systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Error, string.Format("Error in analyzing logs, time range is [{1}], the reason is:[{0}]", ex.Message, timeStage))); 
             }
             finally
             {
                 AuditLogBusiness.AddList(systemLogList);
                 if (!ifAttacking)
                 {
-                    ZoneBusiness.UpdateAttackFlag(false, zoneId);
+                    ZoneBusiness.UpdateAttackFlag(false,zoneId); //code review by michael. 记录日志的代码本身报错了怎么办?
 
                     systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("There's no attack ,cancel the alert call in ZoneName [{0}].", zoneEntity.ZoneName)));
                 }
@@ -717,11 +718,13 @@ namespace AttackPrevent.WindowsService.Job
         {
             foreach (var hostConfig in hostConfigList)
             {
+                // code review by page 这个地方用==全字匹配是否合适
                 if (hostConfig.Host.Equals(hostStr))
                 {
                     return requestCount / (float)(timeSpan * sample) >= ((float)hostConfig.Threshold / hostConfig.Period);
                 }
             }
+            //这段代码意图是？
             return requestCount / (float)(timeSpan * sample) >= ((float)globalThreshold / globalPeriod);
         }
     }

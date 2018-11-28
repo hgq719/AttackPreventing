@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
+    //Code Review By Michael, 接口和类不要放到一个文件里面.感觉这个接口没有也没关系的.
     public interface IWhiteListBusinees
     {
         dynamic GetWhiteListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes);
@@ -15,6 +16,7 @@ namespace AttackPrevent.Business
     }
     public class WhiteListBusinees : IWhiteListBusinees
     {
+        //Code Review By Michael, 是cloudFlare, 单词错误，请把系统里面所有不对的都改掉,
         ICloundFlareApiService cloundFlareApiService;
         public WhiteListBusinees()
         {
@@ -43,7 +45,7 @@ namespace AttackPrevent.Business
                 });
                 if (response.success)
                 {
-                    string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                    string key = $"GetWhiteListModelList:{zoneId}-{authEmail}-{authKey}";
                     Utils.RemoveMemoryCache(key);
                 }
             }

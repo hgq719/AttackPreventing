@@ -31,6 +31,7 @@ namespace AttackPrevent.WindowsService
                 }
                 catch (Exception ex)
                 {
+                    //Code review by michael. 1. 只有错误信息，没有堆栈. 2. 报错信息记录在哪里? 又没有日志，以后线上报错怎么查? 
                     Console.Write(ex.Message);
                 }
                 
@@ -66,6 +67,7 @@ namespace AttackPrevent.WindowsService
         #region 服务相关
         private const string SrvName = "Comm100.AcctackLogAnalyzeService";
         private const string SrvDisplay = "Comm100.AcctackLogAnalyzeService";
+        //Code review by michael (string not String, s 是小写的）
         private const String SrvDescription = "Acctack Log Analyze windodws Service for Comm100";
         #endregion
 
@@ -82,8 +84,9 @@ namespace AttackPrevent.WindowsService
 
         private static void Uninstall(WindowsServiceInstaller srv)
         {
-            bool ok = srv.UnInstallService(SrvDisplay);
+            var ok = srv.UnInstallService(SrvDisplay);
 
+            // Code review by michael Console.WriteLine(ok ? "Service uninstalled." : "There was a problem with uninstallation.");
             if (ok)
                 Console.WriteLine("Service uninstalled.");
             else

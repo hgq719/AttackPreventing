@@ -60,22 +60,22 @@ namespace AttackPrevent.Access
                                                              [PeriodForHost],
                                                              [Id] FROM [t_Zone_Info] ");
             StringBuilder where = new StringBuilder();
-            if (!string.IsNullOrWhiteSpace(zoneID))
-            {
-                where.Append(" ZoneId LIKE'%'+@zoneID+'%' AND ");
-            }
+            //if (!string.IsNullOrWhiteSpace(zoneID))
+            //{
+            //    where.Append(" ZoneId LIKE'%'+@zoneID+'%' AND ");
+            //}
             if (!string.IsNullOrWhiteSpace(zoneName))
             {
                 where.Append(" ZoneName LIKE'%'+@zoneName+'%' AND ");
             }
-            if (ifTest)
-            {
-                where.Append(" IfTestStage = @ifTest AND ");
-            }
-            if (ifEnabel)
-            {
-                where.Append(" IfEnable = @ifEnabel AND ");
-            }
+            //if (ifTest)
+            //{
+            //    where.Append(" IfTestStage = @ifTest AND ");
+            //}
+            //if (ifEnabel)
+            //{
+            //    where.Append(" IfEnable = @ifEnabel AND ");
+            //}
             if (where.Length > 4)
             {
                 where.Remove(where.Length - 4, 4);
@@ -86,22 +86,22 @@ namespace AttackPrevent.Access
             {
                 
                 SqlCommand cmd = new SqlCommand(query.ToString(), conn);
-                if (!string.IsNullOrWhiteSpace(zoneID))
-                {
-                    cmd.Parameters.AddWithValue("@zoneID", zoneID);
-                }
+                //if (!string.IsNullOrWhiteSpace(zoneID))
+                //{
+                //    cmd.Parameters.AddWithValue("@zoneID", zoneID);
+                //}
                 if (!string.IsNullOrWhiteSpace(zoneName))
                 {
                     cmd.Parameters.AddWithValue("@zoneName", zoneName);
                 }
-                if (ifTest)
-                {
-                    cmd.Parameters.AddWithValue("@ifTest", ifTest);
-                }
-                if (ifEnabel)
-                {
-                    cmd.Parameters.AddWithValue("@ifEnabel", ifEnabel);
-                }
+                //if (ifTest)
+                //{
+                //    cmd.Parameters.AddWithValue("@ifTest", ifTest);
+                //}
+                //if (ifEnabel)
+                //{
+                //    cmd.Parameters.AddWithValue("@ifEnabel", ifEnabel);
+                //}
                 conn.Open();
 
                 using (SqlDataReader reader = cmd.ExecuteReader())

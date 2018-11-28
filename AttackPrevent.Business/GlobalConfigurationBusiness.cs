@@ -10,6 +10,7 @@ namespace AttackPrevent.Business
 {
     public class GlobalConfigurationBusiness
     {
+        //Code Review by michael, 程序出错了怎么办，又没有记录日志.
         public static List<GlobalConfiguration> GetConfigurationList()
         {
             return GlobalConfigurationAccess.GetList();

@@ -17,7 +17,10 @@ namespace AttackPrevent.Access
             var result = new List<HostConfiguration>();
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                string query = "SELECT [Id], [Host], [Threshold], [Period] FROM [t_Host_Configuration]";
+                string query = @"SELECT [Id], 
+                                        [Host], 
+                                        [Threshold], 
+                                        [Period] FROM [t_Host_Configuration]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 

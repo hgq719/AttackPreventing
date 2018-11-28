@@ -34,7 +34,7 @@
                 <label for="txt-StartTime">Start Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="startTime" id="txt-StartTime" value="@DateTime.Now.AddMinutes(-10).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
+                <input type="text" name="startTime" id="txt-StartTime" value="@DateTime.UtcNow.AddMinutes(-10).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
             </div>
         </div>
 
@@ -43,7 +43,7 @@
                 <label for="txt-StartTime">End Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="endTime" id="txt-EndTime" value="@DateTime.Now.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
+                <input type="text" name="endTime" id="txt-EndTime" value="@DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
             </div>
         </div>
 

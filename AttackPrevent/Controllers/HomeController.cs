@@ -111,6 +111,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 RateLimitBusiness.Add(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = rateLimitModel.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                });
                 return RedirectToAction("RateLimitingList");
             }
             else
@@ -163,6 +172,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 RateLimitBusiness.Update(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = rateLimitModel.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"EditRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                });
             }
             else
             {
@@ -174,20 +192,42 @@ namespace AttackPrevent.Controllers
 
         public ActionResult DeleteRateLimiting(int id, int order)
         {
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
             RateLimitBusiness.Delete(id, order);
+            
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = Request.UserHostAddress,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = item.ZoneId,
+                LogOperator = UserName,
+                LogTime = DateTime.UtcNow,
+                Detail = $"[Audit] {"DeleteRateLimit"} {JsonConvert.SerializeObject(item)}",
+            });
             return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult EditRateLimitingOrder(int id, int order, int actionb)
         {
             RateLimitBusiness.UpdateOrder(actionb, id, order);
+            RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
+            string optionStr = actionb == 1 ? "up" : "down";
+            AuditLogBusiness.Add(new AuditLogEntity
+            {
+                IP = Request.UserHostAddress,
+                LogType = LogLevel.Audit.ToString(),
+                ZoneID = item.ZoneId,
+                LogOperator = UserName,
+                LogTime = DateTime.UtcNow,
+                Detail = $"[Audit] {"EditRateLimit order"} [{optionStr}] {JsonConvert.SerializeObject(item)}",
+            });
             return RedirectToAction("RateLimitingList");
         }
 
         public ActionResult AuditLogs() 
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
-            
+            Utils.RemoveMemoryCache(AuditLogBusiness.cacheKey);
             return View();
         }
 
@@ -250,6 +290,15 @@ namespace AttackPrevent.Controllers
                 };
 
                 ZoneBusiness.Add(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = item.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"AddZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                });
                 return RedirectToAction("ZoneList");
             }
             else
@@ -275,7 +324,8 @@ namespace AttackPrevent.Controllers
                 IfTestStage = entity.IfTestStage,
                 TableID = entity.TableID,
                 ZoneId = entity.ZoneId,
-                ZoneName = entity.ZoneName
+                ZoneName = entity.ZoneName,
+                IfAttacking = entity.IfAttacking,
             };
 
             return View(model);
@@ -292,13 +342,22 @@ namespace AttackPrevent.Controllers
                     ZoneName = zoneModel.ZoneName,
                     AuthEmail = zoneModel.AuthEmail,
                     AuthKey = zoneModel.AuthKey,
-                    IfAttacking = false,
+                    IfAttacking = zoneModel.IfAttacking,
                     IfEnable = zoneModel.IfEnable,
                     IfTestStage = zoneModel.IfTestStage,
                     TableID = zoneModel.TableID,
                 };
 
                 ZoneBusiness.Update(item);
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = Request.UserHostAddress,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = item.ZoneId,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    Detail = $"[Audit] {"EditZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                });
                 return RedirectToAction("ZoneList");
             }
             else
@@ -331,9 +390,16 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("ZoneList");
         }
 
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        public ActionResult GetZoneIfAttacking(string zone)
+        {
+            ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
+            return View();
+        }
+
+        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {   
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail);
+
+            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

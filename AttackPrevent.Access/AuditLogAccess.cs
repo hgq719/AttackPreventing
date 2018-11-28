@@ -52,11 +52,11 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@zoneID", zoneId);
                 if (startTime.HasValue)
                 {
-                    cmd.Parameters.AddWithValue("@startTime", startTime);
+                    cmd.Parameters.AddWithValue("@startTime", startTime.Value);
                 }
                 if (endTime.HasValue)
                 {
-                    cmd.Parameters.AddWithValue("@endTime", endTime);
+                    cmd.Parameters.AddWithValue("@endTime", endTime.Value.AddMinutes(1));
                 }
                 if (!string.IsNullOrWhiteSpace(logType))
                 {

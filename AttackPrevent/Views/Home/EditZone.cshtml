@@ -45,9 +45,17 @@
                 </label>
             </div>
         </div>
+        <div class="row form-group">
+            <div class="checkbox col-md-4 col-md-offset-4">
+                <label>
+                    @Html.CheckBoxFor(model => model.IfEnable) If Enable
+                </label>
+            </div>
+        </div>
         <div>
             @Html.HiddenFor(model => model.TableID)
         </div>
+        @Html.CheckBoxFor(model => model.IfAttacking, new { @style="display:none;"})
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />

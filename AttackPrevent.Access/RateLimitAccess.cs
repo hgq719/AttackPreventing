@@ -14,20 +14,26 @@ namespace AttackPrevent.Access
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             List<RateLimitEntity> result = new List<RateLimitEntity>();
-            StringBuilder query = new StringBuilder("select Period, Threshold, Url, OrderNo, EnlargementFactor, RateLimitTriggerIpCount, Id from t_RateLimiting_Rules where ZoneId=@zoneID");
+            StringBuilder query = new StringBuilder(@"SELECT Period, 
+                                                             Threshold, 
+                                                             Url, 
+                                                             OrderNo, 
+                                                             EnlargementFactor, 
+                                                             RateLimitTriggerIpCount, 
+                                                             Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
-                query.Append(" and LogTime >= @startTime ");
+                query.Append(" AND LogTime >= @startTime ");
             }
 
             if (endTime.HasValue)
             {
-                query.Append(" and LogTime <= @endTime ");
+                query.Append(" AND LogTime <= @endTime ");
             }
 
             if (!string.IsNullOrWhiteSpace(url))
             {
-                query.Append(" and Url = @url ");
+                query.Append(" AND Url = @url ");
             }
 
             query.Append(" ORDER BY OrderNo");
@@ -58,13 +64,13 @@ namespace AttackPrevent.Access
                     {
                         RateLimitEntity item = new RateLimitEntity();
                         item.ID = index++;
-                        item.Period = reader.GetInt32(0);
-                        item.Threshold = reader.GetInt32(1);
-                        item.Url = reader.GetString(2);
-                        item.OrderNo = reader.GetInt32(3);
-                        item.EnlargementFactor = reader.GetInt32(4);
-                        item.RateLimitTriggerIpCount = reader.GetInt32(5);
-                        item.TableID = reader.GetInt32(6);
+                        item.Period = Convert.ToInt32( reader["Period"]);
+                        item.Threshold = Convert.ToInt32(reader["Threshold"]);
+                        item.Url = Convert.ToString(reader["Url"]);
+                        item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
+                        item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
+                        item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
+                        item.TableID = Convert.ToInt32(reader["Id"]);
                         result.Add(item);
                     }
                 }
@@ -101,12 +107,12 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           @period , -- Period - int
           N'challenge' , -- Action - nvarchar(256)
           @enlargement , -- EnlargementFactor - int
-          GETDATE() , -- LatestTriggerTime - datetime
+          GETUTCDATE() , -- LatestTriggerTime - datetime
           @triggerIpCount , -- RateLimitTriggerIpCount - int
           @triggerTime , -- RateLimitTriggerTime - int
           N'' , -- Remark - nvarchar(1024)
           @user , -- CreatedBy - 
-          GETDATE()  -- CreatedTime - datetime
+          GETUTCDATE()  -- CreatedTime - datetime
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
@@ -130,15 +136,15 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"UPDATE  dbo.t_RateLimiting_Rules
-SET     ZoneId = @zoneID ,
-        Url = @url ,
-        Threshold = @threshold ,
-        Period = @period ,
-        EnlargementFactor = @enlargement ,
-        RateLimitTriggerIpCount = @triggerIpCount ,
-        RateLimitTriggerTime = @triggerTime ,
-        CreatedBy = @user
-WHERE   Id = @id;";
+                                    SET     ZoneId = @zoneID ,
+                                            Url = @url ,
+                                            Threshold = @threshold ,
+                                            Period = @period ,
+                                            EnlargementFactor = @enlargement ,
+                                            RateLimitTriggerIpCount = @triggerIpCount ,
+                                            RateLimitTriggerTime = @triggerTime ,
+                                            CreatedBy = @user
+                                    WHERE   Id = @id;";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
@@ -218,7 +224,15 @@ WHERE   Id = @id;";
             RateLimitEntity item = new RateLimitEntity();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "select Period, Threshold, Url, OrderNo, EnlargementFactor, RateLimitTriggerIpCount, Id, ZoneId, RateLimitTriggerTime from t_RateLimiting_Rules where OrderNo=@order";
+                string query = @"SELECT Period, 
+                                        Threshold, 
+                                        Url, 
+                                        OrderNo, 
+                                        EnlargementFactor, 
+                                        RateLimitTriggerIpCount, 
+                                        Id, 
+                                        ZoneId, 
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@order", order);
                 conn.Open();
@@ -228,15 +242,15 @@ WHERE   Id = @id;";
                     if (reader.Read())
                     {
                         
-                        item.Period = reader.GetInt32(0);
-                        item.Threshold = reader.GetInt32(1);
-                        item.Url = reader.GetString(2);
-                        item.OrderNo = reader.GetInt32(3);
-                        item.EnlargementFactor = reader.GetInt32(4);
-                        item.RateLimitTriggerIpCount = reader.GetInt32(5);
-                        item.TableID = reader.GetInt32(6);
-                        item.ZoneId = reader.GetString(7);
-                        item.RateLimitTriggerTime = reader.GetInt32(8);
+                        item.Period = Convert.ToInt32(reader["Period"]);
+                        item.Threshold = Convert.ToInt32(reader["Threshold"]);
+                        item.Url = Convert.ToString(reader["Url"]);
+                        item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
+                        item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
+                        item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
+                        item.TableID = Convert.ToInt32(reader["Id"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }
             }
@@ -250,7 +264,15 @@ WHERE   Id = @id;";
             RateLimitEntity item = new RateLimitEntity();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "select Period, Threshold, Url, OrderNo, EnlargementFactor, RateLimitTriggerIpCount, Id, ZoneId, RateLimitTriggerTime from t_RateLimiting_Rules where Id=@id";
+                string query = @"SELECT Period, 
+                                        Threshold, 
+                                        Url, 
+                                        OrderNo, 
+                                        EnlargementFactor, 
+                                        RateLimitTriggerIpCount, 
+                                        Id, 
+                                        ZoneId, 
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where Id=@id";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
                 conn.Open();
@@ -260,15 +282,15 @@ WHERE   Id = @id;";
                     if (reader.Read())
                     {
 
-                        item.Period = reader.GetInt32(0);
-                        item.Threshold = reader.GetInt32(1);
-                        item.Url = reader.GetString(2);
-                        item.OrderNo = reader.GetInt32(3);
-                        item.EnlargementFactor = reader.GetInt32(4);
-                        item.RateLimitTriggerIpCount = reader.GetInt32(5);
-                        item.TableID = reader.GetInt32(6);
-                        item.ZoneId = reader.GetString(7);
-                        item.RateLimitTriggerTime = reader.GetInt32(8);
+                        item.Period = Convert.ToInt32(reader["Period"]);
+                        item.Threshold = Convert.ToInt32(reader["Threshold"]);
+                        item.Url = Convert.ToString(reader["Url"]);
+                        item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
+                        item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
+                        item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
+                        item.TableID = Convert.ToInt32(reader["Id"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }
             }
@@ -282,10 +304,12 @@ WHERE   Id = @id;";
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "SELECT MAX(OrderNo) FROM dbo.t_RateLimiting_Rules";
+                string query = @"SELECT MAX(OrderNo) 
+                                    FROM dbo.t_RateLimiting_Rules";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
-                count = (int)cmd.ExecuteScalar();
+                string counts = cmd.ExecuteScalar().ToString();
+                count = string.IsNullOrWhiteSpace(counts) ? 0 : int.Parse(counts);
             }
 
             return count;

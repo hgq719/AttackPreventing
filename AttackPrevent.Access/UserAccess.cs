@@ -16,7 +16,8 @@ namespace AttackPrevent.Access
             List<dynamic> result = new List<dynamic>();
             using (SqlConnection conn = new SqlConnection(cons))
             {
-                string query = "select [UserName] from [t_Users] ";
+                string query = @"SELECT [UserName] 
+                                    FROM [t_Users] ";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 
@@ -24,9 +25,8 @@ namespace AttackPrevent.Access
                 {
                     while (reader.Read())
                     {
-                        //result.Add(new { Name= reader.GetString(0).ToLower()});
                         dynamic expando = new ExpandoObject();
-                        expando.Name = reader.GetString(0).ToLower();
+                        expando.Name = Convert.ToString(reader["UserName"]).ToLower();
                         result.Add(expando);
                     }
                 }

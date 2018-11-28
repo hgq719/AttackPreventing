@@ -11,17 +11,24 @@ namespace AttackPrevent.Models
         public int TableID { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string ZoneId { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string ZoneName { get; set; }
 
         [Required]
+        [EmailAddress]
+        [StringLength(50)]
         public string AuthEmail { get; set; }
         [Required]
+        [StringLength(50)]
         public string AuthKey { get; set; }
         public bool IfTestStage { get; set; }
         public bool IfEnable { get; set; }
+
+        public bool IfAttacking { get; set; }
 
     }
 }

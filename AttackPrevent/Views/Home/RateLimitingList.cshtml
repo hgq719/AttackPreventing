@@ -62,6 +62,12 @@
 </div>
 
 <script type="text/javascript">
+    window.detailClickEvent = {
+        'click .rate-delete': function (e, value, row, index) {
+            event.returnValue = confirm("Are you sure to delete this RateLimit?");
+        }
+    }
+
     var TableInit = function () {
         var oTableInit = new Object();
         //初始化Table
@@ -120,17 +126,15 @@
                     }, {
                         field: '',
                         title: 'Operation',
-                        events: function () {
-
-                        },
+                        events: detailClickEvent,
                         formatter: function (value, row, index) {
                             var btnEdit = '<a href="/home/EditRateLimiting?id=' + row.TableID + '" class="rate-edit " ><span class="glyphicon glyphicon-edit btn-in-table" aria-hidden="true" title="Edit"></span></a>';
                             var btnDelete = '<a href="/home/DeleteRateLimiting?id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-delete " ><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>';
-                            var btnUp = '<a href="/home/EditRateLimitingOrder?actionb=1&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-up " ><span class="glyphicon glyphicon-arrow-up btn-in-table" aria-hidden="true" Title="Down"></span></a>';
+                            var btnUp = '<a href="/home/EditRateLimitingOrder?actionb=1&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-up " ><span class="glyphicon glyphicon-arrow-up btn-in-table" aria-hidden="true" Title="up"></span></a>';
                             if (row.OrderNo === 1) {
                                 btnUp = '';
                             }
-                            var btnDown = '<a href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true"></span></a>';
+                            var btnDown = '<a href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true" Title="down"></span></a>';
                             if (row.OrderNo === @ViewBag.MaxOrder) {
                                 btnDown = '';
                             }

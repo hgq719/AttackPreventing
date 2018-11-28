@@ -1,12 +1,9 @@
 ﻿using AttackPrevent.WindowsService.Job;
 using AttackPrevent.WindowsService.SysConfig;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AttackPrevent.WindowsService
 {
@@ -16,18 +13,28 @@ namespace AttackPrevent.WindowsService
         {
             while (true)
             {
+                var sleepTime = 1000;
                 try
                 {
-                    Console.WriteLine(string.Format("[app] [{0}] AttackPrevent service start...", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")));
+                    var sw = new Stopwatch();
+                    sw.Start();
+
+                    Console.WriteLine(
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Start to get logs and analysis data.");
+
                     new LogAnalyzeJob().Execute(null);
-                    Console.WriteLine(string.Format("[app] [{0}] AttackPrevent service has analyzed log, 5 second later will start new loop.", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")));
+                    sw.Stop();
+
+                    Console.WriteLine(
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Finished to get logs and analysis data, time elapsed：{sw.ElapsedMilliseconds/1000} seconds.");
+                    sleepTime = 2*60*1000 - (int)sw.ElapsedMilliseconds;
                 }
                 catch (Exception ex)
                 {
                     Console.Write(ex.Message);
                 }
                 
-                Thread.Sleep(5000);
+                Thread.Sleep(sleepTime > 0 ? sleepTime: 1000);
             }
             //new LogAnalyzeJob().Execute(null);
             //return;

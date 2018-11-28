@@ -155,6 +155,27 @@ WHERE   Id = @id;";
             }
         }
 
+        public static void TriggerRateLimit(RateLimitEntity rateLimit)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"UPDATE dbo.t_RateLimiting_Rules
+                                 SET RateLimitTriggerTime = GETUTCDATE()  
+                                 WHERE Url = @Url 
+                                   AND Threshold = @Threshold
+                                   AND Period = @Period";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Threshold", rateLimit.Threshold);
+                cmd.Parameters.AddWithValue("@Period", rateLimit.Period);
+                cmd.Parameters.AddWithValue("@Url", rateLimit.Url);
+                conn.Open();
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public static void EditOrder(int fromID, int fromOrder, int toID, int toOrder)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();

@@ -50,6 +50,11 @@ namespace AttackPrevent.Business
             RateLimitAccess.Edit(item);
         }
 
+        public static void TriggerRateLimit(RateLimitEntity rateLimit)
+        {
+            RateLimitAccess.TriggerRateLimit(rateLimit);
+        }
+
         public static void Delete(int id, int order)
         {
             RateLimitAccess.Delete(id, order);

@@ -55,7 +55,9 @@ namespace AttackPrevent.Access
                                                              [AuthEmail],
                                                              [IfTestStage],
                                                              [IfEnable],
-                                                             [IfAttacking], 
+                                                             [IfAttacking],
+                                                             [ThresholdForHost],
+                                                             [PeriodForHost],
                                                              [Id] FROM [t_Zone_Info] ");
             StringBuilder where = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(zoneID))
@@ -116,6 +118,8 @@ namespace AttackPrevent.Access
                         item.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
                         item.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
                         item.TableID = Convert.ToInt32(reader["Id"]);
+                        item.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
+                        item.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                         result.Add(item);
                     }
                 }
@@ -204,6 +208,8 @@ namespace AttackPrevent.Access
                                                              [IfTestStage],
                                                              [IfEnable],
                                                              [IfAttacking], 
+                                                             [ThresholdForHost],
+                                                             [PeriodForHost],
                                                              [Id], 
                                                              [AuthKey] from [t_Zone_Info] WHERE [Id] = @id");
 
@@ -268,6 +274,8 @@ namespace AttackPrevent.Access
                         result.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
                         result.TableID = Convert.ToInt32(reader["Id"]);
                         result.AuthKey = Convert.ToString(reader["AuthKey"]);
+                        result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
+                        result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                     }
                 }
             }

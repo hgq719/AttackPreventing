@@ -20,8 +20,6 @@ namespace AttackPrevent.Access
                 string query = @"SELECT [EmailAddForWhiteList],
                                         [CancelBanIPTime],
                                         [ValidateCode],
-                                        [GlobalThreshold],
-                                        [GlobalPeriod],
                                         [GlobalSample],
                                         [GlobalTimeSpan] FROM [t_Global_Configuration] ";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -36,8 +34,6 @@ namespace AttackPrevent.Access
                             EmailAddForWhiteList = Convert.ToString(reader["EmailAddForWhiteList"]),
                             CancelBanIPTime = Convert.ToInt32(reader["CancelBanIPTime"]),
                             ValidateCode = Convert.ToString(reader["ValidateCode"]),
-                            GlobalThreshold = Convert.ToInt32(reader["GlobalThreshold"]),
-                            GlobalPeriod = Convert.ToInt32(reader["GlobalPeriod"]),
                             GlobalSample = Convert.ToDouble(reader["GlobalSample"]),
                             GlobalTimeSpan = Convert.ToInt32(reader["GlobalTimeSpan"])
                         });

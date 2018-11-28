@@ -671,11 +671,13 @@ namespace AttackPrevent.WindowsService.Job
         {
             foreach (var hostConfig in hostConfigList)
             {
+                // code review by page 这个地方用==全字匹配是否合适
                 if (hostConfig.Host.Equals(hostStr))
                 {
                     return requestCount / (float)(timeSpan * sample) >= ((float)hostConfig.Threshold / hostConfig.Period);
                 }
             }
+            //这段代码意图是？
             return requestCount / (float)(timeSpan * sample) >= ((float)globalThreshold / globalPeriod);
         }
     }

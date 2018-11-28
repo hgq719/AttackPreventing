@@ -39,7 +39,7 @@ namespace AttackPrevent.Business
                 var url = string.Empty;
                 if (string.IsNullOrEmpty(ip))
                 {
-                    requestUrl = @"{3}/zones/{0}/firewall/access_rules/rules?mode={1}&per_page=20&page={2}";
+                    requestUrl = @"{3}/zones/{0}/firewall/access_rules/rules?mode={1}&per_page=200&page={2}";
                     url = string.Format(requestUrl, _zoneId, CONST_CHALLENGE, firstPage, _apiUrlPrefix);
                 }
                 else
@@ -55,7 +55,7 @@ namespace AttackPrevent.Business
                 {
                     var resultInfo = pageBlacklist.Result_Info;
                     blacklist.AddRange(pageBlacklist.Result);
-                    if (!string.IsNullOrEmpty(ip))
+                    if (string.IsNullOrEmpty(ip))
                     {
                         for (int pageIndex = 2; pageIndex <= resultInfo.Total_Pages; pageIndex++)
                         {
@@ -290,15 +290,16 @@ namespace AttackPrevent.Business
             return deleteRateLimitResponse;
         }
 
-        public CloudflareRateLimitRule GetRateLimitRule(string url)
+        public CloudflareRateLimitRule GetRateLimitRule(string url, int threshold, int period)
         {
             var ratelimits = GetRateLimits();
             if (null != ratelimits && ratelimits.Count > 0)
             {
-                var id = string.Empty;
                 foreach (var rateLimit in ratelimits)
                 {
-                    if (url.Contains(rateLimit.Match.Request.Url))
+                    if (url.Contains(rateLimit.Match.Request.Url)
+                        && rateLimit.Threshold == threshold
+                        && rateLimit.Period == period)
                     {
                         return rateLimit;
                     }
@@ -307,79 +308,65 @@ namespace AttackPrevent.Business
             return null;
         }
 
-        public bool OpenRateLimit(string url, int threshold, int period, out List<AuditLogEntity> auditLogs)
+        public bool OpenRateLimit(string url, int threshold, int period, out AuditLogEntity errorLog)
         {
-            auditLogs = new List<AuditLogEntity>();
-            auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit,"正式打开规则"));
-            //return new CloudflareAccessRuleResponse() { Success = true };
-            var ratelimit = GetRateLimitRule(url);
-            if (null != ratelimit&& ratelimit.Threshold == threshold && ratelimit.Period == period)
+            errorLog = null;
+            var ratelimit = GetRateLimitRule(url, threshold, period);
+            if (null != ratelimit)
             {
-                auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("在Cloudflare中找到规则[URL=[{0}],Threshold=[{1}],Period=[{2}]]，直接打开",url,threshold,period)));
-                return true;
                 ratelimit.Disabled = false;
                 var response = UpdateRateLimit(ratelimit);
-                if (response.success)
+                if (!response.success)
                 {
-                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, "Cloudflare规则打开成功."));
-                }
-                else
-                {
-                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("Cloudflare规则打开失败，原因是[0].", response.errors.Count() > 0 ? response.errors[0].message : "Cloudflare没有返回错误信息")));
+                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error, string.Format("Open rate limiting rule of Cloudflare failure，the reason is:[{0}].<br />", response.errors.Count() > 0 ? response.errors[0].message : "No error message from Cloudflare."));
                 }
                 return response.success;
             }
             else
             {
-                auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("在Cloudflare中找不到规则[URL=[{0}],Threshold=[{1}],Period=[{2}]]，直接创建", url, threshold, period)));
-                return true;
                 var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period));
-                if (response.success)
+                if (!response.success)
                 {
-                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, "Cloudflare规则创建成功."));
-                }
-                else
-                {
-                    auditLogs.Add(new AuditLogEntity(_zoneId, LogLevel.Audit, string.Format("Cloudflare规则创建失败，原因是[0].", response.errors.Count() > 0 ? response.errors[0].message : "Cloudflare没有返回错误信息")));
+                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error, string.Format("Create rate limiting rule of Cloudflare failure，the reason is:[{0}].<br />", response.errors.Count() > 0 ? response.errors[0].message : "No error message from Cloudflare."));
                 }
                 return response.success;
             }
         }
 
-        public bool RemoveRateLimit(string url, int threshold, int period)
+        public DeleteRateLimitResponse RemoveRateLimit(string url, int threshold, int period)
         {
-            var ratelimit = GetRateLimitRule(url);
-            if (null != ratelimit && ratelimit.Threshold == threshold && ratelimit.Period == period)
+            var ratelimit = GetRateLimitRule(url, threshold, period);
+            if (null != ratelimit)
             {
-                var response = DeleteRateLimit(ratelimit.Id);
-                return response.success;
+                return DeleteRateLimit(ratelimit.Id);
             }
-            return true;
+            return new DeleteRateLimitResponse()
+            {
+                success = false,
+                errors = new Error[] { new Error() { message = "No rate limiting rule found in Cloudflare."} }
+                
+            };
         }
         #endregion
 
         #region Ban IP
         public CloudflareAccessRuleResponse BanIp(string ip, string notes)
         {
-            var blackListRequest = new CloudflareAccessRuleRequest(ip,"challenge", false, notes);
-            return new CloudflareAccessRuleResponse() { Success = true };
-            return CreateAccessRule(blackListRequest);
+            return CreateAccessRule(new CloudflareAccessRuleRequest(ip, "challenge", false, notes));
         }
 
-        public CloudflareAccessRuleResponse DeleteBanIp(string ip)
+        public CloudflareAccessRuleResponse RemoveIpFromBlacklist(string ip)
         {
-            if (!string.IsNullOrEmpty(ip))
+            var blacklist = GetBlacklist(ip);
+            if (null != blacklist && blacklist.Count > 0)
             {
-                var blacklist = GetBlacklist(ip);
-                if (null != blacklist && blacklist.Count > 0)
-                {
-                    var blackInfo = blacklist[0];
-                    return DeleteAccessRule(blackInfo.Id);
-                }
+                var blackInfo = blacklist[0];
+                return DeleteAccessRule(blackInfo.Id);
             }
             return new CloudflareAccessRuleResponse()
             {
-                Success = false
+                Success = false,
+                Errors = new string[] { "Not found in Cloudflare blacklist." }
             };
         }
         #endregion

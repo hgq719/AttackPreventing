@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuditBusiness.cs" />
+    <Compile Include="BanIpHistoryBusiness.cs" />
     <Compile Include="Cloundflare\BackgroundTaskService.cs" />
     <Compile Include="Cloundflare\CloundFlareApiService.cs" />
     <Compile Include="Cloundflare\CloundFlareLogHandleSercie.cs" />

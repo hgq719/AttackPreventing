@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
@@ -31,6 +29,7 @@ namespace AttackPrevent.Business
             };
             if (zone.IfEnable && zone.IfAttacking && !zone.IfTestStage)
             {
+                //Code review by michael, 这里面是可能有异常的.
                 response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
                 {
                     configuration = new Configuration
@@ -79,7 +78,7 @@ namespace AttackPrevent.Business
 
         public dynamic GetBlackListModelList(string zoneId, string authEmail, string authKey, int limit, int offset, string ip, DateTime start, DateTime end, string notes)
         {
-            string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+            string key = $"GetBlackListModelList:{zoneId}-{authEmail}-{authKey}";
             var query = Utils.GetMemoryCache<List<BlackListModel>>(key, () =>
             {
                 var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
@@ -121,7 +120,7 @@ namespace AttackPrevent.Business
 
             int total = query.Count();
             var rows = query.Skip(offset).Take(limit).ToList();
-            return new { total = total, rows = rows };
+            return new {total, rows = rows };
         }
     }
 }

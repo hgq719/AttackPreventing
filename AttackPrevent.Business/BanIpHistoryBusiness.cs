@@ -43,5 +43,10 @@ namespace AttackPrevent.Business
                 return false;
             }
         }
+
+        public static void AddList(List<BanIpHistory> banIPHistory)
+        {
+            BanIpHistoryAccess.Add(banIPHistory);
+        }
     }
 }

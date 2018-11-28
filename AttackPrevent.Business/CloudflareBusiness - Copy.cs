@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
-    public class CloudflareBusiness
+    public class CloundFlareApiService
     {
         private string _zoneId = "xxx";
         private string _authEmail = "xx@xx.com";
@@ -20,7 +20,7 @@ namespace AttackPrevent.Business
         private const string CONST_WHITELIST = "whitelist";
         private const string CONST_CHALLENGE = "challenge";
 
-        public CloudflareBusiness(string zoneId, string authEmail, string authKey, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
+        public CloundFlareApiService(string zoneId, string authEmail, string authKey, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
         {
             _zoneId = zoneId;
             _authEmail = authEmail;

@@ -105,5 +105,73 @@ namespace AttackPrevent.Access
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+
+        public static void Add(BanIpHistory banIPHistory, SqlTransaction trans, SqlConnection conn)
+        {
+            var strSql = @"IF NOT EXISTS 
+                           (
+                                SELECT  ID FROM T_Ban_IP_History WHERE IP=@IP AND ZONEID =@ZoneId
+                           )
+                               BEGIN 
+                                    INSERT INTO T_Ban_IP_History(
+                                                    [ZoneId],
+                                                    [IP],
+                                                    [LatestTriggerTime],
+                                                    [RuleId], 
+                                                    [Remark])
+                                                 VALUES (
+                                                    @ZoneId,
+                                                    @IP,
+                                                    GETUTCDATE(),
+                                                    @RuleId,
+                                                    @Remark)
+						       END;
+						   ELSE
+							   BEGIN 
+							        UPDATE T_Ban_IP_History 
+                                    SET LatestTriggerTime = GETUTCDATE(), 
+                                        RuleId = @RuleId, 
+                                        Remark = @Remark
+                                    WHERE ZoneId = @ZoneId And IP = @IP;
+                           END";
+
+            var cmd = new SqlCommand(strSql, conn, trans);
+            cmd.Parameters.AddWithValue("@ZoneId", banIPHistory.ZoneId);
+            cmd.Parameters.AddWithValue("@IP", banIPHistory.IP);
+            cmd.Parameters.AddWithValue("@RuleId", banIPHistory.RuleId);
+            cmd.Parameters.AddWithValue("@Remark", banIPHistory.Remark);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public static void Add(List<BanIpHistory> banIpHistories)
+        {
+            var zoneId = banIpHistories[0].ZoneId;
+            var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (var conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                var tran = conn.BeginTransaction();
+                try
+                {
+                    foreach (var banIPHistory in banIpHistories)
+                    {
+                        Add(banIPHistory, tran, conn);
+                    }
+                    
+                    tran.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    AuditLogAccess.Add(new AuditLogEntity(zoneId, LogLevel.Error, $"Error when adding ban ip history, \n eror message:{ex.Message} \n stack trace:{ex.StackTrace}"));
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
     }
 }

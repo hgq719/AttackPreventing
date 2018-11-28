@@ -24,7 +24,7 @@ namespace AttackPrevent.WindowsService.Job
             var timeSpan = 60; //unit is second
 
             #region Get White List
-            var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+            var cloudflare = new CloundFlareApiService(zoneId, authEmail, authKey);
             var ipList = cloudflare.GetIpWhitelist();
             var rules = cloudflare.GetRateLimits();
             #endregion
@@ -100,7 +100,7 @@ namespace AttackPrevent.WindowsService.Job
                         DateTime dtEnd = keyValuePair.Value;
 
                         //string time = string.Format("{0}-{1}", dtStart.ToString("yyyyMMddHHmmss"), dtEnd.ToString("yyyyMMddHHmmss"));
-                        var cloudflare = new CloudflareBusiness(zoneId, authEmail, authKey);
+                        var cloudflare = new CloundFlareApiService(zoneId, authEmail, authKey);
                         var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
 
                         while (retry && retryCount < 10)

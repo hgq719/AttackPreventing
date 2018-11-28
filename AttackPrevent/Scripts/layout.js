@@ -11,7 +11,7 @@ function changeDateFormat(cellval) {
         var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
         var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
 
-        return date.getFullYear() + "-" + month + "-" + currentDate + " " + hours + ":" + minutes + ":" + seconds;
+        return month + "/" + currentDate + "/" + date.getFullYear()+ " " + hours + ":" + minutes + ":" + seconds;
     }
 }
 
@@ -48,12 +48,12 @@ $(document).ready(function () {
     //    endDate: new Date()   // 窗口最大时间直至今天
     //});
     $("input[name='startTime']").datetimepicker({
-        format: 'yyyy-mm-dd hh:ii',
+        format: 'mm/dd/yyyy hh:ii',
         autoclose: true,
     });
 
     $("input[name='endTime']").datetimepicker({
-        format: 'yyyy-mm-dd hh:ii',
+        format: 'mm/dd/yyyy hh:ii',
         autoclose: true,
     });
 

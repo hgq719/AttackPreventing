@@ -409,28 +409,34 @@ namespace AttackPrevent.Controllers
             MemoryStream ms = AuditLogBusiness.ExportAuditLog(zoneID, startTime, endTime, logType, detail);
             return File(ms, "application/vnd.ms-excel", "AuditLog.xls");
         }
+
+        //Code review By Michael, 如果出错会怎么样? 我看View 里面也没有做处理.
         public JsonResult GetCloundflareLogs(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string host, double sample,string siteId,string url,string cacheStatus,string ip,string responseStatus)
         {
-            List<CloudflareLog> list = new List<CloudflareLog>();
+            var logs = new List<CloudflareLog>();
   
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
+            var authEmail = "elei.xu@comm100.com";
+            var authKey = "1e26ac28b9837821af730e70163f0604b4c35";
             //zoneID = "2068c8964a4dcef78ee5103471a8db03";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-            authEmail = zone.AuthEmail;
-            authKey = zone.AuthKey;
+            if (zone != null)
+            {
+                authEmail = zone.AuthEmail;
+                authKey = zone.AuthKey;
+            }
 
-            IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
-            string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
+            var backgroundTaskService = BackgroundTaskService.GetInstance();
+            var guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
 
             EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid);
-            list = backgroundTaskService.GetCloudflareLogs(guid, limit, offset, host, siteId,url,cacheStatus,ip,responseStatus);
+            logs = backgroundTaskService.GetCloudflareLogs(guid, limit, offset, host, siteId,url,cacheStatus,ip,responseStatus);
             var total = backgroundTaskService.GetTotal(guid, host, siteId, url, cacheStatus, ip, responseStatus);
-            var rows = list;
+            var rows = logs;
             return Json(new { status = status.ToString(), total = total, rows = rows }, JsonRequestBehavior.AllowGet);
         }
+
         public JsonResult GetOperateStatus(string zoneID, DateTime startTime, DateTime endTime, double sample)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -447,20 +453,25 @@ namespace AttackPrevent.Controllers
             EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid);            
             return Json(new { status = status.ToString()}, JsonRequestBehavior.AllowGet);
         }
+
         public ActionResult ExportCloundflareLogs(string zoneID, DateTime startTime, DateTime endTime, string host, double sample, string siteId, string url, string cacheStatus, string ip, string responseStatus)
         {
+            //Code Review by michael, 现在不需要给一个初始的值了，直接从数据库里面取了.
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
             //zoneID = "2068c8964a4dcef78ee5103471a8db03";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-            authEmail = zone.AuthEmail;
-            authKey = zone.AuthKey;
+            if (zone != null)
+            {
+                authEmail = zone.AuthEmail;
+                authKey = zone.AuthKey;
+            }
 
-            IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
-            string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
-            EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid);
+            var backgroundTaskService = BackgroundTaskService.GetInstance();
+            var guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
+            var status = backgroundTaskService.GetOperateStatus(guid);
             if(status == EnumBackgroundStatus.Succeeded)
             {         
                 var list = backgroundTaskService.GetCloudflareLogs(guid, host, siteId, url, cacheStatus, ip, responseStatus);
@@ -522,6 +533,7 @@ namespace AttackPrevent.Controllers
             }
            
         }
+
         public JsonResult GetWhiteLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -530,16 +542,21 @@ namespace AttackPrevent.Controllers
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-            authEmail = zone.AuthEmail;
-            authKey = zone.AuthKey;
+            if (zone != null)
+            {
+                authEmail = zone.AuthEmail;
+                authKey = zone.AuthKey;
+            }
 
             IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
             var result = backgroundTaskService.GetWhiteListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
         {
+            //Code review by michael, 怎么这里都还是手动写的.
             string authEmail = "elei.xu@comm100.com";
             string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
             //zoneID = "2068c8964a4dcef78ee5103471a8db03";
@@ -585,6 +602,7 @@ namespace AttackPrevent.Controllers
 
             return Json(new { isSuccessed , errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult DeleteWhiteList(string zoneID, string ip)
         {
@@ -611,6 +629,7 @@ namespace AttackPrevent.Controllers
             });
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
         {
             string authEmail = "elei.xu@comm100.com";
@@ -626,6 +645,7 @@ namespace AttackPrevent.Controllers
             var result = blackListBusinees.GetBlackListModelList(zoneID, authEmail, authKey, limit, offset, ip, startTime, endTime, notes);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
         {
@@ -673,6 +693,7 @@ namespace AttackPrevent.Controllers
 
             return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult DeleteBlackList(string zoneID, string ip)
         {

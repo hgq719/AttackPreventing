@@ -2,10 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AttackPrevent.Access
 {
@@ -14,17 +10,17 @@ namespace AttackPrevent.Access
         public static List<GlobalConfiguration> GetList()
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
-            List<GlobalConfiguration> result = new List<GlobalConfiguration>();
-            using (SqlConnection conn = new SqlConnection(cons))
+            var result = new List<GlobalConfiguration>();
+            using (var conn = new SqlConnection(cons))
             {
-                string query = @"SELECT [EmailAddForWhiteList],
+                var query = @"SELECT [EmailAddForWhiteList],
                                         [CancelBanIPTime],
                                         [ValidateCode],
                                         [GlobalThreshold],
                                         [GlobalPeriod],
                                         [GlobalSample],
                                         [GlobalTimeSpan] FROM [t_Global_Configuration] ";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                var cmd = new SqlCommand(query, conn);
                 conn.Open();
 
                 using (SqlDataReader reader = cmd.ExecuteReader())

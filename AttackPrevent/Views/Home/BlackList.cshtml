@@ -161,6 +161,15 @@
     });
 
     function refresh() {
+        var start = $("#txt-StartTime").val();
+        var end = $("#txt-EndTime").val();
+
+        if (start && end) {
+            if (end <= start) {
+                alert("The end date must be greater than the start date.");
+                return;
+            }
+        }
         $('#table').bootstrapTable('refresh');
     }
     function operateFormatter(value, row, index) {

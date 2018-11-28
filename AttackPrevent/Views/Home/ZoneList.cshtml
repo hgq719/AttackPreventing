@@ -17,16 +17,16 @@
             </div>
         </div>
 
-        <div class="col-md-4 form-group">
+        @*<div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
                 <label for="zoneID">Zone ID</label>
             </div>
             <div class="col-md-8">
                 <input type="text" name="zoneID" id="zoneID" class="form-control" />
             </div>
-        </div>
+        </div>*@
 
-        <div class="col-md-4 form-group">
+        @*<div class="col-md-4 form-group">
             <div class="col-md-6">
                 <div class="checkbox">
                     <label>
@@ -41,9 +41,9 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>*@
 
-        <div class="col-md-4 form-group col-md-offset-8" style="text-align: right">
+        <div class="col-md-4 form-group col-md-offset-4" style="text-align: right">
             <button type="button" class="btn btn-primary" id="zoneQuery">Query</button>
             @{
                 if (ViewBag.IsAdmin)
@@ -103,12 +103,18 @@
                         field: 'ZoneId',
                         title: 'Zone ID'
                 }, {
-                        field: 'ZoneName',
-                        title: 'Zone Name'
-                }, {
+                //        field: 'ZoneName',
+                //        title: 'Zone Name'
+                //}, {
                         field: 'AuthEmail',
                         title: 'Auth Email',
-                }, {
+                    }, {
+                        field: 'IfTestStage',
+                        title: 'If Test Stage',
+                    }, {
+                        field: 'IfEnable',
+                        title: 'If Enable',
+                    }, {
                     field: '',
                         title: 'Operation',
                         formatter: function (value, row, index) {
@@ -129,7 +135,7 @@
             var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
-                zoneID: $("#zoneID").val(),
+                //zoneID: $("#zoneID").val(),
                 zoneName: $("#zoneName").val(),
                 ifTest: $("#ckb-ifTest").is(":checked"),
                 ifEnabel: $("#ckb-ifEnable").is(":checked"),

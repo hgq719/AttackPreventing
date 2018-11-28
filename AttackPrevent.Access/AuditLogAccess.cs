@@ -44,7 +44,7 @@ namespace AttackPrevent.Access
             {
                 query.Append(" AND Detail LIKE'%'+@detail+'%' ");
             }
-            query.Append("ORDER BY LogTime");
+            query.Append("ORDER BY LogTime desc");
             using (var conn = new SqlConnection(cons))
             {
                 

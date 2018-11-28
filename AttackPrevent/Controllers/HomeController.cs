@@ -227,7 +227,7 @@ namespace AttackPrevent.Controllers
         public ActionResult AuditLogs() 
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
-            Utils.RemoveMemoryCache(AuditLogBusiness.cacheKey);
+            Utils.RemoveMemoryCache(AuditLogBusiness.cacheKey+UserName);
             return View();
         }
 
@@ -399,7 +399,7 @@ namespace AttackPrevent.Controllers
         public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {   
 
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache);
+            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache, UserName);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

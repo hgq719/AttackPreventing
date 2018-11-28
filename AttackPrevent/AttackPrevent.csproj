@@ -230,6 +230,7 @@
     <Content Include="Views\Home\EditRateLimiting.cshtml" />
     <Content Include="Views\Home\EditZone.cshtml" />
     <Content Include="Views\Home\GetZoneIfAttacking.cshtml" />
+    <Content Include="Views\HomeError.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,1 +1,1 @@
-﻿SELECT * FROM t_Zone_Info;
+﻿SELECT * from t_Host_Configuration

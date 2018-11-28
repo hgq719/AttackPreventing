@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuditLogEntity.cs" />
+    <Compile Include="BanIpHistory.cs" />
     <Compile Include="Cloudflare\CloudflareAccessRule.cs" />
     <Compile Include="Cloudflare\CloudflareLog.cs" />
     <Compile Include="Cloudflare\CloudflareLogReport.cs" />

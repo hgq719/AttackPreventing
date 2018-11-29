@@ -249,7 +249,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
             }
             var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-            var ipBlackList = cloudflare.GetBlacklist();
+            //var ipBlackList = cloudflare.GetBlacklist();
             var ipWhiteList = cloudflare.GetIpWhitelist();
             var cloudflareLogs = new List<CloudflareLog>();
             var rateLimits = GetRateLimitEntities();

@@ -178,6 +178,7 @@
     <Content Include="Images\101.png" />
     <Content Include="Images\bg_new.png" />
     <Content Include="Images\comm100.png" />
+    <Content Include="Images\timg2.jpg" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\bootstrap-switch.min.js" />
@@ -230,6 +231,7 @@
     <Content Include="Views\Home\EditRateLimiting.cshtml" />
     <Content Include="Views\Home\EditZone.cshtml" />
     <Content Include="Views\Home\GetZoneIfAttacking.cshtml" />
+    <Content Include="Views\HomeError.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

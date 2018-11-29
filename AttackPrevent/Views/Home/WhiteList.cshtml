@@ -153,6 +153,16 @@
         oTable.Init();
     });
     $("#btn-query").click(function () {
+        var start = $("#txt-StartTime").val();
+        var end = $("#txt-EndTime").val();
+
+        if (start && end) {
+            if (end <= start) {
+                alert("The end date must be greater than the start date.");
+                return;
+            }
+        }
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
         refresh();
     });
     $('#btn-export').click(function () {

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.Model
 {
-    public class HostConfiguration
+    public class HostConfigurationEntity
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string Host { get; set; }
         public int Threshold { get; set; }
         public int Period { get; set; }
+        public int TableID { get; set; }
     }
 }

@@ -77,7 +77,7 @@ namespace AttackPrevent.Controllers
 
         public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
-            dynamic result = RateLimitBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, url);
+            dynamic result = RateLimitBusiness.GetRateLimit(limit, offset, zoneID, startTime, endTime, url);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

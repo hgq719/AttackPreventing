@@ -10,7 +10,7 @@ namespace AttackPrevent.Business
 {
     public class RateLimitBusiness
     {
-        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
+        public static dynamic GetRateLimit(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
             //List<RateLimitEntity> list = new List<RateLimitEntity>();
             //for (int i = 0; i < 50; i++)
@@ -33,6 +33,11 @@ namespace AttackPrevent.Business
             var rows = list.Skip(offset).Take(limit).ToList();
 
             return new { total, rows };
+        }
+
+        public static List<RateLimitEntity> GetList(string zoneId)
+        {
+            return RateLimitAccess.GetRateLimits(zoneId, null, null, null);
         }
 
         public static void Add(RateLimitEntity item)

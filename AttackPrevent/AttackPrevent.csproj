@@ -151,9 +151,11 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HostConfigurationController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\HostConfigurationModel.cs" />
     <Compile Include="Models\RateLimitModel.cs" />
     <Compile Include="Models\ZoneModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -232,6 +234,9 @@
     <Content Include="Views\Home\EditZone.cshtml" />
     <Content Include="Views\Home\GetZoneIfAttacking.cshtml" />
     <Content Include="Views\HomeError.cshtml" />
+    <Content Include="Views\HostConfiguration\Index.cshtml" />
+    <Content Include="Views\HostConfiguration\Create.cshtml" />
+    <Content Include="Views\HostConfiguration\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

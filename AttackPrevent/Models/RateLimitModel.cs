@@ -15,27 +15,27 @@ namespace AttackPrevent.Models
         public int OrderNo { get; set; }
 
         [Required]
-        [Url]
+        [StringLength(50)]
         public string Url { get; set; }
 
         [Required]
-        [Range(0, 1000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Threshold { get; set; }
 
         [Required]
-        [Range(0, 1000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Period { get; set; }
 
         [Required]
-        [Range(0, 1000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int EnlargementFactor { get; set; }
 
         [Required]
-        [Range(0, 1000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int RateLimitTriggerIpCount { get; set; }
 
         [Required]
-        [Range(0, 1000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int RateLimitTriggerTime { get; set; }
     }
 }

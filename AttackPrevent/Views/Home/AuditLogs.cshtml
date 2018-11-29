@@ -168,11 +168,6 @@
                 }, {
                     field: 'Detail',
                         title: 'Detail',
-                        //style: {
-                        //    "overflow": "hidden",
-                        //    "text-overflow": "ellipsis",
-                        //    "white-space": "nowrap"
-                        //},
                         //formatter: function (value, row, index) {
                         //    return '<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">' + value+ '</div>'
                         //    //if (value.length > 50) {
@@ -182,13 +177,13 @@
                         //    //}
                         //},
                         //escape: true,
-                        //cellStyle: function () {
-                        //    return {
-                        //        "overflow": "hidden",
-                        //        "text-overflow": "ellipsis",
-                        //        "white-space": "nowrap"
-                        //    };
-                        //},
+                        cellStyle: function () {
+                            return {
+                                css: {
+                                    "word-break": "break-all"
+                                }
+                            };
+                        },
                 }, {
                     field: 'LogTime',
                     title: 'Log Time',

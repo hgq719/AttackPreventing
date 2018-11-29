@@ -35,6 +35,11 @@ namespace AttackPrevent.Business
             return new { total, rows };
         }
 
+        public static List<RateLimitEntity> GetList(string zoneId)
+        {
+            return RateLimitAccess.GetRateLimits(zoneId, null, null, null);
+        }
+
         public static void Add(RateLimitEntity item)
         {
             RateLimitAccess.Add(item);

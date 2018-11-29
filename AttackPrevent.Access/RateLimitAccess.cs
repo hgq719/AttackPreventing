@@ -10,16 +10,17 @@ namespace AttackPrevent.Access
 {
     public class RateLimitAccess
     {
-        public static List<RateLimitEntity> GetRateLimits(string zoneID, DateTime? startTime, DateTime? endTime, string url)
+        public static List<RateLimitEntity> GetRateLimits(string zoneId, DateTime? startTime, DateTime? endTime, string url)
         {
-            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
-            List<RateLimitEntity> result = new List<RateLimitEntity>();
-            StringBuilder query = new StringBuilder(@"SELECT Period, 
+            var cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            var result = new List<RateLimitEntity>();
+            var query = new StringBuilder(@"SELECT Period, 
                                                              Threshold, 
                                                              Url, 
                                                              OrderNo, 
                                                              EnlargementFactor, 
                                                              RateLimitTriggerIpCount, 
+                                                             LatestTriggerTime,
                                                              Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
@@ -38,10 +39,10 @@ namespace AttackPrevent.Access
 
             query.Append(" ORDER BY OrderNo");
 
-            using (SqlConnection conn = new SqlConnection(cons))
+            using (var conn = new SqlConnection(cons))
             {
-                SqlCommand cmd = new SqlCommand(query.ToString(), conn);
-                cmd.Parameters.AddWithValue("@zoneID", zoneID);
+                var cmd = new SqlCommand(query.ToString(), conn);
+                cmd.Parameters.AddWithValue("@zoneID", zoneId);
                 if (startTime.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@startTime", startTime.Value);
@@ -57,21 +58,23 @@ namespace AttackPrevent.Access
                 
                 conn.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (var reader = cmd.ExecuteReader())
                 {
-                    int index = 1;
+                    var index = 1;
                     while (reader.Read())
                     {
-                        RateLimitEntity item = new RateLimitEntity();
-                        item.ID = index++;
-                        item.Period = Convert.ToInt32( reader["Period"]);
-                        item.Threshold = Convert.ToInt32(reader["Threshold"]);
-                        item.Url = Convert.ToString(reader["Url"]);
-                        item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
-                        item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
-                        item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
-                        item.TableID = Convert.ToInt32(reader["Id"]);
-                        result.Add(item);
+                        result.Add(new RateLimitEntity
+                        {
+                            ID = index++,
+                            Period = Convert.ToInt32(reader["Period"]),
+                            Threshold = Convert.ToInt32(reader["Threshold"]),
+                            Url = Convert.ToString(reader["Url"]).Replace("https://", "").Replace("http://", ""),
+                            OrderNo = Convert.ToInt32(reader["OrderNo"]),
+                            EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]),
+                            RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),
+                            LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
+                            TableID = Convert.ToInt32(reader["Id"])
+                        });
                     }
                 }
             }

@@ -94,6 +94,7 @@
             </div>
             <div class="col-md-8">
                 <select id="select-cacheStatus" class="form-control">
+                    <option>all</option>
                     <option>unknown</option>
                     <option>hit</option>
                 </select>
@@ -208,13 +209,15 @@
     $(document).ready(function () {
         oTable.Init();
         
-        $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-10).ToString("yyyy-MM-dd HH:mm")');
-        $("#txt-EndTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm")');        
+        $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-10).ToString("MM/dd/yyyy HH:mm")');
+        $("#txt-EndTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("MM/dd/yyyy HH:mm")');        
     });
     $("#btn-query").click(function () {
         if (!check()) {
             return;
         }
+
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
         
         $("body").mLoading({
             text: "Processing..."

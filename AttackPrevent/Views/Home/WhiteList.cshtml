@@ -162,6 +162,7 @@
                 return;
             }
         }
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
         refresh();
     });
     $('#btn-export').click(function () {

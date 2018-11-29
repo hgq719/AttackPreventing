@@ -5,6 +5,12 @@
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 @Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
 @Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
+<style type="text/css">
+    .table {
+        table-layout: fixed;
+        word-break: break-all;
+    }
+</style>
 <div class="logContainer">
     <div class="queryContainer">
         <ol class="breadcrumb">
@@ -104,17 +110,21 @@
                 columns: [
                     {
                         field: 'IP',
-                        title: 'IP'
+                        title: 'IP',
+                        width: '10%',
                     }, {
                         field: 'CreateTime',
-                        title: 'Create Time'
+                        title: 'Create Time',
+                        width: '10%',
                     }, {
                         field: 'Notes',
-                        title: 'Notes'
+                        title: 'Notes',
+                        width: '70%',
                     }, {
                         field: 'Button',
                         title: 'Operation',
                         align: 'center',
+                        width: '10%',
                         events: operateEvents,
                         formatter: operateFormatter,
                         visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'

@@ -565,7 +565,7 @@ namespace AttackPrevent.Business
                 string endTime = GetUTCTimeString(end);
                 string url = "{5}/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
                 url = string.Format(url, _zoneId, startTime, endTime, fields, sample, _apiUrlPrefix);
-                string content = HttpGet(url, 1200);
+                string content = HttpGet(url);
                 if (content.Contains("\"}"))
                 {
                     content = content.Replace("\"}", "\"},");

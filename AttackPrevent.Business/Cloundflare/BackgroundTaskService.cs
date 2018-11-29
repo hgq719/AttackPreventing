@@ -141,7 +141,7 @@ namespace AttackPrevent.Business.Cloundflare
                 {
                     query = query.Where(a => a.ClientRequestURI.Contains(string.Format("{0}", url)));
                 }
-                if (!string.IsNullOrEmpty(cacheStatus))
+                if (!string.IsNullOrEmpty(cacheStatus) && cacheStatus.ToLower() != "all")
                 {
                     query = query.Where(a => a.CacheCacheStatus == string.Format("{0}", cacheStatus));
                 }
@@ -177,7 +177,7 @@ namespace AttackPrevent.Business.Cloundflare
                 {
                     query = query.Where(a => a.ClientRequestURI.Contains(string.Format("{0}", url)));
                 }
-                if (!string.IsNullOrEmpty(cacheStatus))
+                if (!string.IsNullOrEmpty(cacheStatus) && cacheStatus.ToLower() != "all")
                 {
                     query = query.Where(a => a.CacheCacheStatus == string.Format("{0}", cacheStatus));
                 }
@@ -213,7 +213,7 @@ namespace AttackPrevent.Business.Cloundflare
                 {
                     query = query.Where(a => a.ClientRequestURI.Contains(string.Format("{0}", url)));
                 }
-                if (!string.IsNullOrEmpty(cacheStatus))
+                if (!string.IsNullOrEmpty(cacheStatus)&& cacheStatus.ToLower()!="all")
                 {
                     query = query.Where(a => a.CacheCacheStatus == string.Format("{0}", cacheStatus));
                 }

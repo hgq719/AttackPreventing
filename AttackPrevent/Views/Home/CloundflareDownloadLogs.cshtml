@@ -34,7 +34,7 @@
                 <label for="txt-StartTime">Start Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="startTime" id="txt-StartTime" value="@DateTime.UtcNow.AddMinutes(-10).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
+                <input type="text" name="startTime" id="txt-StartTime" class="form-control" />
             </div>
         </div>
 
@@ -43,7 +43,7 @@
                 <label for="txt-StartTime">End Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="endTime" id="txt-EndTime" value="@DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm")" class="form-control" />
+                <input type="text" name="endTime" id="txt-EndTime" class="form-control" />
             </div>
         </div>
 
@@ -94,6 +94,7 @@
             </div>
             <div class="col-md-8">
                 <select id="select-cacheStatus" class="form-control">
+                    <option>all</option>
                     <option>unknown</option>
                     <option>hit</option>
                 </select>
@@ -207,8 +208,17 @@
     var oTable = new TableInit();
     $(document).ready(function () {
         oTable.Init();
+        
+        $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-10).ToString("MM/dd/yyyy HH:mm")');
+        $("#txt-EndTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("MM/dd/yyyy HH:mm")');        
     });
     $("#btn-query").click(function () {
+        if (!check()) {
+            return;
+        }
+
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
+        
         $("body").mLoading({
             text: "Processing..."
         }, "show");
@@ -222,6 +232,10 @@
         GetOperateStatus(zoneID, startTime, endTime, sample, refresh);
     });
     $('#btn-export').click(function () {
+        if (!check()) {
+            return;
+        }
+
         var para = oTable.queryParams({ limit: 10, offset: 0 });
         var uuu = "/home/ExportCloundflareLogs?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&host=" + para.host + "&sample=" + para.sample + "&siteId=" + para.siteId + "&url=" + para.url + "&cacheStatus=" + para.cacheStatus + "&ip=" + para.ip + "&responseStatus=" + para.responseStatus;
         $('#btn-export').attr("href", uuu);
@@ -250,5 +264,25 @@
     }
     function refresh() {
         $('#table').bootstrapTable('refresh');
+    }
+    function check() {
+        var result = true;
+
+        var start = $("#txt-StartTime").val();
+        var end = $("#txt-EndTime").val();
+
+        if (!start || !end) {
+            alert("The start date and end date is required.");
+            result=false;
+        }
+
+        if (start && end) {
+            if (end <= start) {
+                alert("The end date must be greater than the start date.");
+                result = false;
+            }
+        }
+
+        return result;
     }
 </script>

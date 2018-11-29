@@ -100,7 +100,7 @@ namespace AttackPrevent.Access
 
             using (var conn = new SqlConnection(cons))
             {
-                string query = @"INSERT INTO dbo.t_Logs
+                const string query = @"INSERT INTO dbo.t_Logs
                                 ( ZoneId ,
                                   LogLevel ,
                                   LogTime ,
@@ -132,7 +132,7 @@ namespace AttackPrevent.Access
 
         public static void AddList(DataTable data)
         {
-            string cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (var conn = new SqlConnection(cons))
             {
@@ -148,7 +148,7 @@ namespace AttackPrevent.Access
 
         private static void Add(AuditLogEntity log, SqlTransaction trans, SqlConnection conn)
         {
-            string insertSql = @"INSERT INTO dbo.t_Logs
+            const string insertSql = @"INSERT INTO dbo.t_Logs
                                 ( ZoneId ,
                                   LogLevel ,
                                   LogTime ,

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 
@@ -461,6 +462,7 @@ namespace AttackPrevent.Controllers
             string authKey = "";
             //zoneID = "";
 
+            
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
             if (zone != null)

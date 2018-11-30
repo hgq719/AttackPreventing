@@ -39,9 +39,9 @@ namespace AttackPrevent.WindowsService.Job
             var zoneEntity = null != zoneList && zoneList.Count > 0 ? zoneList[0] : new ZoneEntity()
             {
                 ZoneName = "comm100.com",
-                ZoneId = "2068c8964a4dcef78ee5103471a8db03",
-                AuthEmail = "elei.xu@comm100.com",
-                AuthKey = "1e26ac28b9837821af730e70163f0604b4c35",
+                ZoneId = "",
+                AuthEmail = "",
+                AuthKey = "",
                 ThresholdForHost = 500,
                 PeriodForHost = 60,
                 IfTestStage = true

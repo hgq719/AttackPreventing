@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace AttackPrevent.Models
+{
+    public class HostConfigurationModel
+    {
+        public int TableID { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Host { get; set; }
+
+        [Required]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
+        public int Threshold { get; set; }
+
+        [Required]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
+        public int Period { get; set; }
+    }
+}

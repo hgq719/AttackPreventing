@@ -72,6 +72,7 @@ body {
     flex-grow:1;
     display:flex;
     flex-direction:column;
+    flex-shrink: 1;
 }
 
 .divAvatarsHasTop {
@@ -123,9 +124,10 @@ body {
 
 .body-content-cm {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    /*flex-direction: column;
+    justify-content: space-between;*/
     flex-grow:1;
+    flex-shrink: 1;
 }
 
 .navbar-nav-cm {

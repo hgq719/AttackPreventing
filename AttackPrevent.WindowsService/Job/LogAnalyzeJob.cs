@@ -19,7 +19,7 @@ namespace AttackPrevent.WindowsService.Job
         private double _sample = 1;
         private int _timeSpan = 60;
         private int _cancelBanIpTime = 120;
-        private List<HostConfiguration> _hostConfigList = null;
+        private List<HostConfigurationEntity> _hostConfigList = null;
         
         public Task Execute(IJobExecutionContext context)
         {
@@ -157,7 +157,7 @@ namespace AttackPrevent.WindowsService.Job
                     systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
 
-                    List<HostConfiguration> currentHostConfigList;
+                    List<HostConfigurationEntity> currentHostConfigList;
                     foreach (var ipRequestRecord in logsIpAll)
                     {
                         sbDetail = new StringBuilder();
@@ -357,7 +357,7 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
-        private string BanIpByRateHostConfiguration(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage, LogAnalyzeModel ipRequestRecord, List<HostConfiguration> currentHostConfigList)
+        private string BanIpByRateHostConfiguration(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage, LogAnalyzeModel ipRequestRecord, List<HostConfigurationEntity> currentHostConfigList)
         {
             var sbDetail = new StringBuilder();
             if (ifTestStage)

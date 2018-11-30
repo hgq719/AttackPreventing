@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 
@@ -19,9 +20,9 @@ namespace AttackPrevent.Controllers
         //
         public ActionResult Index()
         {
-            //string authEmail = "elei.xu@comm100.com";
-            //string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //string zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            //string authEmail = "";
+            //string authKey = "";
+            //string zoneID = "";
             //DateTime start = new DateTime(2018, 11, 21, 10, 40, 43);
             //DateTime end = new DateTime(2018, 11, 21, 10, 40, 44);
             //bool retry = false;
@@ -77,7 +78,7 @@ namespace AttackPrevent.Controllers
 
         public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
-            dynamic result = RateLimitBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, url);
+            dynamic result = RateLimitBusiness.GetRateLimit(limit, offset, zoneID, startTime, endTime, url);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -415,9 +416,9 @@ namespace AttackPrevent.Controllers
         {
             var logs = new List<CloudflareLog>();
   
-            var authEmail = "elei.xu@comm100.com";
-            var authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            var authEmail = "";
+            var authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -439,9 +440,9 @@ namespace AttackPrevent.Controllers
 
         public JsonResult GetOperateStatus(string zoneID, DateTime startTime, DateTime endTime, double sample)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -457,10 +458,11 @@ namespace AttackPrevent.Controllers
         public ActionResult ExportCloundflareLogs(string zoneID, DateTime startTime, DateTime endTime, string host, double sample, string siteId, string url, string cacheStatus, string ip, string responseStatus)
         {
             //Code Review by michael, 现在不需要给一个初始的值了，直接从数据库里面取了.
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
+            
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
             if (zone != null)
@@ -536,9 +538,9 @@ namespace AttackPrevent.Controllers
 
         public JsonResult GetWhiteLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -557,9 +559,9 @@ namespace AttackPrevent.Controllers
         public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
         {
             //Code review by michael, 怎么这里都还是手动写的.
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -606,9 +608,9 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public JsonResult DeleteWhiteList(string zoneID, string ip)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -632,9 +634,9 @@ namespace AttackPrevent.Controllers
 
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -649,9 +651,9 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
@@ -697,9 +699,9 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public JsonResult DeleteBlackList(string zoneID, string ip)
         {
-            string authEmail = "elei.xu@comm100.com";
-            string authKey = "1e26ac28b9837821af730e70163f0604b4c35";
-            //zoneID = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
             var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);

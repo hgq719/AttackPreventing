@@ -30,6 +30,7 @@
                 <a href="javascript:void(0);" class="avatars-cm">
                     <img src="~/Images/101.png" alt="" class="imgAvatars">
                 </a>
+                <span style="color: white;margin-left: 10px;">@User.Identity.Name.Split('\\').LastOrDefault()</span>
                 <div class="divAvatarsHasTop" style="display:none;">
                     <div class="divAvatarsAdditionArea"></div>
                     <div class="arrow arrowOuter"></div>
@@ -76,6 +77,10 @@
                     <li>
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Zone Manage", "ZoneList", "Home")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
                     </li>
                 </ul>
                 @*@Html.Partial("_LoginPartial")*@

@@ -15,6 +15,12 @@
 @Styles.Render("~/Content/home.css")
 @Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
 @Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
+<style type="text/css">
+    .table {
+        table-layout: fixed;
+        word-break: break-all;
+    }
+</style>
 <div class="logContainer">
     <div class="queryContainer">
         <ol class="breadcrumb">
@@ -163,23 +169,29 @@
                 columns: [
                     {
                         field: 'ClientRequestHost',
-                        title: 'Client Request Host'
+                        title: 'Client Request Host',
+                        width: '16%',
                     }, {
                         field: 'ClientIP',
-                        title: 'Client IP'
+                        title: 'Client IP',
+                        width: '10%',
                     }, {
                         field: 'ClientRequestURI',
-                        title: 'Client Request URI'
+                        title: 'Client Request URI',
+                        width: '44%',
                     }, {
                         field: 'CacheCacheStatus',
-                        title: 'Cache Cache Status'
+                        title: 'Cache Cache Status',
+                        width: '10%',
                     }, {
                         field: 'ClientRequestMethod',
-                        title: 'Client Request Method'
+                        title: 'Client Request Method',
+                        width: '10%',
                     },
                     {
                         field: 'EdgeResponseStatus',
-                        title: 'Edge Response Status'
+                        title: 'Edge Response Status',
+                        width: '10%',
                     },
                 ]
             });

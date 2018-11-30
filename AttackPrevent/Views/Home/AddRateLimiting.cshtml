@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 label-col">Period</label>
+            <label class="col-md-4 label-col">Period (second)</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.Period, new { @class = "form-control", @type = "number", @min = "1" })
                 @Html.ValidationMessageFor(model => model.Period)
@@ -57,7 +57,7 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 label-col">Trigger Time</label>
+            <label class="col-md-4 label-col">Trigger Time (hour)</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.RateLimitTriggerTime, new { @class = "form-control", @type = "number", @min = "1" })
                 @Html.ValidationMessageFor(model => model.RateLimitTriggerTime)

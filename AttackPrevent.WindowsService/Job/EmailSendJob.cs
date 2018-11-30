@@ -16,9 +16,9 @@ namespace AttackPrevent.WindowsService.Job
         private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
         public Task Execute(IJobExecutionContext context)
         {
-            var zoneId = "**";
-            var authEmail = "**";
-            var authKey = "**";
+            var zoneId = "";
+            var authEmail = "";
+            var authKey = "";
             var agentUrlArr = new string[] { "liveChathanlder3.ashx", "errorcollector.ashx", "formbuilder.ashx", "formconsumer.ashx", "FileUploadHandler.ashx" };
             double sample = 1;
             var timeSpan = 60; //unit is second

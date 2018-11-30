@@ -134,11 +134,11 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
 
         public static void Edit(RateLimitEntity item)
         {
-            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            var cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
-            using (SqlConnection conn = new SqlConnection(cons))
+            using (var conn = new SqlConnection(cons))
             {
-                string query = @"UPDATE  dbo.t_RateLimiting_Rules
+                const string query = @"UPDATE  dbo.t_RateLimiting_Rules
                                     SET     ZoneId = @zoneID ,
                                             Url = @url ,
                                             Threshold = @threshold ,
@@ -148,7 +148,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                             RateLimitTriggerTime = @triggerTime ,
                                             CreatedBy = @user
                                     WHERE   Id = @id;";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
@@ -166,16 +166,16 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
 
         public static void TriggerRateLimit(RateLimitEntity rateLimit)
         {
-            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            var cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
-            using (SqlConnection conn = new SqlConnection(cons))
+            using (var conn = new SqlConnection(cons))
             {
-                string query = @"UPDATE dbo.t_RateLimiting_Rules
-                                 SET RateLimitTriggerTime = GETUTCDATE()  
+                const string query = @"UPDATE dbo.t_RateLimiting_Rules
+                                 SET LatestTriggerTime = GETUTCDATE()  
                                  WHERE Url = @Url 
                                    AND Threshold = @Threshold
                                    AND Period = @Period";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Threshold", rateLimit.Threshold);
                 cmd.Parameters.AddWithValue("@Period", rateLimit.Period);
                 cmd.Parameters.AddWithValue("@Url", rateLimit.Url);

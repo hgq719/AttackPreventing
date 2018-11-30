@@ -31,6 +31,7 @@ namespace AttackPrevent.Business
         CreateRateLimitResponse CreateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule);
         UpdateRateLimitResponse UpdateRateLimit(string zoneId, string authEmail, string authKey, RateLimitRule rateLimitRule);
         DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, string id);
+        string CheckAuth(string zoneId, string authEmail, string authKey);
     }
     public class CloundFlareApiService : ICloundFlareApiService
     {
@@ -235,6 +236,29 @@ namespace AttackPrevent.Business
             string content = HttpDelete(authEmail, authKey, url, json, 90);
             deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
             return deleteRateLimitResponse;
+        }
+        public string CheckAuth(string zoneId, string authEmail, string authKey)
+        {
+            string errorMessage = "";
+            string ip = "xxx.xxx.xxx.xxx";
+
+            //?page={1}&per_page={2}&notes=my note
+            string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules?page=1&per_page=500&configuration.value={1}";
+            url = string.Format(url, zoneId, ip);
+            string content = HttpGet(authEmail, authKey, url, 1200);
+            FirewallAccessRuleResponseList firewallAccessRuleResponseList = JsonConvert.DeserializeObject<FirewallAccessRuleResponseList>(content);
+            if (firewallAccessRuleResponseList.success)
+            {
+            }
+            else
+            {
+                if (firewallAccessRuleResponseList.errors.Any(a => a.message.Contains("Authentication error")))
+                {
+                    errorMessage = firewallAccessRuleResponseList.errors.FirstOrDefault()?.message;
+                }
+            }
+
+            return errorMessage;
         }
 
         private string HttpGet(string authEmail, string authKey, string url, int timeout = 90)
@@ -788,6 +812,7 @@ namespace AttackPrevent.Business
                 return strResult;
             }
         }
+
         #endregion
     }
 }

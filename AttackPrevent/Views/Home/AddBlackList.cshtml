@@ -55,6 +55,11 @@
             var ips = $("#ip-content").val().split('\n').join(',');
             var comment = $("#txt-comment").val();
             var vcode = $("#vcode-content").val();
+
+            if (!checkCloundflareAuth(zoneID)) {
+                return;
+            }
+
             save(zoneID, ips, comment, vcode);
         });
         $('#btn-cancel').click(function () {
@@ -78,5 +83,26 @@
                 console.log("Error: " + jqXHR.status);
             }
         });
+    }
+    function checkCloundflareAuth(zoneID) {
+        var isSuccessed = false;
+        $.ajax({
+            type: "GET",
+            url: "/Home/CheckCloundflareAuth?zoneID=" + zoneID,
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                var status = data.isSuccessed;
+                if (status) {
+                    isSuccessed = true;
+                } else {
+                    alert(data.errorMsg);
+                }
+            },
+            error: function (jqXHR) {
+                console.log("Error: " + jqXHR.status);
+            }
+        });
+        return isSuccessed;
     }
 </script>

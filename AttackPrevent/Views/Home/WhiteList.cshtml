@@ -172,6 +172,12 @@
                 return;
             }
         }
+
+        var para = oTable.queryParams({ limit: 10, offset: 0 });
+        if (!checkCloundflareAuth(para.zoneID)) {
+            return;
+        }
+
         $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
         refresh();
     });
@@ -221,5 +227,26 @@
                 });
             }
         }
+    }
+    function checkCloundflareAuth(zoneID) {
+        var isSuccessed = false;
+        $.ajax({
+            type: "GET",
+            url: "/Home/CheckCloundflareAuth?zoneID=" + zoneID,
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                var status = data.isSuccessed;
+                if (status) {
+                    isSuccessed = true;
+                } else {
+                    alert(data.errorMsg);
+                }
+            },
+            error: function (jqXHR) {
+                console.log("Error: " + jqXHR.status);
+            }
+        });
+        return isSuccessed;
     }
 </script>

@@ -30,7 +30,7 @@ namespace AttackPrevent.Business
         private int timeSpan = 20;
         private DateTime startTime;
         private DateTime endTime;
-        private int taskCount = 3;
+        private int taskCount = 1;
         private string zoneId;
         private string authEmail;
         private string authKey;

@@ -229,17 +229,22 @@
             return;
         }
 
-        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
-        
-        $("body").mLoading({
-            text: "Processing..."
-        }, "show");
         var para = oTable.queryParams({ limit: 10, offset: 0 });
 
         var zoneID = para.zoneID;
         var startTime = para.startTime;
         var endTime = para.endTime;
         var sample = para.sample;
+
+        if (!checkCloundflareAuth(zoneID)) {
+            return;
+        }
+
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
+        
+        $("body").mLoading({
+            text: "Processing..."
+        }, "show");        
 
         GetOperateStatus(zoneID, startTime, endTime, sample, refresh);
     });
@@ -249,6 +254,11 @@
         }
 
         var para = oTable.queryParams({ limit: 10, offset: 0 });
+
+        if (!checkCloundflareAuth(para.zoneID)) {
+            return;
+        }
+        
         var uuu = "/home/ExportCloundflareLogs?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&host=" + para.host + "&sample=" + para.sample + "&siteId=" + para.siteId + "&url=" + para.url + "&cacheStatus=" + para.cacheStatus + "&ip=" + para.ip + "&responseStatus=" + para.responseStatus;
         $('#btn-export').attr("href", uuu);
         //$.get(uuu);
@@ -296,5 +306,26 @@
         }
 
         return result;
+    }
+    function checkCloundflareAuth(zoneID) {
+        var isSuccessed = false;
+        $.ajax({
+            type: "GET",
+            url: "/Home/CheckCloundflareAuth?zoneID=" + zoneID ,
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                var status = data.isSuccessed;
+                if (status) {
+                    isSuccessed = true;
+                } else {
+                    alert(data.errorMsg);
+                }
+            },
+            error: function (jqXHR) {
+                console.log("Error: " + jqXHR.status);
+            }
+        });
+        return isSuccessed;
     }
 </script>

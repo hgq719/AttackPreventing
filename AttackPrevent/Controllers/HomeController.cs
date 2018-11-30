@@ -284,7 +284,7 @@ namespace AttackPrevent.Controllers
                     ZoneId = zoneModel.ZoneId,
                     ZoneName = zoneModel.ZoneName,
                     AuthEmail = zoneModel.AuthEmail,
-                    AuthKey = zoneModel.AuthKey,
+                    AuthKey = Utils.AesEncrypt(zoneModel.AuthKey, zoneModel.ZoneId),
                     IfAttacking = false,
                     IfEnable = true,
                     IfTestStage = zoneModel.IfTestStage
@@ -320,7 +320,7 @@ namespace AttackPrevent.Controllers
             Models.ZoneModel model = new Models.ZoneModel()
             {
                 AuthEmail = entity.AuthEmail,
-                AuthKey = entity.AuthKey,
+                AuthKey = Utils.AesDecrypt(entity.AuthKey, entity.ZoneId),
                 IfEnable = entity.IfEnable,
                 IfTestStage = entity.IfTestStage,
                 TableID = entity.TableID,
@@ -342,7 +342,7 @@ namespace AttackPrevent.Controllers
                     ZoneId = zoneModel.ZoneId,
                     ZoneName = zoneModel.ZoneName,
                     AuthEmail = zoneModel.AuthEmail,
-                    AuthKey = zoneModel.AuthKey,
+                    AuthKey = Utils.AesEncrypt(zoneModel.AuthKey, zoneModel.ZoneId),
                     IfAttacking = zoneModel.IfAttacking,
                     IfEnable = zoneModel.IfEnable,
                     IfTestStage = zoneModel.IfTestStage,

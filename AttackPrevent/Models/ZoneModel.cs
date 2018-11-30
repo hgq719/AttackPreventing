@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace AttackPrevent.Models
         [EmailAddress]
         [StringLength(50)]
         public string AuthEmail { get; set; }
+
+        [JsonIgnore]
         [Required]
         [StringLength(50)]
         public string AuthKey { get; set; }

@@ -1,0 +1,47 @@
+﻿@{
+
+}
+@model AttackPrevent.Models.HostConfigurationModel
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+<div style="width: 600px; margin-top: 20px; margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="~/HostConfiguration/Index">Host Configuration Manage</a></li>
+        <li class="active">Add</li>
+    </ol>
+    @using (Html.BeginForm("Create", "HostConfiguration", FormMethod.Post))
+    {
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Host</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Host, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Host)
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Threshold</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control", @type = "number", @min = "1" })
+                @Html.ValidationMessageFor(model => model.Threshold)
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Period (second)</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Period, new { @class = "form-control", @type = "number", @min = "1" })
+                @Html.ValidationMessageFor(model => model.Period)
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-4 text-right">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                @Html.ActionLink("Cancel", "Index", "HostConfiguration", new { @class = "btn btn-default" })
+            </div>
+        </div>
+    }
+
+</div>
+
+
+

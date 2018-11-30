@@ -19,7 +19,7 @@ namespace AttackPrevent.WindowsService.Job
         private double _sample = 1;
         private int _timeSpan = 60;
         private int _cancelBanIpTime = 120;
-        private List<HostConfiguration> _hostConfigList = null;
+        private List<HostConfigurationEntity> _hostConfigList = null;
         
         public Task Execute(IJobExecutionContext context)
         {
@@ -39,9 +39,9 @@ namespace AttackPrevent.WindowsService.Job
             var zoneEntity = null != zoneList && zoneList.Count > 0 ? zoneList[0] : new ZoneEntity()
             {
                 ZoneName = "comm100.com",
-                ZoneId = "2068c8964a4dcef78ee5103471a8db03",
-                AuthEmail = "elei.xu@comm100.com",
-                AuthKey = "1e26ac28b9837821af730e70163f0604b4c35",
+                ZoneId = "",
+                AuthEmail = "",
+                AuthKey = "",
                 ThresholdForHost = 500,
                 PeriodForHost = 60,
                 IfTestStage = true
@@ -159,7 +159,7 @@ namespace AttackPrevent.WindowsService.Job
                     systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
 
-                    List<HostConfiguration> currentHostConfigList;
+                    List<HostConfigurationEntity> currentHostConfigList;
                     foreach (var ipRequestRecord in logsIpAll)
                     {
                         sbDetail = new StringBuilder();
@@ -350,7 +350,7 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
-        private string BanIpByRateHostConfiguration(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage, LogAnalyzeModel ipRequestRecord, List<HostConfiguration> currentHostConfigList)
+        private string BanIpByRateHostConfiguration(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage, LogAnalyzeModel ipRequestRecord, List<HostConfigurationEntity> currentHostConfigList)
         {
             var sbDetail = new StringBuilder();
             if (ifTestStage)

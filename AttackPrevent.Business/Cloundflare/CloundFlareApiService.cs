@@ -565,7 +565,7 @@ namespace AttackPrevent.Business
                 string endTime = GetUTCTimeString(end);
                 string url = "{5}/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
                 url = string.Format(url, _zoneId, startTime, endTime, fields, sample, _apiUrlPrefix);
-                string content = HttpGet(url, 1200);
+                string content = HttpGet(url,240);
                 if (content.Contains("\"}"))
                 {
                     content = content.Replace("\"}", "\"},");
@@ -583,6 +583,7 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
+                retry = true;
                 throw ex;
             }
 
@@ -626,15 +627,16 @@ namespace AttackPrevent.Business
             updateRateLimitResponse = JsonConvert.DeserializeObject<UpdateRateLimitResponse>(content);
             return updateRateLimitResponse;
         }
-        public DeleteRateLimitResponse DeleteRateLimit(string id)
+        public FirewallAccessRuleResponse DeleteRateLimit(string id)
         {
-            DeleteRateLimitResponse deleteRateLimitResponse = new DeleteRateLimitResponse();
-            string url = "{2}/zones/{0}/rate_limits/{1}";
-            url = string.Format(url, _zoneId, id, _apiUrlPrefix);
-            string json = "";
-            string content = HttpDelete(url, json, 90);
-            deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
-            return deleteRateLimitResponse;
+            return DeleteAccessRule(_zoneId, _authEmail, _authKey, id);
+            //DeleteRateLimitResponse deleteRateLimitResponse = new DeleteRateLimitResponse();
+            //string url = "{2}/zones/{0}/rate_limits/{1}";
+            //url = string.Format(url, _zoneId, id, _apiUrlPrefix);
+            //string json = "";
+            //string content = HttpDelete(url, json, 90);
+            //deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
+            //return deleteRateLimitResponse;
         }
 
         public CloudflareRateLimitRule GetRateLimitRule(string url, int threshold, int period)
@@ -665,7 +667,8 @@ namespace AttackPrevent.Business
                 var response = UpdateRateLimit(ratelimit);
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error, string.Format("Open rate limiting rule of Cloudflare failure，the reason is:[{0}].<br />", response.errors.Count() > 0 ? response.errors[0].message : "No error message from Cloudflare."));
+                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                        $"Open rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
             }
@@ -674,25 +677,11 @@ namespace AttackPrevent.Business
                 var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period));
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error, string.Format("Create rate limiting rule of Cloudflare failure，the reason is:[{0}].<br />", response.errors.Count() > 0 ? response.errors[0].message : "No error message from Cloudflare."));
+                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                        $"Create rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
             }
-        }
-
-        public DeleteRateLimitResponse RemoveRateLimit(string url, int threshold, int period)
-        {
-            var ratelimit = GetRateLimitRule(url, threshold, period);
-            if (null != ratelimit)
-            {
-                return DeleteRateLimit(ratelimit.Id);
-            }
-            return new DeleteRateLimitResponse()
-            {
-                success = false,
-                errors = new Error[] { new Error() { message = "No rate limiting rule found in Cloudflare." } }
-
-            };
         }
         #endregion
 

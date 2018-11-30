@@ -106,6 +106,24 @@ namespace AttackPrevent.Access
             }
         }
 
+        public static bool Delete(int id)
+        {
+            var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            const string strSql = @"DELETE FROM T_Ban_IP_History 
+                                    WHERE ID = @ID";
+
+            using (var conn = new SqlConnection(connStr))
+            {
+
+                var cmd = new SqlCommand(strSql, conn);
+                cmd.Parameters.AddWithValue("@ID", id);
+                conn.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
         public static void Add(BanIpHistory banIPHistory, SqlTransaction trans, SqlConnection conn)
         {
             var strSql = @"IF NOT EXISTS 

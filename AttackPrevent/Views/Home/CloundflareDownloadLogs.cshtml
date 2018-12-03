@@ -166,33 +166,42 @@
                 showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
                 cardView: false,                    //是否显示详细视图
                 detailView: false,                   //是否显示父子表
-                columns: [
-                    {
-                        field: 'ClientRequestHost',
-                        title: 'Client Request Host',
-                        width: '16%',
-                    }, {
-                        field: 'ClientIP',
-                        title: 'Client IP',
-                        width: '10%',
-                    }, {
-                        field: 'ClientRequestURI',
-                        title: 'Client Request URI',
-                        width: '44%',
-                    }, {
-                        field: 'CacheCacheStatus',
-                        title: 'Cache Cache Status',
-                        width: '10%',
-                    }, {
-                        field: 'ClientRequestMethod',
-                        title: 'Client Request Method',
-                        width: '10%',
-                    },
-                    {
-                        field: 'EdgeResponseStatus',
-                        title: 'Edge Response Status',
-                        width: '10%',
-                    },
+                columns: [{
+                    field: 'ID',
+                    title: '#',
+                    width: '4%',
+                    formatter: function (value, row, index) {
+                        var pageSize = $('#table').bootstrapTable('getOptions').pageSize;     //通过table的#id 得到每页多少条
+                        var pageNumber = $('#table').bootstrapTable('getOptions').pageNumber; //通过table的#id 得到当前第几页
+                        return pageSize * (pageNumber - 1) + index + 1;    // 返回每条的序号： 每页条数 *（当前页 - 1 ）+ 序号
+                    }
+                },
+                {
+                    field: 'ClientRequestHost',
+                    title: 'Client Request Host',
+                    width: '16%',
+                }, {
+                    field: 'ClientIP',
+                    title: 'Client IP',
+                    width: '8%',
+                }, {
+                    field: 'ClientRequestURI',
+                    title: 'Client Request URI',
+                    width: '42%',
+                }, {
+                    field: 'CacheCacheStatus',
+                    title: 'Cache Cache Status',
+                    width: '10%',
+                }, {
+                    field: 'ClientRequestMethod',
+                    title: 'Client Request Method',
+                    width: '10%',
+                },
+                {
+                    field: 'EdgeResponseStatus',
+                    title: 'Edge Response Status',
+                    width: '10%',
+                },
                 ]
             });
         };

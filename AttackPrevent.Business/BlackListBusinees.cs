@@ -106,17 +106,17 @@ namespace AttackPrevent.Business
             {
                 query = query.Where(a => a.IP == ip);
             }
-            if (Convert.ToDateTime(end.ToString("yyyy-MM-dd HH:mm")) > Convert.ToDateTime(start.ToString("yyyy-MM-dd HH:mm")))
-            {
+            //if (Convert.ToDateTime(end.ToString("yyyy-MM-dd HH:mm")) > Convert.ToDateTime(start.ToString("yyyy-MM-dd HH:mm")))
+            //{
                 if (start != DateTime.MinValue)
                 {
                     query = query.Where(a => Convert.ToDateTime( a.CreateTime)>= start);
                 }
                 if (end != DateTime.MinValue)
                 {
-                    query = query.Where(a => Convert.ToDateTime(a.CreateTime) < end.AddDays(1));
+                    query = query.Where(a => Convert.ToDateTime(a.CreateTime) <= end);
                 }
-            }
+            //}
 
             int total = query.Count();
             var rows = query.Skip(offset).Take(limit).ToList();

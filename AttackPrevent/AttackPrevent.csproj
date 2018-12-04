@@ -17,14 +17,10 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort>
-    </IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>
-    </IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>
-    </IISExpressWindowsAuthentication>
-    <IISExpressUseClassicPipelineMode>
-    </IISExpressUseClassicPipelineMode>
+    <IISExpressSSLPort>44301</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <Use64BitIISExpress />
     <UseGlobalApplicationHostFile />
@@ -152,9 +148,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HostConfigurationController.cs" />
+    <Compile Include="Core\CustomerAttributes.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\WhiteListModel.cs" />
+    <Compile Include="Models\BlackListModel.cs" />
     <Compile Include="Models\HostConfigurationModel.cs" />
     <Compile Include="Models\RateLimitModel.cs" />
     <Compile Include="Models\ZoneModel.cs" />

@@ -11,7 +11,7 @@
     @using (Html.BeginForm("EditZone", "home", FormMethod.Post))
     {       
         <div class="row form-group">
-            <label class="col-md-4 control-label">Zone ID</label>
+            <label class="col-md-4 label-col">Zone ID</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ZoneId, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ZoneId)
@@ -21,21 +21,21 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Zone Name</label>
+            <label class="col-md-4 label-col">Zone Name</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ZoneName, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ZoneName)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Auth Emaile</label>
+            <label class="col-md-4 label-col">Auth Emaile</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.AuthEmail, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.AuthEmail)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Auth KEY</label>
+            <label class="col-md-4 label-col">Auth KEY</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.AuthKey, new { @class = "form-control", @type = "password" })
                 @Html.ValidationMessageFor(model => model.AuthKey)

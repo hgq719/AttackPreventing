@@ -371,7 +371,7 @@ namespace AttackPrevent.Controllers
 
                 if (ZoneBusiness.Equals(item.ZoneId, 0))
                 {
-                    ViewBag.ErrorMessage = "Zone Id is Duplication";
+                    ViewBag.ErrorMessage = "Zone Id already exists";
                     return View(zoneModel);
                 }
                 else
@@ -438,7 +438,7 @@ namespace AttackPrevent.Controllers
                 };
                 if (ZoneBusiness.Equals(item.ZoneId, item.TableID))
                 {
-                    ViewBag.ErrorMessage = "Zone Id is Duplication";
+                    ViewBag.ErrorMessage = "Zone Id already exists";
                     return View(zoneModel);
                 }
                 else

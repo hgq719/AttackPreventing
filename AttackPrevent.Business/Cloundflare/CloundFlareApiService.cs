@@ -83,7 +83,7 @@ namespace AttackPrevent.Business
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
             url = string.Format(url, zoneId, startTime, endTime, fields, sample);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpGet(authEmail, authKeyDecrypt, url, 1200);
             if (content.Contains("\"}"))
             {
@@ -115,7 +115,7 @@ namespace AttackPrevent.Business
                     url = string.Format(url, zoneId, page, notes);
                 }
                 //解密
-                var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+                var authKeyDecrypt = Utils.AesDecrypt(authKey);
                 string content = HttpGet(authEmail, authKeyDecrypt, url, 1200);
                 FirewallAccessRuleResponseList firewallAccessRuleResponseList = JsonConvert.DeserializeObject<FirewallAccessRuleResponseList>(content);
                 if (firewallAccessRuleResponseList.success)
@@ -159,7 +159,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId);
             string json = JsonConvert.SerializeObject(request);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpPost(authEmail, authKeyDecrypt, url, json, 90);
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
@@ -170,7 +170,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId, id);
             string json = JsonConvert.SerializeObject(request);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpPut(authEmail, authKeyDecrypt, url, json, 90);
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
@@ -181,7 +181,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId, id);
             string json = JsonConvert.SerializeObject(new { cascade = "none" });
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpDelete(authEmail, authKeyDecrypt, url, json, 90);
             FirewallAccessRuleResponse response = JsonConvert.DeserializeObject<FirewallAccessRuleResponse>(content);
             return response;
@@ -196,7 +196,7 @@ namespace AttackPrevent.Business
                 string url = "https://api.cloudflare.com/client/v4/zones/{0}/rate_limits?page={1}&per_page=20";
                 url = string.Format(url, zoneId, page);
                 //解密
-                var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+                var authKeyDecrypt = Utils.AesDecrypt(authKey);
                 string content = HttpGet(authEmail, authKeyDecrypt, url, 1200);
                 RateLimitResponse rateLimitResponse = JsonConvert.DeserializeObject<RateLimitResponse>(content);
                 if (rateLimitResponse.success)
@@ -225,7 +225,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId);
             string json = JsonConvert.SerializeObject(rateLimitRule);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpPost(authEmail, authKeyDecrypt, url, json, 90);
             createRateLimitResponse = JsonConvert.DeserializeObject<CreateRateLimitResponse>(content);
             return createRateLimitResponse;
@@ -237,7 +237,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId);
             string json = JsonConvert.SerializeObject(rateLimitRule);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpPut(authEmail, authKeyDecrypt, url, json, 90);
             updateRateLimitResponse = JsonConvert.DeserializeObject<UpdateRateLimitResponse>(content);
             return updateRateLimitResponse;
@@ -249,7 +249,7 @@ namespace AttackPrevent.Business
             url = string.Format(url, zoneId, id);
             string json = "";
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpDelete(authEmail, authKeyDecrypt, url, json, 90);
             deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
             return deleteRateLimitResponse;
@@ -263,7 +263,7 @@ namespace AttackPrevent.Business
             string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules?page=1&per_page=500&configuration.value={1}";
             url = string.Format(url, zoneId, ip);
             //解密
-            var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+            var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpGet(authEmail, authKeyDecrypt, url);
             FirewallAccessRuleResponseList firewallAccessRuleResponseList = JsonConvert.DeserializeObject<FirewallAccessRuleResponseList>(content);
             if (firewallAccessRuleResponseList.success)
@@ -380,7 +380,7 @@ namespace AttackPrevent.Business
                 string url = "https://api.cloudflare.com/client/v4/zones/{0}/firewall/access_rules/rules?page={1}&per_page=500&mode={2}";
                 url = string.Format(url, zoneId, page, mode.ToString());
                 //解密
-                var authKeyDecrypt = Utils.AesDecrypt(authKey, zoneId);
+                var authKeyDecrypt = Utils.AesDecrypt(authKey);
                 string content = HttpGet(authEmail, authKeyDecrypt, url, 1200);
                 FirewallAccessRuleResponseList firewallAccessRuleResponseList = JsonConvert.DeserializeObject<FirewallAccessRuleResponseList>(content);
                 if (firewallAccessRuleResponseList.success)
@@ -600,37 +600,45 @@ namespace AttackPrevent.Business
 
         public List<CloudflareLog> GetLogs(DateTime start, DateTime end, double sample, out bool retry)
         {
+            retry = false;
+            var cloudflareLogs = new List<CloudflareLog>();
             try
             {
-                retry = false;
-                List<CloudflareLog> CloudflareLogs = new List<CloudflareLog>();
+
                 string fields = "RayID,ClientIP,ClientRequestHost,ClientRequestMethod,ClientRequestURI,EdgeEndTimestamp,EdgeResponseBytes,EdgeResponseStatus,EdgeStartTimestamp,CacheResponseStatus,ClientRequestBytes,CacheCacheStatus,OriginResponseStatus,OriginResponseTime";
                 string startTime = GetUTCTimeString(start);
                 string endTime = GetUTCTimeString(end);
                 string url = "{5}/zones/{0}/logs/received?start={1}&end={2}&fields={3}&sample={4}";
                 url = string.Format(url, _zoneId, startTime, endTime, fields, sample, _apiUrlPrefix);
                 string content = HttpGet(url,240);
-                if (content.Contains("\"}"))
-                {
-                    content = content.Replace("\"}", "\"},");
-                    CloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>(string.Format("[{0}]", content));
-                }
-                else
+                if(content.Contains(@"""success"":false"))
                 {
                     if (content.Contains("429 Too Many Requests"))
                     {
                         retry = true;
                     }
-                    //logger.Error(content);
+                    else
+                    {
+                        var errorResponse = JsonConvert.DeserializeObject<CloudflareLogErrorResponse>(content);
+                        AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                            $"Got logs failure, the reason is:[{ (errorResponse.Errors.Count > 0 ? errorResponse.Errors[0].Message : "No error message from Cloudflare.")}]."));
+                    }
                 }
-                return CloudflareLogs;
+                else
+                {
+                    content = content.Replace("\"}", "\"},");
+                    cloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>($"[{content}]");
+                }
+
+                return cloudflareLogs;
             }
             catch (Exception ex)
             {
                 retry = true;
-                throw ex;
+                AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                    $"Got logs failure, the reason is:[{ex.Message}]. <br />stack trace:{ex.StackTrace}]."));
+                return cloudflareLogs;
             }
-
         }
         #endregion
 

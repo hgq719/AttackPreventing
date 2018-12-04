@@ -49,6 +49,7 @@
     <Compile Include="BanIpHistory.cs" />
     <Compile Include="Cloudflare\CloudflareAccessRule.cs" />
     <Compile Include="Cloudflare\CloudflareLog.cs" />
+    <Compile Include="Cloudflare\CloudflareLogErrorResponse.cs" />
     <Compile Include="Cloudflare\CloudflareLogReport.cs" />
     <Compile Include="Cloudflare\IpNeedToBan.cs" />
     <Compile Include="Cloudflare\LogAnalyzeModel.cs" />

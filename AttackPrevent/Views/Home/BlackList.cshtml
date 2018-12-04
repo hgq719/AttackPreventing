@@ -156,8 +156,8 @@
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 zoneID: $("#select-zoneName").val(),
-                startTime: $("#txt-StartTime").val() === "" ? (new Date()).toJSON() : $("#txt-StartTime").val(),
-                endTime: $("#txt-EndTime").val() === "" ? (new Date()).toJSON() : $("#txt-EndTime").val(),
+                startTime: $("#txt-StartTime").val() === "" ? '@DateTime.MinValue' : $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val() === "" ? '@DateTime.MinValue' : $("#txt-EndTime").val(),
                 ip: $("#txt-IP").val(),
                 notes: $("#txt-notes").val(),
             };
@@ -219,7 +219,7 @@
     }
     window.operateEvents = {
         'click #btn-delete': function (e, value, row, index) {
-            if (confirm('Confirm deletion?')) {
+            if (confirm('Are you sure want to remove this IP from the blacklist?')) {
                 var para = oTable.queryParams({ limit: 10, offset: 0 });
                 var zoneID = para.zoneID;
                 var ip = row.IP;

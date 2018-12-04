@@ -37,7 +37,7 @@ namespace AttackPrevent.Access
                         banIPHistories.Add(new BanIpHistory()
                         {
                             Id = Convert.ToInt32(reader["ID"]),
-                            IP = ip,
+                            IP = Convert.ToString(reader["IP"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
                             ZoneId = Convert.ToString(reader["ZoneId"]),
                             RuleId = Convert.ToInt32(reader["RuleId"]),

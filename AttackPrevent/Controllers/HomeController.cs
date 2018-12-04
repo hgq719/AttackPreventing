@@ -369,17 +369,26 @@ namespace AttackPrevent.Controllers
                     IfTestStage = zoneModel.IfTestStage
                 };
 
-                ZoneBusiness.Add(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                if (ZoneBusiness.Equals(item.ZoneId, 0))
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = item.ZoneId,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"AddZone"} {JsonConvert.SerializeObject(zoneModel)}",
-                });
-                return RedirectToAction("ZoneList");
+                    ViewBag.ErrorMessage = "Zone Id is Duplication";
+                    return View(zoneModel);
+                }
+                else
+                {
+                    ZoneBusiness.Add(item);
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = item.ZoneId,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"AddZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                    });
+                    return RedirectToAction("ZoneList");
+                }
+                
             }
             else
             {
@@ -427,18 +436,25 @@ namespace AttackPrevent.Controllers
                     IfTestStage = zoneModel.IfTestStage,
                     TableID = zoneModel.TableID,
                 };
-
-                ZoneBusiness.Update(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                if (ZoneBusiness.Equals(item.ZoneId, item.TableID))
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = item.ZoneId,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"EditZone"} {JsonConvert.SerializeObject(zoneModel)}",
-                });
-                return RedirectToAction("ZoneList");
+                    ViewBag.ErrorMessage = "Zone Id is Duplication";
+                    return View(zoneModel);
+                }
+                else
+                {
+                    ZoneBusiness.Update(item);
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = item.ZoneId,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"EditZone"} {JsonConvert.SerializeObject(zoneModel)}",
+                    });
+                    return RedirectToAction("ZoneList");
+                }                
             }
             else
             {

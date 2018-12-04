@@ -300,7 +300,7 @@ namespace AttackPrevent.Access
             }
         }
 
-        public static bool Equals(string zoneId)
+        public static bool Equals(string zoneId, int id)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
@@ -308,9 +308,17 @@ namespace AttackPrevent.Access
             {
                 string query = @"SELECT COUNT(1)
                                     FROM dbo.t_Zone_Info
-                                    WHERE ZoneId= @zoneId";
+                                    WHERE ZoneId= @zoneId ";
+                if (id > 0)
+                {
+                    query += " AND Id <> @id"; 
+                }
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                if (id > 0)
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                }
                 conn.Open();
 
                 return (int)cmd.ExecuteScalar() > 0;

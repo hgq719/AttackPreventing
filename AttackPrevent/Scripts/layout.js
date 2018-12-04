@@ -77,5 +77,15 @@ $(document).ready(function () {
     $("[name='o-iftest']").bootstrapSwitch('size', 'mini');
     $("[name='o-ifenable']").bootstrapSwitch('size', 'mini');
     $("[name='o-ifenable']").bootstrapSwitch('state', true);
+
+    $('.input-validation-error').parents('.form-group').addClass('has-error');
+    $('.field-validation-error').addClass('text-danger');
+
+    $('input.form-control').change(function () {
+        $(this).next('span').removeClass('text-danger');
+        $(this).next('span').text('');
+        $(this).parents('.form-group').removeClass('has-error');
+    });
+    
 });
 

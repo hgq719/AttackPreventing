@@ -11,28 +11,28 @@
     @using (Html.BeginForm("AddWhiteList", "home", FormMethod.Post))
     {
         <div class="row form-group">
-            <label class="col-md-4 control-label">Zone ID</label>
+            <label class="col-md-4 label-col">Zone ID</label>
             <div class="col-md-8 ">
                 @Html.DropDownListFor(model => model.ZoneId, ViewBag.ZoneList as List<SelectListItem>, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ZoneId)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">IP</label>
+            <label class="col-md-4 label-col">IP</label>
             <div class="col-md-8 ">
                 @Html.TextAreaFor(model => model.IP, new { @class = "form-control", rows = 4 })
                 @Html.ValidationMessageFor(model => model.IP)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Comment</label>
+            <label class="col-md-4 label-col">Comment</label>
             <div class="col-md-8 ">
                 @Html.TextAreaFor(model => model.Comment, new { @class = "form-control", rows = 2 })
                 @Html.ValidationMessageFor(model => model.Comment)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Validate Code</label>
+            <label class="col-md-4 label-col">Validate Code</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ValidateCode, new { @class = "form-control", @type = "password" })
                 @Html.ValidationMessageFor(model => model.ValidateCode)

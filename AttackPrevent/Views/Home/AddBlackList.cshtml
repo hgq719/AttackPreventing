@@ -20,14 +20,14 @@
         <div class="row form-group">
             <label class="col-md-4 control-label">IP</label>
             <div class="col-md-8 ">
-                @Html.TextAreaFor(model => model.IP, new { @class = "form-control" , height = "400px" })
+                @Html.TextAreaFor(model => model.IP, new { @class = "form-control" , rows = 4 })
                 @Html.ValidationMessageFor(model => model.IP)
             </div>
         </div>
         <div class="row form-group">
             <label class="col-md-4 control-label">Comment</label>
             <div class="col-md-8 ">
-                @Html.TextAreaFor(model => model.Comment, new { @class = "form-control", height = "100px" })
+                @Html.TextAreaFor(model => model.Comment, new { @class = "form-control", rows = 2 })
                 @Html.ValidationMessageFor(model => model.Comment)
             </div>
         </div>

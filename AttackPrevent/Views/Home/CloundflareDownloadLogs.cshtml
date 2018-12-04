@@ -128,6 +128,7 @@
         <div class="col-md-4  col-md-offset-4 text-right">
             <button id="btn-query" type="button" class="btn btn-primary">Query</button>
             <a id="btn-export" class="btn btn-default">Export</a>
+            <a id="btn-export-hit"></a>
         </div>
     </div>
 
@@ -178,28 +179,28 @@
                 },
                 {
                     field: 'ClientRequestHost',
-                    title: 'Client Request Host',
+                    title: 'Request Host',
                     width: '16%',
                 }, {
                     field: 'ClientIP',
-                    title: 'Client IP',
+                    title: 'IP',
                     width: '8%',
                 }, {
                     field: 'ClientRequestURI',
-                    title: 'Client Request URI',
+                    title: 'Request URI',
                     width: '42%',
                 }, {
                     field: 'CacheCacheStatus',
-                    title: 'Cache Cache Status',
+                    title: 'Cache Status',
                     width: '10%',
                 }, {
                     field: 'ClientRequestMethod',
-                    title: 'Client Request Method',
+                    title: 'Request Method',
                     width: '10%',
                 },
                 {
                     field: 'EdgeResponseStatus',
-                    title: 'Edge Response Status',
+                    title: 'Response Status',
                     width: '10%',
                 },
                 ]
@@ -264,13 +265,22 @@
 
         var para = oTable.queryParams({ limit: 10, offset: 0 });
 
-        if (!checkCloundflareAuth(para.zoneID)) {
+        var zoneID = para.zoneID;
+        var startTime = para.startTime;
+        var endTime = para.endTime;
+        var sample = para.sample;
+
+        if (!checkCloundflareAuth(zoneID)) {
             return;
         }
-        
-        var uuu = "/home/ExportCloundflareLogs?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&host=" + para.host + "&sample=" + para.sample + "&siteId=" + para.siteId + "&url=" + para.url + "&cacheStatus=" + para.cacheStatus + "&ip=" + para.ip + "&responseStatus=" + para.responseStatus;
-        $('#btn-export').attr("href", uuu);
-        //$.get(uuu);
+
+        $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
+
+        $("body").mLoading({
+            text: "Processing..."
+        }, "show");
+
+        GetOperateStatus(zoneID, startTime, endTime, sample, download);
     });
     function GetOperateStatus(zoneID, startTime, endTime, sample, callback) {
         $.ajax({
@@ -303,13 +313,13 @@
         var end = $("#txt-EndTime").val();
 
         if (!start || !end) {
-            alert("The start date and end date is required.");
+            alert("The start time and end time is required.");
             result=false;
         }
 
         if (start && end) {
             if (end <= start) {
-                alert("The end date must be greater than the start date.");
+                alert("The end time must be greater than the start time.");
                 result = false;
             }
         }
@@ -336,5 +346,16 @@
             }
         });
         return isSuccessed;
+    }
+    function download() {
+        var para = oTable.queryParams({ limit: 10, offset: 0 });
+        var uuu = "/home/ExportCloundflareLogs?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&host=" + para.host + "&sample=" + para.sample + "&siteId=" + para.siteId + "&url=" + para.url + "&cacheStatus=" + para.cacheStatus + "&ip=" + para.ip + "&responseStatus=" + para.responseStatus;
+
+        window.open(uuu);
+
+        //const a = document.createElement('a'); // 创建a标签
+        //a.setAttribute('download', '');// download属性
+        //a.setAttribute('href', uuu);// href链接
+        //a.click();// 自执行点击事件
     }
 </script>

@@ -9,32 +9,35 @@
         <li class="active">Edit</li>
     </ol>
     @using (Html.BeginForm("EditZone", "home", FormMethod.Post))
-    {
+    {       
         <div class="row form-group">
-            <label class="col-md-4 control-label">Zone ID</label>
+            <label class="col-md-4 label-col">Zone ID</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ZoneId, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ZoneId)
+                <div id="text-danger" class="text-danger">
+                    @ViewBag.ErrorMessage
+                </div>
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Zone Name</label>
+            <label class="col-md-4 label-col">Zone Name</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ZoneName, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ZoneName)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Auth Emaile</label>
+            <label class="col-md-4 label-col">Auth Emaile</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.AuthEmail, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.AuthEmail)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Auth KEY</label>
+            <label class="col-md-4 label-col">Auth KEY</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.AuthKey, new { @class = "form-control", @type="password" })
+                @Html.TextBoxFor(model => model.AuthKey, new { @class = "form-control", @type = "password" })
                 @Html.ValidationMessageFor(model => model.AuthKey)
             </div>
         </div>
@@ -55,7 +58,7 @@
         <div>
             @Html.HiddenFor(model => model.TableID)
         </div>
-        @Html.CheckBoxFor(model => model.IfAttacking, new { @style="display:none;"})
+        @Html.CheckBoxFor(model => model.IfAttacking, new { @style = "display:none;" })
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -65,6 +68,12 @@
     }
 
 </div>
+
+<script type="text/javascript">
+    $('#ZoneId').change(function () {
+        $('#text-danger').hide();
+    })
+</script>
 
 
 

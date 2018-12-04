@@ -1,50 +1,50 @@
 ﻿@{
 
 }
+@model AttackPrevent.Models.BlackListModel
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 <div style="width: 500px; margin-top: 20px; margin-left: 40px;">
     <ol class="breadcrumb">
         <li><a href="~/Home/BlackList">Blacklist Manage</a></li>
         <li class="active">Add</li>
     </ol>
-    <div class="row form-group">
-        <div class="col-md-4 label-col">
-            <label for="select-zoneName">Zone Name</label>
+    @using (Html.BeginForm("AddBlackList", "home", FormMethod.Post))
+    {
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Zone ID</label>
+            <div class="col-md-8 ">
+                @Html.DropDownListFor(model=>model.ZoneId, ViewBag.ZoneList as List<SelectListItem>, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ZoneId)
+            </div>
         </div>
-        <div class="col-md-8">
-            @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+        <div class="row form-group">
+            <label class="col-md-4 label-col">IP</label>
+            <div class="col-md-8 ">
+                @Html.TextAreaFor(model => model.IP, new { @class = "form-control" , rows = 4 })
+                @Html.ValidationMessageFor(model => model.IP)
+            </div>
         </div>
-    </div>
-    <div class="row form-group">
-        <div class="col-md-4 label-col">
-            <label for="ip-content">IP</label>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Comment</label>
+            <div class="col-md-8 ">
+                @Html.TextAreaFor(model => model.Comment, new { @class = "form-control", rows = 2 })
+                @Html.ValidationMessageFor(model => model.Comment)
+            </div>
         </div>
-        <div class="col-md-8">
-            <textarea id="ip-content" class="form-control" style="height: 400px;"></textarea>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Validate Code</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.ValidateCode, new { @class = "form-control", @type = "password" })
+                @Html.ValidationMessageFor(model => model.ValidateCode)
+            </div>
         </div>
-
-    </div>
-    <div class="row form-group">
-        <div class="col-md-4 label-col">
-            <label for="txt-comment">Comment</label>
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-4 text-right">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                @Html.ActionLink("Cancel", "BlackList", "Home", new { @class = "btn btn-default" })
+            </div>
         </div>
-        <div class="col-md-8">
-            <textarea id="txt-comment" class="form-control" style="height: 100px;"></textarea>
-        </div>
-
-    </div>
-    <div class="row form-group">
-        <label for="vcode-content" class="col-md-4 label-col">Verification Code</label>
-        <div class="col-md-8 ">
-            <input class="form-control" id="vcode-content" type="text" />
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-8 col-md-offset-4 text-right">
-            <button id="btn-save" class="btn btn-primary ">Save</button>
-            <button id="btn-cancel" class="btn btn-default">Cancel</button>
-        </div>
-    </div>
+    }
 </div>
 
 <script type="text/javascript">
@@ -62,9 +62,9 @@
 
             save(zoneID, ips, comment, vcode);
         });
-        $('#btn-cancel').click(function () {
-            history.go(-1);
-        });
+        //$('#btn-cancel').click(function () {
+        //    history.go(-1);
+        //});
     });
     function save(zoneID, ips, comment, vcode) {
         $.ajax({

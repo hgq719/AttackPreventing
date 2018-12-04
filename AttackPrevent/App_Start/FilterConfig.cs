@@ -19,16 +19,16 @@ namespace AttackPrevent
             //MyExceptionQueue.Enqueue(ex);
             //跳转到错误页面
             //filterContext.HttpContext.Response.Redirect("/Error.html");
-            AuditLogBusiness.Add(new Model.AuditLogEntity()
-            {
-                IP = filterContext.HttpContext.Request.UserHostAddress,
-                LogType = LogLevel.Error.ToString(),
-                ZoneID = string.Empty,
-                LogOperator = string.Empty,
-                LogTime = DateTime.UtcNow,
-                Detail = $"[Audit] Message {ex.Message} " +
-                $"StackTrace {ex.StackTrace}",
-            });
+            //AuditLogBusiness.Add(new Model.AuditLogEntity()
+            //{
+            //    IP = filterContext.HttpContext.Request.UserHostAddress,
+            //    LogType = LogLevel.Error.ToString(),
+            //    ZoneID = string.Empty,
+            //    LogOperator = string.Empty,
+            //    LogTime = DateTime.UtcNow,
+            //    Detail = $"[Audit] Message {ex.Message} " +
+            //    $"StackTrace {ex.StackTrace}",
+            //});
             filterContext.Result = new ViewResult
             {
                 ViewName = "~/Views/HomeError.cshtml",

@@ -21,7 +21,7 @@ namespace AttackPrevent.Model.Cloudflare
         {
         }
 
-        public CloudflareRateLimitRule(string _url, int _threshold, int _period)
+        public CloudflareRateLimitRule(string _url, int _threshold, int _period, string _description)
         {
             Match = new RateLimitMatch()
             {
@@ -41,6 +41,7 @@ namespace AttackPrevent.Model.Cloudflare
                     } }
                 }
             };
+            Description = _description;
             Disabled = false;
             Login_Protect = false;
             Threshold = _threshold;

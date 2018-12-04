@@ -2,6 +2,7 @@
 using System.Runtime.Caching;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AttackPrevent.Business
 {
@@ -74,6 +75,10 @@ namespace AttackPrevent.Business
             var resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
 
             return Encoding.UTF8.GetString(resultArray);
+        }
+        public static bool IsValidIp(string ip)
+        {
+            return Regex.IsMatch(ip, @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
         }
     }
 }

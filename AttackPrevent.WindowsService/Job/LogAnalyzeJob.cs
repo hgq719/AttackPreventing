@@ -52,7 +52,7 @@ namespace AttackPrevent.WindowsService.Job
             {
                 try
                 {
-                    zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey, zoneEntity.ZoneId);
+                    zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
                     tasks.Add(Task.Run(() => StartAnalyze(zoneEntity)));
                 }
                 catch (Exception ex)

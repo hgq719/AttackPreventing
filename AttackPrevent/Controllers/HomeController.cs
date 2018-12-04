@@ -241,6 +241,45 @@ namespace AttackPrevent.Controllers
             }
             return View();
         }
+        [HttpPost]
+        public ActionResult AddWhiteList(Models.WhiteListModel whiteListModel)
+        {
+            if (ModelState.IsValid)
+            {
+                IWhiteListBusinees whiteListBusinees = new WhiteListBusinees();
+                string[] ipList = whiteListModel.IP.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                var zoneList = ZoneBusiness.GetZoneList();
+                string zoneID = whiteListModel.ZoneId;
+                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                string authEmail = zone.AuthEmail;
+                string authKey = zone.AuthKey;
+
+                foreach (string ip in ipList)
+                {
+                    bool isSuccessed = whiteListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, whiteListModel.Comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = string.Format("[Audit] {1} [{0}] Add White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
+                    });
+                }
+
+                return RedirectToAction("WhiteList");
+            }
+            else
+            {
+                ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+                return View(whiteListModel);
+            }
+        }
 
         public ActionResult AddBlackList()
         {
@@ -250,7 +289,47 @@ namespace AttackPrevent.Controllers
                 return new HttpUnauthorizedResult();
             }
             return View();
-        }        
+        }
+        [HttpPost]
+        public ActionResult AddBlackList(Models.BlackListModel blackListModel)
+        {
+            if (ModelState.IsValid)
+            {
+                IBlackListBusinees blackListBusinees = new BlackListBusinees();
+                string[] ipList = blackListModel.IP.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                var zoneList = ZoneBusiness.GetZoneList();
+                string zoneID = blackListModel.ZoneId;
+                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                string authEmail = zone.AuthEmail;
+                string authKey = zone.AuthKey;
+
+                foreach (string ip in ipList)
+                {
+                    bool isSuccessed = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, blackListModel.Comment);
+                    if (!isSuccessed)
+                    {
+                        break;
+                    }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = zoneID,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        //Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
+                        Detail = string.Format("[Audit] {1} [{0}] Add Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
+                    });
+                }
+
+                return RedirectToAction("BlackList");
+            }
+            else
+            {
+                ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+                return View(blackListModel);
+            }
+        }
 
         public ActionResult ZoneList()
         {
@@ -721,6 +800,23 @@ namespace AttackPrevent.Controllers
                 Detail = string.Format("[Audit] {1} [{0}] Delete Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
             });
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// 校验码
+        /// </summary>
+        /// <param name="validateCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult CheckValidateCode(string validateCode)
+        {
+            bool bResult = false;
+            var configuration = GlobalConfigurationBusiness.GetConfigurationList().FirstOrDefault();
+            if (validateCode == configuration?.ValidateCode)
+            {
+                bResult = true;
+            }
+            return Json(bResult, JsonRequestBehavior.AllowGet);
         }
     }
     //只有实现IStaticDataSource接口才能实现流操作

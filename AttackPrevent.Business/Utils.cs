@@ -7,6 +7,7 @@ namespace AttackPrevent.Business
 {
     public class Utils
     {
+        private static string _secretKey = "2068c8964a4dcef78ee5103471a8db03";
         public static T GetMemoryCache<T>(string key)
         {
             MemoryCache cache = MemoryCache.Default;
@@ -40,14 +41,14 @@ namespace AttackPrevent.Business
             return t;
         }
 
-        public static string AesEncrypt(string str, string key)
+        public static string AesEncrypt(string str)
         {
             if (string.IsNullOrEmpty(str)) return null;
             var toEncryptArray = Encoding.UTF8.GetBytes(str);
 
             var rm = new RijndaelManaged
             {
-                Key = Encoding.UTF8.GetBytes(key),
+                Key = Encoding.UTF8.GetBytes(_secretKey),
                 Mode = CipherMode.ECB,
                 Padding = PaddingMode.PKCS7
             };
@@ -57,14 +58,14 @@ namespace AttackPrevent.Business
             return Convert.ToBase64String(resultArray);
         }
 
-        public static string AesDecrypt(string str, string key)
+        public static string AesDecrypt(string str)
         {
             if (string.IsNullOrEmpty(str)) return null;
             byte[] toEncryptArray = Convert.FromBase64String(str);
 
             var rm = new RijndaelManaged
             {
-                Key = Encoding.UTF8.GetBytes(key),
+                Key = Encoding.UTF8.GetBytes(_secretKey),
                 Mode = CipherMode.ECB,
                 Padding = PaddingMode.PKCS7
             };

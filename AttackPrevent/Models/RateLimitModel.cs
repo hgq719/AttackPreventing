@@ -18,8 +18,9 @@ namespace AttackPrevent.Models
         [StringLength(50)]
         public string Url { get; set; }
 
-        [Required]
-        [Range(0, 10000, ErrorMessage = "Out of Range")]
+        //[Required]
+        //[RegularExpression(@"^[0-9]*$", ErrorMessage = "{0} Must be Integer")]
+        //[Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Threshold { get; set; }
 
         [Required]

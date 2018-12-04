@@ -109,28 +109,37 @@
                 showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
                 cardView: false,                    //是否显示详细视图
                 detailView: false,                   //是否显示父子表
-                columns: [
-                    {
-                        field: 'IP',
-                        title: 'IP',
-                        width: '10%',
-                    }, {
-                        field: 'CreateTime',
-                        title: 'Create Time',
-                        width: '10%',
-                    }, {
-                        field: 'Notes',
-                        title: 'Notes',
-                        width: '70%',
-                    }, {
-                        field: 'Button',
-                        title: 'Operation',
-                        align: 'center',
-                        width: '10%',
-                        events: operateEvents,
-                        formatter: operateFormatter,
-                        visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
-                    },
+                columns: [{
+                    field: 'ID',
+                    title: '#',
+                    width: '4%',
+                    formatter: function (value, row, index) {
+                        var pageSize = $('#table').bootstrapTable('getOptions').pageSize;     //通过table的#id 得到每页多少条
+                        var pageNumber = $('#table').bootstrapTable('getOptions').pageNumber; //通过table的#id 得到当前第几页
+                        return pageSize * (pageNumber - 1) + index + 1;    // 返回每条的序号： 每页条数 *（当前页 - 1 ）+ 序号
+                    }
+                },
+                {
+                    field: 'IP',
+                    title: 'IP',
+                    width: '10%',
+                }, {
+                    field: 'CreateTime',
+                    title: 'Create Time',
+                    width: '10%',
+                }, {
+                    field: 'Notes',
+                    title: 'Notes',
+                    width: '66%',
+                }, {
+                    field: 'Button',
+                    title: 'Operation',
+                    align: 'center',
+                    width: '10%',
+                    events: operateEvents,
+                    formatter: operateFormatter,
+                    visible: '@ViewBag.IsAdmin'.toLowerCase() === 'true'
+                },
                 ],
                 formatLoadingMessage: function () {
                     $("body").mLoading({
@@ -168,7 +177,7 @@
 
         if (start && end) {
             if (end <= start) {
-                alert("The end date must be greater than the start date.");
+                alert("The end time must be greater than the start time.");
                 return;
             }
         }
@@ -179,7 +188,7 @@
         }
 
         $('#table').bootstrapTable('refreshOptions', { limit: 10, offset: 0, pageNumber: 1 });
-        refresh();
+        //refresh();
     });
     $('#btn-export').click(function () {
         var para = oTable.queryParams({ limit: 10, offset: 0 });

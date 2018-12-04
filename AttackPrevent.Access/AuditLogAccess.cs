@@ -18,38 +18,44 @@ namespace AttackPrevent.Access
                                                    LogTime, 
                                                    LogOperator, 
                                                    Detail 
-                                            FROM t_Logs
-                                            WHERE ZoneId=@zoneID");
+                                            FROM t_Logs");
+            var where = new StringBuilder();
+            where.Append(" ZoneId=@zoneID AND ");
             if (startTime.HasValue)
             {
-                query.Append(" AND LogTime >= @startTime ");
+                where.Append(" LogTime >= @startTime AND ");
             }
             if (endTime.HasValue)
             {
-                query.Append(" AND LogTime <= @endTime ");
+                where.Append(" LogTime <= @endTime AND ");
             }
             if (!string.IsNullOrWhiteSpace(logType))
             {
-                query.Append(" AND LogLevel IN (");
+                where.Append(" LogLevel IN (");
                 logType = logType.Remove(logType.Length - 1);
                 string[] ar = logType.Split(',');
                 for (var i = 0; i < ar.Length; i++)
                 {
-                    query.Append("@logType" + i + ",");
+                    where.Append("@logType" + i + ",");
                 }
-                query.Remove(query.Length - 1, 1);
-                query.Append(") ");
+                where.Remove(where.Length - 1, 1);
+                where.Append(") AND ");
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                query.Append(" AND Detail LIKE'%'+@detail+'%' ");
+                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
             }
+            if (where.Length > 0)
+            {
+                where.Remove(where.Length - 4, 4);
+            }
+            query.AppendFormat(" WHERE {0}", where.ToString());
             query.Append("ORDER BY LogTime desc");
             using (var conn = new SqlConnection(cons))
             {
                 
                 var cmd = new SqlCommand(query.ToString(), conn);
-                cmd.Parameters.AddWithValue("@zoneID", zoneId);
+                cmd.Parameters.AddWithValue("@zoneID", zoneId);             
                 if (startTime.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@startTime", startTime.Value);

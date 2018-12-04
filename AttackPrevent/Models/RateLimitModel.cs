@@ -14,28 +14,28 @@ namespace AttackPrevent.Models
 
         public int OrderNo { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [StringLength(50)]
         public string Url { get; set; }
 
-        //[Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         //[RegularExpression(@"^[0-9]*$", ErrorMessage = "{0} Must be Integer")]
-        //[Range(0, 10000, ErrorMessage = "Out of Range")]
+        [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Threshold { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Period { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int EnlargementFactor { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int RateLimitTriggerIpCount { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int RateLimitTriggerTime { get; set; }
     }

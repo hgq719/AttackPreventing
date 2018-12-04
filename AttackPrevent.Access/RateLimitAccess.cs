@@ -24,17 +24,17 @@ namespace AttackPrevent.Access
                                                              Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
-                query.Append(" AND LogTime >= @startTime ");
+                query.Append(" AND CreatedTime >= @startTime ");
             }
 
             if (endTime.HasValue)
             {
-                query.Append(" AND LogTime <= @endTime ");
+                query.Append(" AND CreatedTime <= @endTime ");
             }
 
             if (!string.IsNullOrWhiteSpace(url))
             {
-                query.Append(" AND Url = @url ");
+                query.Append(" AND Url LIKE'%'+@url+'%' ");
             }
 
             query.Append(" ORDER BY OrderNo");

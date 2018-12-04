@@ -10,15 +10,15 @@ namespace AttackPrevent.Models
     {
         public int TableID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [StringLength(50)]
         public string Host { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Threshold { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int Period { get; set; }
     }

@@ -726,7 +726,7 @@ namespace AttackPrevent.Business
             }
             else
             {
-                var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period));
+                var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period, "Create Rate limit rule By Attack Prevent Windows service!"));
                 if (!response.success)
                 {
                     errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,

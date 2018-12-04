@@ -86,6 +86,11 @@ $(document).ready(function () {
         $(this).next('span').text('');
         $(this).parents('.form-group').removeClass('has-error');
     });
-    
+
+    $('textarea.form-control').change(function () {
+        $(this).next('span').removeClass('text-danger');
+        $(this).next('span').text('');
+        $(this).parents('.form-group').removeClass('has-error');
+    });
 });
 

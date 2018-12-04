@@ -5,6 +5,7 @@
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 @Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
 @Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
+
 <style type="text/css">
     .table {
         table-layout: fixed;
@@ -177,7 +178,7 @@
 
         if (start && end) {
             if (end <= start) {
-                alert("The end time must be greater than the start time.");
+                showWarning("The end time must be greater than the start time.");
                 return;
             }
         }

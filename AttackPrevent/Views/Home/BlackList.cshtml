@@ -5,6 +5,7 @@
 @Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
 @Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
 @Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
+
 <style type="text/css">
     .table {
         table-layout: fixed;
@@ -175,7 +176,7 @@
 
         if (start && end) {
             if (end <= start) {
-                alert("The end time must be greater than the start time.");
+                showWarning("The end time must be greater than the start time.");
                 return;
             }
         }
@@ -201,7 +202,7 @@
 
         if (start && end) {
             if (end <= start) {
-                alert("The end date must be greater than the start date.");
+                showWarning("The end date must be greater than the start date.");
                 return;
             }
         }
@@ -234,7 +235,7 @@
                         if (data) {
                             refresh();
                         } else {
-                            alert("Delete failed");
+                            showError("Delete failed.");
                         }
                     },
                     error: function (jqXHR) {
@@ -256,7 +257,7 @@
                 if (status) {
                     isSuccessed = true;
                 } else {
-                    alert(data.errorMsg);
+                    showError(data.errorMsg);
                 }
             },
             error: function (jqXHR) {

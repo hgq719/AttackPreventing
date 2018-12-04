@@ -76,7 +76,7 @@
                 if (data.isSuccessed) {
                     history.go(-1);
                 } else {
-                    alert(data.errorMsg);
+                   showError(data.errorMsg);
                 }
             },
             error: function (jqXHR) {
@@ -96,7 +96,7 @@
                 if (status) {
                     isSuccessed = true;
                 } else {
-                    alert(data.errorMsg);
+                    showError(data.errorMsg);
                 }
             },
             error: function (jqXHR) {

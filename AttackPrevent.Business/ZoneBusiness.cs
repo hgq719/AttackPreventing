@@ -64,12 +64,28 @@ namespace AttackPrevent.Business
 
         public static void Add(ZoneEntity item)
         {
-            ZoneAccess.Add(item);
+            if (ZoneAccess.Equals(item.ZoneId))
+            {
+                throw new Exception("Zone Id is duplication");
+            }
+            else
+            {
+                ZoneAccess.Add(item);
+            }
+            
         }
 
         public static void Update(ZoneEntity item)
         {
-            ZoneAccess.Edit(item);
+            if (ZoneAccess.Equals(item.ZoneId))
+            {
+                throw new Exception("Zone Id is duplication");
+            }
+            else
+            {
+                ZoneAccess.Edit(item);
+            }
+            
         }
 
         public static ZoneEntity GetZone(int id)

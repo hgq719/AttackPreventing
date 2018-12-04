@@ -299,5 +299,22 @@ namespace AttackPrevent.Access
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+
+        public static bool Equals(string zoneId)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"SELECT COUNT(1)
+                                    FROM dbo.t_Zone_Info
+                                    WHERE ZoneId= @zoneId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                conn.Open();
+
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
     }
 }

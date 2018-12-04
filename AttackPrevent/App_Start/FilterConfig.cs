@@ -22,7 +22,7 @@ namespace AttackPrevent
             AuditLogBusiness.Add(new Model.AuditLogEntity()
             {
                 IP = filterContext.HttpContext.Request.UserHostAddress,
-                LogType = LogLevel.Audit.ToString(),
+                LogType = LogLevel.Error.ToString(),
                 ZoneID = string.Empty,
                 LogOperator = string.Empty,
                 LogTime = DateTime.UtcNow,

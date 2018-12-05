@@ -176,7 +176,7 @@
         var end = $("#txt-EndTime").val();
 
         if (start && end) {
-            if (end <= start) {
+            if (end < start) {
                 alert("The end time must be greater than the start time.");
                 return;
             }

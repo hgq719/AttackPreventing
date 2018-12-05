@@ -94,5 +94,30 @@ namespace AttackPrevent.Business
         {
             return ZoneAccess.Equals(zoneId, id);
         }
+
+        //public static bool AuthenticateUser(string username, string password)
+        //{
+        //    System.DirectoryServices.DirectoryEntry _entry = new System.DirectoryServices.DirectoryEntry(ldap_path, username, password, System.DirectoryServices.AuthenticationTypes.Delegation);
+
+        //    bool _authenticated = false;
+        //    try
+        //    {
+        //        Object _o = _entry.NativeObject;
+        //        _authenticated = true;
+        //    }
+        //    catch
+        //    {
+        //        _authenticated = false;
+        //    }
+        //    finally
+        //    {
+        //        // Avoids the "multiple connections to server not allowed" error.
+        //        _entry.Close();
+        //        _entry.Dispose();
+        //    }
+
+        //    return _authenticated;
+        //}
+
     }
 }

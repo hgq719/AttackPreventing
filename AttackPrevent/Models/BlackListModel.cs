@@ -26,6 +26,7 @@ namespace AttackPrevent.Models
         [Required]
         [StringLength(16)]
         [CheckValidateCode]
+        [Display(Name ="Validate Code")]
         public string ValidateCode { get; set; }
     }
 }

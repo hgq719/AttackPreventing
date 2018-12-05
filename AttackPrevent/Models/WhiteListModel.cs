@@ -21,11 +21,12 @@ namespace AttackPrevent.Models
 
         [Required]
         [StringLength(256)]
-        public string Comment { get; set; }
+        public string Comment { get; set; } = "WHITELIST CLEINT'S IP ADDRESS SITEID={}";
 
         [Required]
         [StringLength(16)]
         [CheckValidateCode]
+        [Display(Name = "Validate Code")]
         public string ValidateCode { get; set; }
     }
 }

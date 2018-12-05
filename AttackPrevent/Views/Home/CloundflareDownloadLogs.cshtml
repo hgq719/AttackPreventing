@@ -313,13 +313,13 @@
         var end = $("#txt-EndTime").val();
 
         if (!start || !end) {
-            alert("The start time and end time is required.");
+            showWarning("The start time and end time is required.");
             result=false;
         }
 
         if (start && end) {
             if (end <= start) {
-                alert("The end time must be greater than the start time.");
+                showWarning("The end time must be greater than the start time.");
                 result = false;
             }
         }

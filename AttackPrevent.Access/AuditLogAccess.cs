@@ -50,7 +50,7 @@ namespace AttackPrevent.Access
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY LogTime desc");
+            query.Append("ORDER BY Id desc");
             using (var conn = new SqlConnection(cons))
             {
                 

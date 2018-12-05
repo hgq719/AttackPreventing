@@ -185,5 +185,30 @@ namespace AttackPrevent.Access
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public static bool Equals(string host, int id)
+        {
+            string cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"SELECT COUNT(1)
+                                    FROM dbo.t_Host_Configuration
+                                    WHERE Host= @host ";
+                if (id > 0)
+                {
+                    query += " AND Id <> @id";
+                }
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@host", host);
+                if (id > 0)
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                }
+                conn.Open();
+
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
     }
 }

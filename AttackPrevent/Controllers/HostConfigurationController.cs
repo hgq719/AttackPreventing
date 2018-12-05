@@ -113,7 +113,7 @@ namespace AttackPrevent.Controllers
                     TableID = hostConfigurationModel.TableID
                 };
 
-                if (HostConfigurationBusiness.Equals(item.Host, 0))
+                if (HostConfigurationBusiness.Equals(item.Host, item.TableID))
                 {
                     ViewBag.ErrorMessage = "Host already exists";
                     return View(hostConfigurationModel);

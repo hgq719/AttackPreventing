@@ -54,17 +54,26 @@ namespace AttackPrevent.Controllers
                     Threshold = hostConfigurationModel.Threshold
                 };
 
-                HostConfigurationBusiness.Add(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                if (HostConfigurationBusiness.Equals(item.Host, 0))
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = string.Empty,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"AddHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",
-                });
-                return RedirectToAction("Index");
+                    ViewBag.ErrorMessage = "Host already exists";
+                    return View(hostConfigurationModel);
+                }
+                else
+                {
+                    HostConfigurationBusiness.Add(item);
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = string.Empty,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"AddHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",
+                    });
+                    return RedirectToAction("Index");
+                }
+                
             }
             else
             {
@@ -104,16 +113,25 @@ namespace AttackPrevent.Controllers
                     TableID = hostConfigurationModel.TableID
                 };
 
-                HostConfigurationBusiness.Edit(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                if (HostConfigurationBusiness.Equals(item.Host, 0))
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = string.Empty,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"EditHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",
-                });
+                    ViewBag.ErrorMessage = "Host already exists";
+                    return View(hostConfigurationModel);
+                }
+                else
+                {
+                    HostConfigurationBusiness.Edit(item);
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit.ToString(),
+                        ZoneID = string.Empty,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"EditHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",
+                    });
+                }
+                
             }
             else
             {

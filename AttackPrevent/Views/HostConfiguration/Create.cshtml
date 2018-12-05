@@ -15,6 +15,9 @@
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.Host, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.Host)
+                <div id="text-danger" class="text-danger">
+                    @ViewBag.ErrorMessage
+                </div>
             </div>
         </div>
         <div class="row form-group">
@@ -42,6 +45,12 @@
     }
 
 </div>
+
+<script type="text/javascript">
+    $('#Host').change(function () {
+        $('#text-danger').hide();
+    })
+</script>
 
 
 

@@ -44,5 +44,10 @@ namespace AttackPrevent.Business
         {
             HostConfigurationAccess.Delete(id);
         }
+
+        public static bool Equals(string host, int id)
+        {
+            return HostConfigurationAccess.Equals(host, id);
+        }
     }
 }

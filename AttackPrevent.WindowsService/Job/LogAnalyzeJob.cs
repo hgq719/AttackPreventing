@@ -176,7 +176,7 @@ namespace AttackPrevent.WindowsService.Job
                     // 发送警报
                     ifAttacking = true;
                     ZoneBusiness.UpdateAttackFlag(true, zoneId);
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, string.Format("Suspected of an attack, modified the attack token and trigger an alert.", zoneEntity.ZoneName)));
+                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit, string.Format("Suspected of an attack, modified the attack token and trigger an alert.", zoneEntity.ZoneName)));
 
                     var sbDetail = new StringBuilder();
                     sbDetail.Append($"[{logsIpAll.Count()}] IPs exceeded the host access threshold, time range is [{timeStage}].<br />");
@@ -228,8 +228,8 @@ namespace AttackPrevent.WindowsService.Job
                 var ifContainWildcard = false;
                 foreach (var rateLimit in rateLimits)
                 {
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
-                        $"Start analyzing rule [Url=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]"));
+                    //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
+                    //    $"Start analyzing rule [Url=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]"));
                     //抽取出所有ratelimit规则中的请求列表
                     ifContainWildcard = rateLimit.Url.EndsWith("*");
                     var logAnalyzeDetailList = ifContainWildcard
@@ -287,17 +287,17 @@ namespace AttackPrevent.WindowsService.Job
                             RateLimitBusiness.TriggerRateLimit(rateLimit);
 
                             var sbDetail = new StringBuilder(
-                                $"Exceeded rate limiting threshold(Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}],EnlargementFactor=[{rateLimit.EnlargementFactor}]), details：<br />");
+                                $"[{brokenRuleIpList.Count}] IPs exceeded the rate limitings threshold(Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}],EnlargementFactor=[{rateLimit.EnlargementFactor}]), time range：[{timeStage}], details：<br />");
 
                             foreach (var rule in brokenRuleIpList)
                             {
-                                sbDetail.AppendFormat("IP [{0}] visited  [{1}] times, time range：[{2}].<br /> ", rule.IP, rule.RequestCount, timeStage);
+                                sbDetail.AppendFormat("IP [{0}] visited [{1}] times.<br /> ", rule.IP, rule.RequestCount);
                             }
                             systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App, sbDetail.ToString()));
 
                             #region Open Rate Limiting Rule
                             sbDetail = new StringBuilder();
-                            sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                            //sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
                             if (ifTestStage)
                             {
                                 sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
@@ -345,8 +345,8 @@ namespace AttackPrevent.WindowsService.Job
                         }
                     }
 
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
-                        $"Finished analyzing rate limit rule [Url={rateLimit.Url},Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]."));
+                    //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
+                    //    $"Finished analyzing rate limit rule [Url={rateLimit.Url},Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]."));
                 }
 #endregion
                 
@@ -362,7 +362,7 @@ namespace AttackPrevent.WindowsService.Job
             {
                 if (ifAttacking)
                 {
-                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
+                    systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit,
                         $"Suspected of an attack in ZoneName [{zoneEntity.ZoneName}], modified the attack token and trigger an alert."));
                 }
                 else
@@ -471,7 +471,7 @@ namespace AttackPrevent.WindowsService.Job
             if (null == rule) return null;
             if (ifTestStage)
             {
-                log = new AuditLogEntity(zoneId, LogLevel.App,
+                log = new AuditLogEntity(zoneId, LogLevel.Audit,
                     $"No Ip broke the rate limit rule [Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule successfully.");
             }
             else
@@ -480,12 +480,12 @@ namespace AttackPrevent.WindowsService.Job
                 var response = cloudflare.DeleteRateLimit(rule.Id);
                 if (response.success)
                 {
-                    log = new AuditLogEntity(zoneId, LogLevel.App,
+                    log = new AuditLogEntity(zoneId, LogLevel.Audit,
                         $"No Ip broke the rate limit rule [Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule successfully.");
                 }
                 else
                 {
-                    log = new AuditLogEntity(zoneId, LogLevel.App,
+                    log = new AuditLogEntity(zoneId, LogLevel.Error,
                         $"No Ip broke the rate limit rule [Url =[{rateLimit.Url}],Threshold =[{rateLimit.Threshold}],Period =[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule failure, the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].");
                 }
             }

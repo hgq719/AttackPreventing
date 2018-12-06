@@ -21,7 +21,7 @@ namespace AttackPrevent.WindowsService.Job
         private List<string> _suffixList = new List<string>
         {
             ".bmp" ,".ejs",".jpeg",".pdf",".ps",".ttf",".class",".eot",".jpg",".pict"
-            ,".svg",".webp",".css",".eps",".js",".pls",".svgz",".woff",".csv",".git"
+            ,".svg",".webp",".css",".eps",".js",".pls",".svgz",".woff",".csv",".gif"
             ,".mid",".png",".swf",".woff2",".doc",".ico",".midi",".ppt",".tif",".xls"
             ,".docx",".jar",".otf",".pptx",".tiff",".xlsx"
         };

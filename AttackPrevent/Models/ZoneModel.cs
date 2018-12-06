@@ -12,21 +12,21 @@ namespace AttackPrevent.Models
         public int TableID { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
-        [StringLength(50)]
+        [StringLength(100)]
         public string ZoneId { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
-        [StringLength(50)]
+        [StringLength(100)]
         public string ZoneName { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
         [EmailAddress]
-        [StringLength(50)]
+        [StringLength(100)]
         public string AuthEmail { get; set; }
 
         [JsonIgnore]
         [Required(ErrorMessage = "The {0} is required.")]
-        [StringLength(50)]
+        [StringLength(100)]
         public string AuthKey { get; set; }
         public bool IfTestStage { get; set; }
         public bool IfEnable { get; set; }

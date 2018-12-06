@@ -11,7 +11,7 @@ namespace AttackPrevent.Models
         public int TableID { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
-        [StringLength(50)]
+        [StringLength(100)]
         public string Host { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]

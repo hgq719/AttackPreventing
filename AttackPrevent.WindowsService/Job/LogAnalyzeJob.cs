@@ -4,6 +4,7 @@ using AttackPrevent.Model.Cloudflare;
 using Quartz;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -20,10 +21,10 @@ namespace AttackPrevent.WindowsService.Job
         private List<HostConfigurationEntity> _hostConfigList = null;
         private List<string> _suffixList = new List<string>
         {
-            ".bmp" ,".ejs",".jpeg",".pdf",".ps",".ttf",".class",".eot",".jpg",".pict"
-            ,".svg",".webp",".css",".eps",".js",".pls",".svgz",".woff",".csv",".gif"
-            ,".mid",".png",".swf",".woff2",".doc",".ico",".midi",".ppt",".tif",".xls"
-            ,".docx",".jar",".otf",".pptx",".tiff",".xlsx"
+            "bmp","ejs","jpeg","pdf","ps","ttf","class","eot","jpg","pict"
+            ,"svg","webp","css","eps","js","pls","svgz","woff","csv","gif"
+            ,"mid","png","swf","woff2","doc","ico","midi","ppt","tif","xls"
+            ,"docx","jar","otf","pptx","tiff","xlsx"
         };
         
         public Task Execute(IJobExecutionContext context)
@@ -36,6 +37,13 @@ namespace AttackPrevent.WindowsService.Job
                 _timeSpan = globalConfigurations[index: 0].GlobalTimeSpan;
                 _cancelBanIpTime = globalConfigurations[index: 0].CancelBanIPTime;
             };
+
+            var filterSuffixList = ConfigurationManager.AppSettings["FilterSuffixList"];
+            if (!string.IsNullOrEmpty(filterSuffixList))
+            {
+                _suffixList = filterSuffixList.Split(',').ToList();
+            }
+
             #endregion
 
             _hostConfigList = HostConfigurationBusiness.GetList();
@@ -59,7 +67,6 @@ namespace AttackPrevent.WindowsService.Job
                 {
                     AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.Error, $"Auth key is invalid."));
                 }
-
             }
 
             Task.WaitAll(tasks.ToArray());
@@ -534,7 +541,7 @@ namespace AttackPrevent.WindowsService.Job
         {
             foreach (var suffix in _suffixList)
             {
-                if (requestUrl.ToLower().EndsWith(suffix))
+                if (requestUrl.ToLower().EndsWith($".{suffix}"))
                     return true;
             }
 

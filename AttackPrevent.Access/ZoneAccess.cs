@@ -274,8 +274,8 @@ namespace AttackPrevent.Access
                         result.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
                         result.TableID = Convert.ToInt32(reader["Id"]);
                         result.AuthKey = Convert.ToString(reader["AuthKey"]);
-                        result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
-                        result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
+                        //result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
+                        //result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                     }
                 }
             }

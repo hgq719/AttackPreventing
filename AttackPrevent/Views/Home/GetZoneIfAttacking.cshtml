@@ -1,21 +1,7 @@
-﻿@{
-
+﻿@{ 
+  Layout = null;
 }
-@Styles.Render("~/Content/home.css")
-<div style="width: 500px; margin-top: 20px; margin-left: 40px;" class="form-horizontal">
-    <ol class="breadcrumb">
-        <li><a href="~/Home/ZoneList">Zone Manage</a></li>
-        <li class="active">GetZoneIfAttacking</li>
-    </ol>
-    <div class="row form-group">
-        <label class="col-md-4 control-label">IfAttacking</label>
-        <div class="col-md-8 ">
-            @ViewBag.IfAttacking
-        </div>
-    </div>
 
-</div>
-
-
+@ViewBag.IfAttacking
 
 

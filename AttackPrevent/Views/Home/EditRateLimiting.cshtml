@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Trigger Ip Count</label>
+            <label class="col-md-4 label-col">Rate Limiting Trigger Ip Count</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.RateLimitTriggerIpCount, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.RateLimitTriggerIpCount)
@@ -57,7 +57,7 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 control-label">Trigger Time</label>
+            <label class="col-md-4 label-col">Trigger Time (hour)</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.RateLimitTriggerTime, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.RateLimitTriggerTime)

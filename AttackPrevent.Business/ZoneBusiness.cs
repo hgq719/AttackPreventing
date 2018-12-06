@@ -2,6 +2,7 @@
 using AttackPrevent.Model;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -94,5 +95,43 @@ namespace AttackPrevent.Business
         {
             return ZoneAccess.Equals(zoneId, id);
         }
+
+        public static bool AuthenticateUser(string username, string password)
+        {
+            string ldap_path = "WinNT://" + Environment.MachineName;
+            //string ldap_path = "LDAP://127.0.0.1";
+
+            //DirectoryEntry machine = new DirectoryEntry(ldap_path);
+            ////获得计算机实例
+            //DirectoryEntry user = machine.Children.Find(username, "User");
+            //var list = user.Properties;
+            //foreach (PropertyValueCollection item in list)
+            //{
+            //    Console.WriteLine(item.PropertyName + ":" + item.Value.ToString());
+            //}
+            //return true;
+
+            DirectoryEntry _entry = new DirectoryEntry(ldap_path, username, password);
+
+            bool _authenticated = false;
+            try
+            {
+                Object _o = _entry.NativeObject;
+                _authenticated = true;
+            }
+            catch
+            {
+                _authenticated = false;
+            }
+            finally
+            {
+                // Avoids the "multiple connections to server not allowed" error.
+                _entry.Close();
+                _entry.Dispose();
+            }
+
+            return _authenticated;
+        }
+
     }
 }

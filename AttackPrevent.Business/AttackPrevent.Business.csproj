@@ -57,6 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveReportMailService.cs" />
+    <Compile Include="ConstValues.cs" />
+    <Compile Include="SmtpQueueBusiness.cs" />
     <Compile Include="AuditBusiness.cs" />
     <Compile Include="BanIpHistoryBusiness.cs" />
     <Compile Include="Cloundflare\BackgroundTaskService.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="BlackListBusinees.cs" />
     <Compile Include="WhiteListBusinees.cs" />
+    <Compile Include="ActionReportBusiness.cs" />
     <Compile Include="ZoneBusiness.cs" />
   </ItemGroup>
   <ItemGroup>

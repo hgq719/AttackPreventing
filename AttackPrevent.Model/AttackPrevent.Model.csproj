@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SmtpQueue.cs" />
+    <Compile Include="ActionReport.cs" />
     <Compile Include="AuditLogEntity.cs" />
     <Compile Include="BanIpHistory.cs" />
     <Compile Include="Cloudflare\CloudflareAccessRule.cs" />

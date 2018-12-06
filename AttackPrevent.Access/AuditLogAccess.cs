@@ -102,11 +102,13 @@ namespace AttackPrevent.Access
 
         public static void Add(AuditLogEntity item)
         {
-            var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
-
-            using (var conn = new SqlConnection(cons))
+            try
             {
-                const string query = @"INSERT INTO dbo.t_Logs
+                var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+                using (var conn = new SqlConnection(cons))
+                {
+                    const string query = @"INSERT INTO dbo.t_Logs
                                 ( ZoneId ,
                                   LogLevel ,
                                   LogTime ,
@@ -123,17 +125,23 @@ namespace AttackPrevent.Access
                                   @detail , 
                                   N''
                                 )";
-                var cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneID", item.ZoneID);
-                cmd.Parameters.AddWithValue("@logLevel", item.LogType);
-                cmd.Parameters.AddWithValue("@operator", item.LogOperator);
-                cmd.Parameters.AddWithValue("@logTime", item.LogTime);
-                cmd.Parameters.AddWithValue("@ip", item.IP);
-                cmd.Parameters.AddWithValue("@detail", item.Detail);
-                conn.Open();
+                    var cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@zoneID", item.ZoneID);
+                    cmd.Parameters.AddWithValue("@logLevel", item.LogType);
+                    cmd.Parameters.AddWithValue("@operator", item.LogOperator);
+                    cmd.Parameters.AddWithValue("@logTime", item.LogTime);
+                    cmd.Parameters.AddWithValue("@ip", item.IP);
+                    cmd.Parameters.AddWithValue("@detail", item.Detail);
+                    conn.Open();
 
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error when adding new log, error message:{ex.Message} \n stack trace:{ex.StackTrace}");
+            }
+            
         }
 
         public static void AddList(DataTable data)
@@ -202,7 +210,7 @@ namespace AttackPrevent.Access
                 catch (Exception ex)
                 {
                     tran.Rollback();
-                    Add(new AuditLogEntity(zoneId, LogLevel.Error, $"Error when adding new log, \n eror message:{ex.Message} \n stack trace:{ex.StackTrace}"));
+                    Add(new AuditLogEntity(zoneId, LogLevel.Error, $"Error when adding new log, \n error message:{ex.Message} \n stack trace:{ex.StackTrace}"));
                 }
                 finally
                 {

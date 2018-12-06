@@ -42,6 +42,9 @@ namespace AttackPrevent.Business
 
         public static void Add(RateLimitEntity item)
         {
+            var list = RateLimitAccess.GetRateLimits(item.ZoneId, null, null, string.Empty);
+            var orderMax = list.LastOrDefault().OrderNo;
+            item.OrderNo = orderMax + 1;
             RateLimitAccess.Add(item);
         }
 

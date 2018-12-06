@@ -15,7 +15,7 @@ namespace AttackPrevent.Models
         public int OrderNo { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
-        [StringLength(50)]
+        [StringLength(100)]
         public string Url { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]

@@ -488,6 +488,7 @@ namespace AttackPrevent.Controllers
 
         public ActionResult GetZoneIfAttacking(string zone)
         {
+            ZoneBusiness.AuthenticateUser("comm100", "comm110");
             ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
             return View();
         }

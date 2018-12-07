@@ -104,7 +104,7 @@ namespace AttackPrevent.Access
           CreatedTime
         )
 VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
-          (SELECT COUNT(1) FROM dbo.t_RateLimiting_Rules) + 1 , -- OrderNo - int
+          @order , -- OrderNo - int
           @url , -- Url - nvarchar(512)
           @threshold , -- Threshold - int
           @period , -- Period - int
@@ -119,6 +119,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
+                cmd.Parameters.AddWithValue("@order", item.OrderNo);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
                 cmd.Parameters.AddWithValue("@url", item.Url);
@@ -221,7 +222,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             }
         }
 
-        public static RateLimitEntity GetRateLimitByOrderNo(int order)
+        public static RateLimitEntity GetRateLimitByOrderNo(int order, string zoneId)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             RateLimitEntity item = new RateLimitEntity();
@@ -235,9 +236,10 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
-                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order";
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order and ZoneId=@zoneId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@order", order);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
                 conn.Open();
                 
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -301,15 +303,17 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             return item;
         }
 
-        public static int GetRateLimitMaxOrder()
+        public static int GetRateLimitMaxOrder(string zoneId)
         {
             int count = 0;
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"SELECT MAX(OrderNo) 
-                                    FROM dbo.t_RateLimiting_Rules";
+                                    FROM dbo.t_RateLimiting_Rules
+                                    WHERE ZoneId=@zoneId";
                 SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
                 conn.Open();
                 string counts = cmd.ExecuteScalar().ToString();
                 count = string.IsNullOrWhiteSpace(counts) ? 0 : int.Parse(counts);

@@ -68,19 +68,19 @@ namespace AttackPrevent.Business
             RateLimitAccess.Delete(id, order);
         }
 
-        public static void UpdateOrder(int action, int id, int order)
+        public static void UpdateOrder(int action, int id, int order, string zoneId)
         {
             int toOrder = action == 1 ? order - 1 : order + 1;
-            RateLimitEntity toItem = RateLimitAccess.GetRateLimitByOrderNo(toOrder);
-            if (toItem.TableID > 1)
+            RateLimitEntity toItem = RateLimitAccess.GetRateLimitByOrderNo(toOrder, zoneId);
+            if (toItem.TableID > 0)
             {
                 RateLimitAccess.EditOrder(id, toOrder, toItem.TableID, order);
             }
         }
 
-        public static int GetRateLimitMaxOrder()
+        public static int GetRateLimitMaxOrder(string zoneId)
         {
-            return RateLimitAccess.GetRateLimitMaxOrder();
+            return RateLimitAccess.GetRateLimitMaxOrder(zoneId);
         }
     }
 }

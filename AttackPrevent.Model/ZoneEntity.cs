@@ -25,5 +25,7 @@ namespace AttackPrevent.Model
         public bool IfAttacking { get; set; }
         public int ThresholdForHost { get; set; }
         public int PeriodForHost { get; set; }
+
+        public bool IfAnalyzeByHostRule { get; set; }
     }
 }

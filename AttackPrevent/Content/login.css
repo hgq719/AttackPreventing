@@ -2496,3 +2496,53 @@ nav {
     border-radius: 4px;
     zoom: 1;
 }
+
+.waiting {
+    display: block;
+    background: #329FD9 url(../Images/waiting-blue.gif) no-repeat 230px center !important;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+}
+
+.dialogcontainer {
+    padding: 4px;
+    padding: 10px;
+    margin-bottom: 20px;
+    margin-right: 50px;
+    margin-left: 50px;
+}
+
+.dialogerror {
+    position: relative;
+    float: left;
+    background: URL('../Images/icon_dialogerror.gif');
+    width: 32px;
+    height: 32px;
+    left: -5px;
+    top: -5px;
+}
+
+.dialogerrorcontainer {
+    border: 2px SOLID red;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.dialogtitle {
+    background: #FFFFFF;
+    padding: 2px 8px 4px 30px;
+    -moz-border-radius: 10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
+    font: normal normal normal 18px normal "OpenSans", "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
+}
+
+.dialogtext {
+    background: #FFFFFF;
+    padding: 5px 8px 12px 30px;
+    -moz-border-radius: 0 0 10px 10px;
+    -webkit-border-radius: 0 0 10px 10px;
+    border-radius: 0 0 10px 10px;
+    font-size: 13px;
+}

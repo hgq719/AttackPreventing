@@ -3,6 +3,7 @@
 }
 
 @Styles.Render("~/Content/login.css")
+@Scripts.Render("~/bundles/jquery")
 
 @model AttackPrevent.Models.LoginModel
 
@@ -47,6 +48,7 @@
                                 Error signing into the account
                             </div>
                             <div class="dialogtext" id="ajaxErrorMsg">
+                                @ViewBag.ErrorMessage
                             </div>
                         </div>
                     </div>
@@ -54,7 +56,7 @@
                 <div class="login">
                     <div id="loginContent">
                         <div style="position: relative">
-                            @Html.TextBoxFor(model => model.UserName, new { @placeholder= "Account" })
+                            @Html.TextBoxFor(model => model.UserName, new { @placeholder = "Account" })
                         </div>
                         <div style="position: relative">
                             @Html.PasswordFor(model => model.Password, new { @placeholder = "Password" })
@@ -79,8 +81,13 @@
             </div>
         </div>
     </div>
-
-
-
-
 }
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#lblLogin').click(function () {
+            $("#lblLogin").val("Signing in").addClass("waiting");
+        });
+    });
+</script>

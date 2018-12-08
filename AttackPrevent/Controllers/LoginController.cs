@@ -21,6 +21,7 @@ namespace AttackPrevent.Controllers
                 ReturnUrl = ReturnUrl
 
             };
+            ViewBag.ErrorMessage = string.Empty;
             return View(model);
         }
 
@@ -52,12 +53,13 @@ namespace AttackPrevent.Controllers
                     UserName = loginModel.UserName
 
                 };
+                ViewBag.ErrorMessage = "Account or password is wrong.";
                 return View(model);
             }
         }
 
         // POST: /Account/LogOff
-        [HttpPost]
+        //[HttpPost]
         public ActionResult LogOff()
         {
             Session["UserName"] = null;

@@ -16,7 +16,7 @@ namespace AttackPrevent
 #if DEBUG
                 return "DESKTOP - KIMCDIR\\PC".Split('\\').LastOrDefault();
 #else
-                return User.Identity.Name.Split('\\').LastOrDefault();                
+                return HttpContext.Session["UserName"].ToString();                
 #endif
 
 

@@ -24,7 +24,7 @@ namespace AttackPrevent.WindowsService
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
 
             RunProgram().GetAwaiter().GetResult();
-            Console.ReadKey();
+            //Console.ReadKey();
 
             while (true)
             {

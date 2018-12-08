@@ -148,7 +148,10 @@ namespace AttackPrevent.Access
                                                           AuthKey ,
                                                           IfTestStage ,
                                                           IfEnable ,
-                                                          IfAttacking
+                                                          IfAttacking ,
+                                                          ThresholdForHost,
+                                                          PeriodForHost,
+                                                          IfAnalyzeByHostRule
                                                         )
                                                 VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                                           @zoneName , -- ZoneName - nvarchar(256)
@@ -156,7 +159,10 @@ namespace AttackPrevent.Access
                                                           @authKey , -- AuthKey - nvarchar(256)
                                                           @ifTest , -- IfTestStage - int
                                                           @ifEnable , -- IfEnable - int
-                                                          @ifAttacking  -- IfAttacking - int
+                                                          @ifAttacking ,  -- IfAttacking - int
+                                                          @thresholdForHost ,  -- ThresholdForHost - int
+                                                          @periodForHost ,  -- PeriodForHost - int                                                          
+                                                          @ifAnalyzeByHostRule ,  -- IfAnalyzeByHostRule - int
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -170,6 +176,9 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@ifTest", item.IfTestStage);
                 cmd.Parameters.AddWithValue("@ifEnable", item.IfEnable);
                 cmd.Parameters.AddWithValue("@ifAttacking", item.IfAttacking);
+                cmd.Parameters.AddWithValue("@thresholdForHost", item.ThresholdForHost);
+                cmd.Parameters.AddWithValue("@periodForHost", item.PeriodForHost);
+                cmd.Parameters.AddWithValue("@ifAnalyzeByHostRule", item.IfAnalyzeByHostRule);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -187,6 +196,9 @@ namespace AttackPrevent.Access
                                                             AuthKey=@authKey,
                                                             IfTestStage=@ifTest,
                                                             IfEnable=@ifEnable,
+                                                            ThresholdForHost=@thresholdForHost,
+                                                            PeriodForHost=@periodForHost,
+                                                            IfAnalyzeByHostRule=@ifAnalyzeByHostRule,
                                                             IfAttacking=@ifAttacking WHERE Id=@id");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -201,6 +213,9 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@ifEnable", item.IfEnable);
                 cmd.Parameters.AddWithValue("@ifAttacking", item.IfAttacking);
                 cmd.Parameters.AddWithValue("@id", item.TableID);
+                cmd.Parameters.AddWithValue("@thresholdForHost", item.ThresholdForHost);
+                cmd.Parameters.AddWithValue("@periodForHost", item.PeriodForHost);
+                cmd.Parameters.AddWithValue("@ifAnalyzeByHostRule", item.IfAnalyzeByHostRule);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();

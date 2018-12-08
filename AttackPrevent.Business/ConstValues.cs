@@ -23,7 +23,7 @@ namespace AttackPrevent.Business
         /// <summary>
         /// 邮箱密码
         /// </summary>
-        public static readonly string emailpassword = "123456";
+        public static readonly string emailpassword = "80WWxR/3ONunZJHnsY5uUA==";
         /// <summary>
         /// 发件人昵称
         /// </summary>

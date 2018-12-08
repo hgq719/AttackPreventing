@@ -57,7 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveReportMailService.cs" />
+    <Compile Include="ActiveReportService.cs" />
+    <Compile Include="SendMailService.cs" />
     <Compile Include="ConstValues.cs" />
     <Compile Include="SmtpQueueBusiness.cs" />
     <Compile Include="AuditBusiness.cs" />

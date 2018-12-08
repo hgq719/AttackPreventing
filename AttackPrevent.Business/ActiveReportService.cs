@@ -9,36 +9,96 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
-    public interface IActiveReportMailService
+    public interface IActiveReportService
     {
-        string GeneratedMail(string title);
         void GeneratedActiveReport();
     }
-    public class ActiveReportMailService: IActiveReportMailService
+    public class ActiveReportService : IActiveReportService
     {
         private readonly string nothing = "Not Applicable";
+        private readonly ILogService logService = new LogService();
+        private bool isDebug = true;
+        private int oneDayCount = 2;
+
+        private static object obj_Sync = new object();
+        private static IActiveReportService activeReportService;
+        private bool isProcessing = false;
+
+        private ActiveReportService()
+        {
+#if DEBUG
+#else
+            isDebug = false;
+            oneDayCount = 24;
+#endif
+        }
+        public static IActiveReportService GetInstance()
+        {
+            if (activeReportService == null)
+            {
+                lock (obj_Sync)
+                {
+                    activeReportService = new ActiveReportService();
+                }
+            }
+
+            return activeReportService;
+        }
 
         public void GeneratedActiveReport()
         {
-            List<SmtpQueue> smtpQueues = SmtpQueueBusiness.GetList();
-            SmtpQueue lastReport = smtpQueues.OrderBy(a => a.Id).LastOrDefault();
-            DateTime date = DateTime.Now.AddDays(-1);
-            if (lastReport.Title == date.ToString("MM/dd/yyyy"))
+            try
             {
-                //已经生成了报表
-            }
-            else
-            {
-                // 每天9开始统计前一天的数据
-                if(DateTime.Now > Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd 09:00:00")))
+                if (!isProcessing)
                 {
-                    List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable && a.IfAttacking && !a.IfTestStage).ToList();
-                    foreach (ZoneEntity zone in zoneEntities)
+                    isProcessing = true;
+
+                    List<SmtpQueue> smtpQueues = SmtpQueueBusiness.GetList();
+                    SmtpQueue lastReport = smtpQueues.OrderBy(a => a.Id).LastOrDefault();
+                    DateTime date = DateTime.Now.AddDays(-1);
+                    string title = date.ToString("MM/dd/yyyy");
+                    if (lastReport != null && lastReport.Title == title)
                     {
-                        CreateActiveReportZone(zone, date);
+                        //已经生成了报表
                     }
+                    else
+                    {
+                        // 每天9开始统计前一天的数据
+                        if (DateTime.Now > Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd 09:00:00")))
+                        {
+                            List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable && a.IfAttacking).ToList();
+                            if (zoneEntities != null && zoneEntities.Count > 0)
+                            {
+                                foreach (ZoneEntity zone in zoneEntities)
+                                {
+                                    CreateActiveReportZone(zone, date);
+                                }
+                                //插入邮件发送队列
+                                SmtpQueueBusiness.Add(new SmtpQueue
+                                {
+                                    Title = title,
+                                    Status = 0,
+                                    CreatedTime = DateTime.Now,
+                                    SendedTime = DateTime.Now,
+                                    Remark = "",
+                                });
+                            }
+                        }
+                    }
+
+                    isProcessing = false;
                 }
             }
+            catch (Exception e)
+            {
+                logService.Error(e);
+                isProcessing = false;
+            }
+            finally
+            {
+
+            }
+
         }
 
         private void CreateActiveReportZone(ZoneEntity zone, DateTime date)
@@ -47,7 +107,7 @@ namespace AttackPrevent.Business
             string zoneId = zone.ZoneId;
             //24个小时，取第一分钟的数据
             List<List<CloudflareLog>> cloudflareLogs = new List<List<CloudflareLog>>();
-            for (int i = 0; i < 24; i++)
+            for (int i = 0; i < oneDayCount; i++)
             {
                 double sample = 1;
                 DateTime startTime = Convert.ToDateTime(date.ToString(string.Format("yyyy-MM-dd {0}:00:00", i.ToString("00"))));
@@ -56,10 +116,28 @@ namespace AttackPrevent.Business
                 string authKey = zone.AuthKey;
                 string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
-                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
-                cloudflareLogHandleSercie.TaskStart();
-                List<CloudflareLog> logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+                List<CloudflareLog> logs = new List<CloudflareLog>();
+                if (isDebug)
+                {
+                    //logs.Add(new CloudflareLog {
+                    //    ClientIP="xxxxx",
+                    //    ClientRequestHost="aaaa",
+                    //});
+                    //logService.Debug(JsonConvert.SerializeObject(logs));
+                    //string xx = Utils.GetFileContext("Logs_20181207.txt");
+                    //string jf = xx.Substring(xx.IndexOf("[{"));
+                    string log = Utils.GetFileContext("logs-debug.txt");
+                    logs = JsonConvert.DeserializeObject<List<CloudflareLog>>(log.Substring(log.IndexOf("[{")));
+                }
+                else
+                {
+                    ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                    cloudflareLogHandleSercie.TaskStart();
+                    logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+                }            
+                
                 cloudflareLogs.Add(logs);
+                logService.Debug(key);
             }
             
             GeneratedActiveReport(title, zone, cloudflareLogs);
@@ -103,7 +181,7 @@ namespace AttackPrevent.Business
                 int count = subCloudflareLogs.Count();
                 sum += count;
             }
-            avg = sum / 24;
+            avg = sum / oneDayCount;
             return avg;
         }
         private List<string> GetTop5Urls(List<List<CloudflareLog>> cloudflareLogs, string ip, string hostName)
@@ -120,113 +198,10 @@ namespace AttackPrevent.Business
                 .Take(5);
             foreach(var item in totalList)
             {
-                top5List.Add(string.Format("{0}(Avg:{1})", item.FullUrl, Math.Ceiling(item.Count / (float)24)));
+                top5List.Add(string.Format("{0}(Avg:{1})", item.FullUrl, Math.Ceiling(item.Count / (float)oneDayCount)));
             }
             return top5List;
         }
-
-        public string GeneratedMail(string title)
-        {
-            StringBuilder mail = new StringBuilder();
-            SmtpQueue smtpQueue = SmtpQueueBusiness.GetByTitle(title);
-            if (smtpQueue != null && smtpQueue.Id > 0)
-            {
-                mail.AppendLine("<div id=\"mail\">");
-                List<ActionReport> actionReports = ActionReportBusiness.GetListByTitle(title);
-
-                List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable && a.IfAttacking && !a.IfTestStage).ToList();
-                foreach(ZoneEntity zone in zoneEntities)
-                {
-                    mail.AppendLine("<div>");
-                    List<ActionReport> subActionReports = actionReports.Where(a => a.HostName == zone.ZoneName).ToList();
-                    mail.AppendLine("<div id=\"mail\">");
-                }
-                mail.AppendLine("</div>");
-            }
-            return mail.ToString();
-        }
-
-        private string CreateMainZone(string zoneName, List<ActionReport> actionReports)
-        {
-            StringBuilder mail = new StringBuilder();
-            mail.AppendLine("<div>");
-            mail.AppendFormat("<p style=\"margin-left:20px; \">{0}</p>",zoneName);
-            mail.AppendFormat("<table style=\"border: 1px solid #0094ff; width:95%; min-height: 25px; line-height: 25px; text-align: center; border-collapse: collapse; padding:2px; margin-left:20px;\">");
-            mail.AppendFormat("<tr style=\"border: 1px solid #0094ff;\">");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:10%;\">IP</th>");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:15%;\">Host name</th>");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:10%;\">Max</th>");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:10%;\">Min</th>");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:10%;\">Avg.</th>");
-            mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:45%;\">Full URLs</th>");
-            mail.AppendLine("</tr>");
-            foreach (ActionReport actionReport in actionReports)
-            {
-                string ip = actionReport.IP;
-                string hostName = actionReport.HostName;
-                string max = actionReport.MaxDisplay;
-                string min = actionReport.MinDisplay;
-                string avg = actionReport.AvgDisplay;
-                string fullUrls = actionReport.FullUrl;
-
-                List<string> top5UrlList = JsonConvert.DeserializeObject<List<string>>(fullUrls);
-
-                string color = GetBackgroundColor(actionReport);
-                mail.AppendFormat("<tr style=\"border: 1px solid #0094ff;{0}\">", color);
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>",ip);
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>", hostName);
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>", max);
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>", min);
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>", avg);
-                string urls = "";
-                foreach(string url in top5UrlList)
-                {
-                    urls += string.Format("{0}<br>",url);
-                }
-                mail.AppendFormat("<td style=\"border: 1px solid #0094ff;text-align:left;\">{0}</td>", urls);
-                mail.AppendLine("</tr>");
-            }
-            mail.AppendLine("<div id=\"mail\">");
-            return mail.ToString();
-        }
-        private string GetBackgroundColor(ActionReport actionReport)
-        {
-            string color = "";
-            if(actionReport.MaxDisplay.Contains("Not Applicable") ||
-                actionReport.MinDisplay.Contains("Not Applicable") ||
-                actionReport.AvgDisplay.Contains("Not Applicable"))
-            {
-                color = "background-color:red;";
-            }
-            else
-            {
-                if (actionReport.MaxDisplay.Contains("("))
-                {
-                    string[] vls = actionReport.MaxDisplay.Replace(")", "").Split('(');
-                    int firNum = Convert.ToInt32(vls[0]);
-                    int lstNum = Convert.ToInt32(vls[1]);
-
-                    if(firNum> lstNum)
-                    {
-                        color = "background-color:red;";
-                    }
-                }
-
-                if (actionReport.AvgDisplay.Contains("("))
-                {
-                    string[] vls = actionReport.MaxDisplay.Replace(")", "").Split('(');
-                    int firNum = Convert.ToInt32(vls[0]);
-                    int lstNum = Convert.ToInt32(vls[1]);
-
-                    if (firNum > lstNum)
-                    {
-                        color = "background-color:red;";
-                    }
-                }
-            }
-            return color;
-        }
-
         private void GeneratedActiveReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
             var totalList = cloudflareLogs.SelectMany(a => a)
@@ -290,7 +265,7 @@ namespace AttackPrevent.Business
                 ActionReportBusiness.Add(report);
             }
         }
-        private void GeneratedWhiteListReport(string title , ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
+        private void GeneratedWhiteListReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
             var cloundFlareApiService = new CloundFlareApiService();
             var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.challenge);
@@ -299,6 +274,15 @@ namespace AttackPrevent.Business
                                         {
                                             IP = a.configurationValue
                                         }).ToList();
+
+            //var subWhiteList = new List< WhiteListModel>(){
+            //    new WhiteListModel {
+            //        IP= "131.242.135.253",
+            //    },
+            //    new WhiteListModel {
+            //        IP= "131.242.135.252",
+            //    }
+            //}; 
 
             var totalList = cloudflareLogs.SelectMany(a => a)
                 .Join(subWhiteList,

@@ -21,7 +21,7 @@ namespace AttackPrevent.Access
                                         Status,
                                         CreatedTime,
                                         SendedTime,
-                                        Remark FROM t_Action_Report";
+                                        Remark FROM t_Smtp_Queue";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
@@ -56,7 +56,7 @@ namespace AttackPrevent.Access
                                         Status,
                                         CreatedTime,
                                         SendedTime,
-                                        Remark FROM t_Action_Report WHERE Title=@title";
+                                        Remark FROM t_Smtp_Queue WHERE Title=@title";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@title", title);

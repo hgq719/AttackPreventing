@@ -157,7 +157,7 @@ namespace AttackPrevent.Access
                                                           @remark,
                                                           @maxDisplay,
                                                           @minDisplay,
-                                                          @avgDisplay,
+                                                          @avgDisplay
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))

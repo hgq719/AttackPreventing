@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Mail;
 using System.Runtime.Caching;
 using System.Security.Cryptography;
@@ -81,6 +82,20 @@ namespace AttackPrevent.Business
         {
             return Regex.IsMatch(ip, @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
         }
+        public static string GetFileContext(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                using (StreamReader sr = new StreamReader(filePath))
+                {
+                    return sr.ReadToEnd();
+                }
+            }
+            else
+            {
+                throw new Exception("文件不存在!");
+            }
+        }
         #region 发送电子邮件
         /// <summary>
         /// 发送电子邮件
@@ -106,13 +121,29 @@ namespace AttackPrevent.Business
             }
 
             MailAddress _from = new MailAddress(strfrom, nickName);
-            MailAddress _to = new MailAddress(strto);
-            MailMessage _mailMessage = new MailMessage(_from, _to);
+            //MailAddress _to = new MailAddress(strto);
+            //MailMessage _mailMessage = new MailMessage(_from, _to);
+            MailMessage _mailMessage = new MailMessage();
+            _mailMessage.From = _from;//电子邮件的发件人
             _mailMessage.Subject = subj;//主题
             _mailMessage.Body = bodys;//内容
             _mailMessage.BodyEncoding = System.Text.Encoding.Default;//正文编码
             _mailMessage.IsBodyHtml = true;//设置为HTML格式
             _mailMessage.Priority = MailPriority.Normal;//优先级
+
+            //遍历收件人邮箱地址，并添加到此邮件的收件人里       
+            if (strto.Length != 0)
+            {
+                string[] receivers = strto.Split(';');
+                for (int i = 0; i < receivers.Length; i++)
+                {
+                    if (receivers[i].Length > 0)
+                    {
+                        _mailMessage.To.Add(receivers[i]);//为该电子邮件添加联系人
+                    }
+                }
+            }
+
             _smtpClient.Send(_mailMessage);
         }
         #endregion

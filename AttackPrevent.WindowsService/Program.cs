@@ -1,16 +1,31 @@
-﻿using AttackPrevent.WindowsService.Job;
+﻿using AttackPrevent.Business;
+using AttackPrevent.WindowsService.Job;
 using AttackPrevent.WindowsService.SysConfig;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
+using System.Linq;
+using Quartz;
+using Quartz.Impl;
+using System.Threading.Tasks;
+using System.Collections.Specialized;
 
 namespace AttackPrevent.WindowsService
 {
     class Program
     {
+
         static void Main(string[] args)
         {
+            //配置log4
+            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
+
+            RunProgram().GetAwaiter().GetResult();
+            Console.ReadKey();
+
             while (true)
             {
                 var sleepTime = 1000;
@@ -121,6 +136,91 @@ namespace AttackPrevent.WindowsService
                     new AnalyzeService()
             };
             ServiceBase.Run(ServicesToRun);
+        }
+        #endregion
+
+        #region Test
+        void Test()
+        {
+            // Test
+            List<string> urls = new List<string>() {
+                "ent.comm100.com/LiveChathandler3.ashx?siteId=1000234 (Avg: 954)",
+                "ent.comm100.com/FileUploadHandler.ashx?siteId=1000234 (Avg: 634)",
+                "ent.comm100.com/errorcollector.ashx?siteId=1000234 (Avg: 456)"
+            };
+            string json = JsonConvert.SerializeObject(urls);
+            Model.ActionReport actionReport = new Model.ActionReport
+            {
+                IP = "xx.xx.xx.xx",
+                HostName = "comm100.com",
+                Max = 2000,
+                Min = 500,
+                Avg = 600,
+                Count = 100000,
+                Mode = "WhiteList",
+                MaxDisplay = "2000(1200)",
+                MinDisplay = "500(300)",
+                AvgDisplay = "600(400)",
+                CreatedTime = DateTime.Now,
+                Title = "06/12/2018",
+                ZoneId = "2068c8964a4dcef78ee5103471a8db03",
+                FullUrl = json,
+                Remark = "test",
+            };
+            ActionReportBusiness.Add(actionReport);
+            List<Model.ActionReport> reportList = ActionReportBusiness.GetListByIp("xx.xx.xx.xx");
+            actionReport = ActionReportBusiness.GetListByTitle("06/12/2018").FirstOrDefault();
+            actionReport.Mode = "Action";
+            int maxWhiteList = ActionReportBusiness.GetMaxForWhiteList("xx.xx.xx.xx", "comm100.com");
+            int minWhiteList = ActionReportBusiness.GetMinForWhiteList("xx.xx.xx.xx", "comm100.com");
+            int avgWhiteList = ActionReportBusiness.GetAvgForWhiteList("xx.xx.xx.xx", "comm100.com");
+
+            //ActionReportBusiness.Edit(actionReport);
+
+            int maxAction = ActionReportBusiness.GetMaxForAction("xx.xx.xx.xx", "comm100.com");
+            int minAction = ActionReportBusiness.GetMinForAction("xx.xx.xx.xx", "comm100.com");
+            int avgAction = ActionReportBusiness.GetAvgForAction("xx.xx.xx.xx", "comm100.com");
+
+            ActionReportBusiness.Delete("06/12/2018");
+
+            Model.SmtpQueue smtpQueue = new Model.SmtpQueue
+            {
+                Title = "06/12/2018",
+                Status = 1,
+                CreatedTime = DateTime.Now,
+                SendedTime = DateTime.Now,
+                Remark = "test",
+            };
+            SmtpQueueBusiness.Add(smtpQueue);
+            List<Model.SmtpQueue> queueList = SmtpQueueBusiness.GetList();
+            smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
+            smtpQueue.Status = 0;
+            //SmtpQueueBusiness.Edit(smtpQueue);
+            SmtpQueueBusiness.Delete("06/12/2018");
+
+            IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            activeReportService.GeneratedActiveReport();
+
+            ISendMailService sendMailService = SendMailService.GetInstance();
+            sendMailService.MainQueueDoWork();
+        }
+        #endregion
+
+        #region Start Quartz
+        static async Task RunProgram()
+        {
+            try
+            {
+                StdSchedulerFactory factory = new StdSchedulerFactory();
+                IScheduler scheduler = await factory.GetScheduler();
+
+                // and start it off
+                await scheduler.Start();
+            }
+            catch(Exception e)
+            {
+                await Console.Error.WriteLineAsync(e.ToString());
+            }
         }
         #endregion
     }

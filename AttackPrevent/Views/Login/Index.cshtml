@@ -1,0 +1,93 @@
+﻿@{
+    Layout = null;
+}
+
+@Styles.Render("~/Content/login.css")
+@Scripts.Render("~/bundles/jquery")
+
+@model AttackPrevent.Models.LoginModel
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <header class="c-layout-header c-layout-header-2 c-header-transparent-dark c-layout-header-dark-mobile" data-minimize-offset="130">
+        <div class="c-mainbar c-navbar">
+            <div class="container">
+                <!-- BEGIN: BRAND -->
+                <div class="c-navbar-wrapper clearfix">
+                    <div class="c-brand c-pull-left">
+                        <a href="javascript:void(0);" class="c-logo">
+                            <span class="c-logo-img"><img src="~/Images/logo-comm100.svg" alt="Comm100" class="c-desktop-logo"></span>
+                        </a>
+                        <button class="c-hor-nav-toggler" type="button" data-target=".c-top2-menu">
+                            <span class="c-line"></span>
+                            <span class="c-line"></span>
+                            <span class="c-line"></span>
+                        </button>
+                    </div>
+                    <!-- END: BRAND -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="login-wrap clearfix">
+        <div class="sign-in">
+            <div id="divLogin" class="divContent" style="width: 420px; position: relative; z-index: 2; margin-bottom: 0;">
+                <h1 style="margin-top: 85px">User Sign in</h1>
+                <div class="divMsg">
+
+                </div>
+                <div class="divMsg" id="ajaxError" style="display: none;">
+                    <div class="dialogcontainer">
+                        <div class="dialogerror">
+                        </div>
+                        <div class="dialogerrorcontainer">
+                            <div class="dialogtitle" style="font-size: 16px">
+                                Error signing into the account
+                            </div>
+                            <div class="dialogtext" id="ajaxErrorMsg">
+                                @ViewBag.ErrorMessage
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="login">
+                    <div id="loginContent">
+                        <div style="position: relative">
+                            @Html.TextBoxFor(model => model.UserName, new { @placeholder = "Account" })
+                        </div>
+                        <div style="position: relative">
+                            @Html.PasswordFor(model => model.Password, new { @placeholder = "Password" })
+                            <div class="registerError" id="errorPasswordExceed" style="display: none; width: 285px; left: 310px;">
+                                <span class="errorArrow"></span><span class="errorContent"></span>
+                            </div>
+                        </div>
+                        <input id="lblLogin" type="submit" value="Sign in" class="btn btn-blue tryitfree" style="height: 46px; line-height: 46px; padding: 0">
+                    </div>
+                    <div id="adminAuthorization" style="display: none">
+                        <input id="lblAdminAuthorization" type="button" value="Email Me for Authorization" class="btn btn-gray" style="padding-left: 30px; padding-right: 30px; font-size: 16px; margin-bottom: 0; width: 300px; height: 48px;">
+                    </div>
+                    <noscript>
+                        <span style="line-height: 20px; font-size: 12px; border: 1px solid #ffcf0f; background: rgb(255, 255, 222); display: block; padding: 5px 7px; margin-top: -25px;">
+                            <img src="../images/icon/bulb.gif" alt="Bulb Notification Image" style="margin-right: 5px;" />Some features
+                            of our site cannot work properly as JavaScript is not enabled in your browser. To
+                            fix this, please <a href="https://www.comm100.com/livechat/knowledgebase/how-to-enable-javascript-in-a-web-browser.html"
+                                                target="_blank" style="font-size: 13px; color: #329FD9; display: inline-block; padding: 0;">enable JavaScript</a> and then refresh this page.
+                        </span>
+                    </noscript>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#lblLogin').click(function () {
+            $("#lblLogin").val("Signing in").addClass("waiting");
+        });
+    });
+</script>

@@ -19,7 +19,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Period (second)</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.Period, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.Period, new { @class = "form-control", @type="number" })
                 @Html.ValidationMessageFor(model => model.Period)
                 @*<input class="form-control" id="period-value" type="text" />*@
             </div>
@@ -27,7 +27,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Threshold</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control", @type = "number" })
                 @Html.ValidationMessageFor(model => model.Threshold)
                 @*<input class="form-control" id="threshold-value" type="text" />*@
             </div>
@@ -43,7 +43,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Enlargement Factor</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.EnlargementFactor, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.EnlargementFactor, new { @class = "form-control", @type = "number" })
                 @Html.ValidationMessageFor(model => model.EnlargementFactor)
                 @*<input class="form-control" id="enlargement-value" type="text" />*@
             </div>
@@ -51,7 +51,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Rate Limiting Trigger Ip Count</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.RateLimitTriggerIpCount, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.RateLimitTriggerIpCount, new { @class = "form-control", @type = "number" })
                 @Html.ValidationMessageFor(model => model.RateLimitTriggerIpCount)
                 @*<input class="form-control" id="triggerIpCount-value" type="text" />*@
             </div>
@@ -59,7 +59,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Trigger Time (hour)</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.RateLimitTriggerTime, new { @class = "form-control" })
+                @Html.TextBoxFor(model => model.RateLimitTriggerTime, new { @class = "form-control", @type = "number" })
                 @Html.ValidationMessageFor(model => model.RateLimitTriggerTime)
                 @*<input class="form-control" id="triggerTime-value" type="text" />*@
             </div>

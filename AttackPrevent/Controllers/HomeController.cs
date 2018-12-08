@@ -70,16 +70,22 @@ namespace AttackPrevent.Controllers
 
         public ActionResult RateLimitingList()
         {
-            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
-            ViewBag.MaxOrder = RateLimitBusiness.GetRateLimitMaxOrder();
+            var ZoneList = ZoneBusiness.GetZoneSelectList();
+            ViewBag.ZoneList = ZoneList;
+            //ViewBag.DefaultValue = string.IsNullOrWhiteSpace(zoneId);
             ViewBag.IsAdmin = IsAdmin;
             return View();
+        }
+
+        public JsonResult RateLimitGetMaxOrder(string zoneId)
+        {
+            return Json(new { maxOrderNo= RateLimitBusiness.GetRateLimitMaxOrder(zoneId) }, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetRateLimiting(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
         {
             dynamic result = RateLimitBusiness.GetRateLimit(limit, offset, zoneID, startTime, endTime, url);
-
+           
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -208,9 +214,9 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("RateLimitingList");
         }
 
-        public ActionResult EditRateLimitingOrder(int id, int order, int actionb)
+        public ActionResult EditRateLimitingOrder(int id, int order, int actionb, string zoneId)
         {
-            RateLimitBusiness.UpdateOrder(actionb, id, order);
+            RateLimitBusiness.UpdateOrder(actionb, id, order, zoneId);
             RateLimitEntity item = RateLimitBusiness.GetRateLimitByID(id);
             string optionStr = actionb == 1 ? "up" : "down";
             AuditLogBusiness.Add(new AuditLogEntity

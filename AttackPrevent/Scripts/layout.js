@@ -30,7 +30,7 @@ function getFormatDate(arg) {
 }
 
 $(document).ready(function () {
-    $(".headerRight").hover(function () {
+    $(".headerRight-cm").hover(function () {
         console.log("aaaa");
         $(this).children(".divAvatarsHasTop").stop(false, true).slideDown(300);
     }, function () {
@@ -92,5 +92,7 @@ $(document).ready(function () {
         $(this).next('span').text('');
         $(this).parents('.form-group').removeClass('has-error');
     });
+
+    $('#accountName').text($.session.get('UserName'));
 });
 

@@ -15,7 +15,7 @@
 
     @Styles.Render("~/Content/jquery.mloading/jquery.mloading.css?v=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/jquery.mloading/jquery.mloading.js?v=" + Guid.NewGuid())
-
+    @Scripts.Render("~/Scripts/jquery.session.js")
 
 </head>
 <body>
@@ -27,31 +27,30 @@
                 </div>
             </div>
             <div class="headerRight-cm">
-                <a href="javascript:void(0);" class="avatars-cm">
-                </a>
+                @*<a href="javascript:void(0);" class="avatars-cm">
+                </a>*@
                 <a href="javascript:void(0);" class="avatars-cm">
                     <img src="~/Images/101.png" alt="" class="imgAvatars">
                 </a>
-                <span style="color: white;margin-left: 10px;">@User.Identity.Name.Split('\\').LastOrDefault()</span>
+                @if (Session["UserName"] != null)
+                {
+                <span id="accountName" class="accountName" style="color: white;margin-left: 10px;">
+                    @Session["UserName"].ToString()
+                </span>
+                }
+
                 <div class="divAvatarsHasTop" style="display:none;">
                     <div class="divAvatarsAdditionArea"></div>
                     <div class="arrow arrowOuter"></div>
                     <div class="arrow arrowInner"></div>
                     <ul>
-                        <li>登出</li>
-                        <li>@User.Identity.Name</li>
-                        <li></li>
-                        <li></li>
+                        <li>
+                            @Html.ActionLink("Logout", "LogOff", "Login")
+                        </li>
                     </ul>
                 </div>
 
             </div>
-            @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("应用程序名称", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })*@
         </div>
         <div class="container-cm">
             <div class="navbar-collapse-cm collapse-cm">
@@ -117,7 +116,7 @@
     @Scripts.Render("~/Scripts/bootstrap-table.min.js")
     @Scripts.Render("~/Scripts/bootstrap-switch.min.js")
     @Scripts.Render("~/Scripts/home.js?v=" + Guid.NewGuid())
-    @Scripts.Render("~/Scripts/layout.js?v=20181205")
+    @Scripts.Render("~/Scripts/layout.js?v=20181207")
     @RenderSection("scripts", required: false)
 </body>
 </html>

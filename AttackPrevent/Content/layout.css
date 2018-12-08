@@ -89,8 +89,29 @@ body {
     width: 130px;
     padding-top: 5px;
     top: 55px;
-    right: 6px;
+    right: 35px;
 }
+
+.divAvatarsHasTop ul {
+    list-style: none;
+}
+
+    .divAvatarsHasTop ul a {
+        display: block;
+        padding-left: 0px;
+        height: 35px;
+        line-height: 35px;
+        border-top: 1px solid #fff;
+        /*border-bottom: 1px solid #eaeaea;*/
+        color: #474747;
+        font-weight: 400;
+        font-size: 12px;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -ms-text-overflow: ellipsis;
+    }
 
 .divAvatarsAdditionArea {
     height: 10px;
@@ -194,6 +215,10 @@ body {
 }
 
 input[readonly].form-control {
+    cursor:pointer;
+}
+
+.accountName {
     cursor:pointer;
 }
 

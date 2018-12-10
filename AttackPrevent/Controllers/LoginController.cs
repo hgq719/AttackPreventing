@@ -16,10 +16,9 @@ namespace AttackPrevent.Controllers
             {
                 return RedirectToAction("CloundflareDownloadLogs", "Home");
             }
-            Models.LoginModel model = new Models.LoginModel
+            var model = new Models.LoginModel
             {
                 ReturnUrl = ReturnUrl
-
             };
             ViewBag.ErrorMessage = string.Empty;
             return View(model);
@@ -28,15 +27,16 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public ActionResult Index(Models.LoginModel loginModel)
         {
-            /*
-                
-            */
-            PrincipalContext pc = new PrincipalContext(ContextType.Machine);
-            bool isCredentialValid = pc.ValidateCredentials(loginModel.UserName, loginModel.Password);
+            var pc = new PrincipalContext(ContextType.Machine);
+            var isCredentialValid = pc.ValidateCredentials(loginModel.UserName, loginModel.Password);
             if (isCredentialValid)
             {
                 Session["UserName"] = loginModel.UserName;
-                if (Url.IsLocalUrl(loginModel.ReturnUrl) && loginModel.ReturnUrl.Length > 1 && loginModel.ReturnUrl.StartsWith("/") && !loginModel.ReturnUrl.StartsWith("//") && !loginModel.ReturnUrl.StartsWith("/\\"))
+                if (Url.IsLocalUrl(loginModel.ReturnUrl) && 
+                    loginModel.ReturnUrl.Length > 1 && 
+                    loginModel.ReturnUrl.StartsWith("/") && 
+                    !loginModel.ReturnUrl.StartsWith("//") && 
+                    !loginModel.ReturnUrl.StartsWith("/\\"))
                 {
                     return Redirect(loginModel.ReturnUrl);
                 }
@@ -47,7 +47,7 @@ namespace AttackPrevent.Controllers
             }
             else
             {
-                Models.LoginModel model = new Models.LoginModel
+                var model = new Models.LoginModel
                 {
                     ReturnUrl = loginModel.ReturnUrl,
                     UserName = loginModel.UserName

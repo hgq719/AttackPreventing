@@ -187,7 +187,12 @@
     <Content Include="Images\101.png" />
     <Content Include="Images\bg_new.png" />
     <Content Include="Images\comm100.png" />
+    <Content Include="Images\icon_dialogerror.gif" />
+    <Content Include="Images\logo-comm100.svg" />
+    <Content Include="Images\timg.jpg" />
+    <Content Include="Images\timg.png" />
     <Content Include="Images\timg2.jpg" />
+    <Content Include="Images\waiting-blue.gif" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\bootstrap-switch.min.js" />
@@ -202,6 +207,7 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Content\jquery.mloading\jquery.mloading.css" />
     <Content Include="Scripts\jquery.mloading\jquery.mloading.js" />
+    <Content Include="Scripts\jquery.session.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />

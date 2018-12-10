@@ -93,6 +93,12 @@ $(document).ready(function () {
         $(this).parents('.form-group').removeClass('has-error');
     });
 
-    $('#accountName').text($.session.get('UserName'));
+    //$('#accountName').text($.session.get('UserName'));
+
+    $('.onlyInteger').keyup(function () {
+        $(this).val($(this).val().replace(/\D|^0/g, ''));
+    }).bind("paste", function () {  //CTR+V事件处理    
+        $(this).val($(this).val().replace(/\D|^0/g, ''));
+    }).css("ime-mode", "disabled"); //CSS设置输入法不可用
 });
 

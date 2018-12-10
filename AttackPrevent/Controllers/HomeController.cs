@@ -708,30 +708,48 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteWhiteList(string zoneID, string ip)
+        public JsonResult DeleteWhiteList(string zoneID, string ip, string vcode)
         {
+            bool isSuccessed = true;
+            string errorMsg = "";
+
             string authEmail = "";
             string authKey = "";
             //zoneID = "";
 
-            var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-            authEmail = zone.AuthEmail;
-            authKey = zone.AuthKey;
-
-            IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
-            var result = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
-            AuditLogBusiness.Add(new AuditLogEntity
+            var configuration = GlobalConfigurationBusiness.GetConfigurationList().FirstOrDefault();
+            if (vcode != configuration?.ValidateCode)
             {
-                IP = ip,
-                LogType = LogLevel.Audit.ToString(),
-                ZoneID = zoneID,
-                LogOperator = UserName,
-                LogTime = DateTime.UtcNow,
-                //Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
-                Detail = string.Format("[Audit] {1} [{0}] Delete White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
-            });
-            return Json(result, JsonRequestBehavior.AllowGet);
+                isSuccessed = false;
+                errorMsg = "Verification code error.";
+            }
+            else
+            {
+                var zoneList = ZoneBusiness.GetZoneList();
+                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                authEmail = zone.AuthEmail;
+                authKey = zone.AuthKey;
+
+                IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
+                isSuccessed = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+                if (!isSuccessed)
+                {
+                    errorMsg = "Delete failed.";
+                }
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = ip,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = zoneID,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    //Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
+                    Detail = string.Format("[Audit] {1} [{0}] Delete White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
+                });
+
+            }
+
+            return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
@@ -799,8 +817,11 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteBlackList(string zoneID, string ip)
+        public JsonResult DeleteBlackList(string zoneID, string ip, string vcode)
         {
+            bool isSuccessed = true;
+            string errorMsg = "";
+
             string authEmail = "";
             string authKey = "";
             //zoneID = "";
@@ -810,19 +831,34 @@ namespace AttackPrevent.Controllers
             authEmail = zone.AuthEmail;
             authKey = zone.AuthKey;
 
-            IBlackListBusinees blackListBusinees = new BlackListBusinees();
-            var result = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
-            AuditLogBusiness.Add(new AuditLogEntity
+
+            var configuration = GlobalConfigurationBusiness.GetConfigurationList().FirstOrDefault();
+            if (vcode != configuration?.ValidateCode)
             {
-                IP = ip,
-                LogType = LogLevel.Audit.ToString(),
-                ZoneID = zoneID,
-                LogOperator = UserName,
-                LogTime = DateTime.UtcNow,
-                //Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
-                Detail = string.Format("[Audit] {1} [{0}] Delete Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
-            });
-            return Json(result, JsonRequestBehavior.AllowGet);
+                isSuccessed = false;
+                errorMsg = "Verification code error.";
+            }
+            else
+            {
+                IBlackListBusinees blackListBusinees = new BlackListBusinees();
+                isSuccessed = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+                if (!isSuccessed)
+                {
+                    errorMsg = "Delete failed.";
+                }
+                AuditLogBusiness.Add(new AuditLogEntity
+                {
+                    IP = ip,
+                    LogType = LogLevel.Audit.ToString(),
+                    ZoneID = zoneID,
+                    LogOperator = UserName,
+                    LogTime = DateTime.UtcNow,
+                    //Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),
+                    Detail = string.Format("[Audit] {1} [{0}] Delete Black List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
+                });
+            }
+
+            return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

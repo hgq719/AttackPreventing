@@ -11,12 +11,24 @@
         table-layout: fixed;
         word-break: break-all;
     }
+    .hidden-input {
+        position: relative;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+    }
+        /*让input看不见，而不是直接display: none，如果直接display: none，则不生效*/
+        .hidden-input .form-control {
+            position: absolute;
+            left: -1000px;
+        }
 </style>
 <div class="logContainer">
     <div class="queryContainer">
         <ol class="breadcrumb">
             <li class="active">Backlist Manage</li>
         </ol>
+
         <div class="col-md-4 form-group">
             <div class="col-md-4 label-col">
                 <label for="select-zoneName">Zone Name</label>
@@ -61,7 +73,10 @@
                 <input type="text" name="notes" id="txt-notes" class="form-control" />
             </div>
         </div>
-
+        <div class="hidden-input">
+            <!--让浏览器自动填充到这个input-->
+            <input type="text" class="form-control">
+        </div>
         <div class="col-md-4 form-group" style="text-align: right">
             <button id="btn-query" type="button" class="btn btn-primary">Query</button>
             @if (ViewBag.IsAdmin)
@@ -77,6 +92,30 @@
         <table id="table" class="table table-bordered"></table>
     </div>
 </div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">Check Validate Code</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <label class="col-md-4 label-col">Verification Code</label>
+                    <div class="col-md-8 ">
+                        <input type="password" name="ValidateCode" id="ValidateCode" class="form-control" />        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="submit" type="button" class="btn btn-primary">Submit</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <script type="text/javascript">
     var TableInit = function () {
@@ -167,8 +206,40 @@
         return oTableInit;
     };
     var oTable = new TableInit();
+    var currRow = null;
     $(document).ready(function () {
         oTable.Init();
+        $("#submit").click(function () {
+            debugger
+            var para = oTable.queryParams({ limit: 10, offset: 0 });
+            var zoneID = para.zoneID;
+            var ip = currRow.IP;
+
+            var code = $("#ValidateCode").val();
+            if (!code) {
+                showWarning("Verification Code is requierd.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/DeleteBlackList?zoneID=" + zoneID + "&ip=" + ip + "&vcode=" + code,
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    if (data.isSuccessed) {
+                        $('#myModal').modal('hide');
+                        refresh();
+                    } else {
+                        alert(data.errorMsg);
+                    }
+                },
+                error: function (jqXHR) {
+                    console.log("Error: " + jqXHR.status);
+                }
+            });
+
+        });
     });
     $("#btn-query").click(function () {
         var start = $("#txt-StartTime").val();
@@ -221,27 +292,8 @@
     window.operateEvents = {
         'click #btn-delete': function (e, value, row, index) {
             if (confirm('Are you sure want to remove this IP from the blacklist?')) {
-                var para = oTable.queryParams({ limit: 10, offset: 0 });
-                var zoneID = para.zoneID;
-                var ip = row.IP;
-                debugger
-
-                $.ajax({
-                    type: "POST",
-                    url: "/Home/DeleteBlackList?zoneID=" + zoneID + "&ip=" + ip,
-                    dataType: "json",
-                    async: true,
-                    success: function (data) {
-                        if (data) {
-                            refresh();
-                        } else {
-                            showError("Delete failed.");
-                        }
-                    },
-                    error: function (jqXHR) {
-                        console.log("Error: " + jqXHR.status);
-                    }
-                });
+                currRow = row;
+                $("#myModal").modal('show');
             }
         }
     }

@@ -372,7 +372,10 @@ namespace AttackPrevent.Controllers
                     AuthKey = Utils.AesEncrypt(zoneModel.AuthKey),
                     IfAttacking = false,
                     IfEnable = true,
-                    IfTestStage = zoneModel.IfTestStage
+                    IfTestStage = zoneModel.IfTestStage,
+                    PeriodForHost = zoneModel.PeriodForHost,
+                    ThresholdForHost = zoneModel.ThresholdForHost,
+                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule
                 };
 
                 if (ZoneBusiness.Equals(item.ZoneId, 0))
@@ -421,6 +424,9 @@ namespace AttackPrevent.Controllers
                 ZoneId = entity.ZoneId,
                 ZoneName = entity.ZoneName,
                 IfAttacking = entity.IfAttacking,
+                PeriodForHost = entity.PeriodForHost,
+                ThresholdForHost = entity.ThresholdForHost,
+                IfAnalyzeByHostRule = entity.IfAnalyzeByHostRule
             };
 
             return View(model);
@@ -441,6 +447,9 @@ namespace AttackPrevent.Controllers
                     IfEnable = zoneModel.IfEnable,
                     IfTestStage = zoneModel.IfTestStage,
                     TableID = zoneModel.TableID,
+                    PeriodForHost = zoneModel.PeriodForHost,
+                    ThresholdForHost = zoneModel.ThresholdForHost,
+                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule
                 };
                 if (ZoneBusiness.Equals(item.ZoneId, item.TableID))
                 {
@@ -494,7 +503,6 @@ namespace AttackPrevent.Controllers
 
         public ActionResult GetZoneIfAttacking(string zone)
         {
-            ZoneBusiness.AuthenticateUser("comm100", "comm110");
             ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
             return View();
         }

@@ -6,7 +6,7 @@
 <div style="width: 600px; margin-top: 20px; margin-left: 40px;">
     <ol class="breadcrumb">
         <li><a href="~/HostConfiguration/Index">Host Manage</a></li>
-        <li class="active">Add</li>
+        <li class="active">Edit</li>
     </ol>
     @using (Html.BeginForm("Edit", "HostConfiguration", FormMethod.Post))
     {
@@ -23,14 +23,14 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Threshold</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control", @type = "number", @min = "1" })
+                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control onlyInteger" })
                 @Html.ValidationMessageFor(model => model.Threshold)
             </div>
         </div>
         <div class="row form-group">
             <label class="col-md-4 label-col">Period (second)</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.Period, new { @class = "form-control", @type = "number", @min = "1" })
+                @Html.TextBoxFor(model => model.Period, new { @class = "form-control onlyInteger" })
                 @Html.ValidationMessageFor(model => model.Period)
             </div>
         </div>

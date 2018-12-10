@@ -162,7 +162,7 @@ namespace AttackPrevent.Access
                                                           @ifAttacking ,  -- IfAttacking - int
                                                           @thresholdForHost ,  -- ThresholdForHost - int
                                                           @periodForHost ,  -- PeriodForHost - int                                                          
-                                                          @ifAnalyzeByHostRule ,  -- IfAnalyzeByHostRule - int
+                                                          @ifAnalyzeByHostRule   -- IfAnalyzeByHostRule - int
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))

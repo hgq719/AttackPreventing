@@ -9,7 +9,7 @@
         <li class="active">Edit</li>
     </ol>
     @using (Html.BeginForm("EditZone", "home", FormMethod.Post))
-    {       
+    {
         <div class="row form-group">
             <label class="col-md-4 label-col">Zone ID</label>
             <div class="col-md-8 ">
@@ -42,6 +42,20 @@
             </div>
         </div>
         <div class="row form-group">
+            <label class="col-md-4 label-col">Threshold for Host (second)</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.ThresholdForHost, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.ThresholdForHost)
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Period for Host</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.PeriodForHost, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.PeriodForHost)
+            </div>
+        </div>
+        <div class="row form-group">
             <div class="checkbox col-md-4 col-md-offset-4">
                 <label>
                     @Html.CheckBoxFor(model => model.IfTestStage) If Test
@@ -52,6 +66,13 @@
             <div class="checkbox col-md-4 col-md-offset-4">
                 <label>
                     @Html.CheckBoxFor(model => model.IfEnable) If Enable
+                </label>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="checkbox col-md-4 col-md-offset-4">
+                <label>
+                    @Html.CheckBoxFor(model => model.IfAnalyzeByHostRule) If Analyze by Host Rule
                 </label>
             </div>
         </div>

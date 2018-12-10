@@ -28,10 +28,19 @@ namespace AttackPrevent.Models
         [Required(ErrorMessage = "The {0} is required.")]
         [StringLength(100)]
         public string AuthKey { get; set; }
+
+        [Required(ErrorMessage = "The {0} is required.")]
+        [Range(1, 10000)]
+        public int ThresholdForHost { get; set; }
+
+        [Required(ErrorMessage = "The {0} is required.")]
+        [Range(1, 10000)]
+        public int PeriodForHost { get; set; }
         public bool IfTestStage { get; set; }
         public bool IfEnable { get; set; }
 
         public bool IfAttacking { get; set; }
+        public bool IfAnalyzeByHostRule { get; set; }
 
     }
 }

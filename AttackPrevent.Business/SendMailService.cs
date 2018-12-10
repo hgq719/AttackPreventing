@@ -66,8 +66,11 @@ namespace AttackPrevent.Business
                             string strfrom = ConstValues.emailfrom;
                             string strto = configuration.EmailAddForWhiteList;
                             string subj = string.Format("IP Action Report {0}", title);
+                            int port = ConstValues.emailport;
+                            bool authentication = ConstValues.emailauthentication;
+                            int timeout = ConstValues.emailtimeout;
 
-                            Utils.SendMail(smtpserver, enablessl, userName, pwd, nickName, strfrom, strto, subj, bodys);
+                            Utils.SendMail(smtpserver, enablessl, userName, pwd, nickName, strfrom, strto, subj, bodys, port, authentication, timeout);
 
                             smtp.Status = 1;
                             SmtpQueueBusiness.Edit(smtp);

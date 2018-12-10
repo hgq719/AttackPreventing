@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,5 +33,38 @@ namespace AttackPrevent.Business
         /// 发件人地址
         /// </summary>
         public static readonly string emailfrom = "394631316@qq.com";
+        /// <summary>
+        /// 发送邮件超时时间
+        /// </summary>
+        public static readonly int emailtimeout = 90000;
+        /// <summary>
+        /// 发送邮件端口
+        /// </summary>
+        public static readonly int emailport = 25; 
+        /// <summary>
+        /// 是否启用用户名密码
+        /// </summary>
+        public static readonly bool emailauthentication = true;
+
+        static ConstValues()
+        {
+            try
+            {
+                emailsmtp = ConfigurationManager.AppSettings["MailServer"];
+                emailssl = Convert.ToBoolean(ConfigurationManager.AppSettings["MailServerIfSSL"]);
+                emailusername = ConfigurationManager.AppSettings["MailServerUserName"];
+                emailpassword = ConfigurationManager.AppSettings["MailServerPassword"];
+                emailnickname = ConfigurationManager.AppSettings["MailServereNickName"];
+                emailtimeout = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerTimeout"]);
+                emailport = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+                emailauthentication = Convert.ToBoolean(ConfigurationManager.AppSettings["MailServerIfAuthentication"]);
+
+                emailfrom = emailusername;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

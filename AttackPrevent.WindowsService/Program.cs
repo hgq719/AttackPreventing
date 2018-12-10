@@ -12,10 +12,12 @@ using Quartz;
 using Quartz.Impl;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
+using Xunit;
+using Shouldly;
 
 namespace AttackPrevent.WindowsService
 {
-    class Program
+    public class Program
     {
 
         static void Main(string[] args)
@@ -140,7 +142,8 @@ namespace AttackPrevent.WindowsService
         #endregion
 
         #region Test
-        void Test()
+        [Fact]
+        public static void Test()
         {
             // Test
             List<string> urls = new List<string>() {
@@ -175,7 +178,7 @@ namespace AttackPrevent.WindowsService
             int minWhiteList = ActionReportBusiness.GetMinForWhiteList("xx.xx.xx.xx", "comm100.com");
             int avgWhiteList = ActionReportBusiness.GetAvgForWhiteList("xx.xx.xx.xx", "comm100.com");
 
-            //ActionReportBusiness.Edit(actionReport);
+            ActionReportBusiness.Edit(actionReport);
 
             int maxAction = ActionReportBusiness.GetMaxForAction("xx.xx.xx.xx", "comm100.com");
             int minAction = ActionReportBusiness.GetMinForAction("xx.xx.xx.xx", "comm100.com");
@@ -195,7 +198,7 @@ namespace AttackPrevent.WindowsService
             List<Model.SmtpQueue> queueList = SmtpQueueBusiness.GetList();
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
-            //SmtpQueueBusiness.Edit(smtpQueue);
+            SmtpQueueBusiness.Edit(smtpQueue);
             SmtpQueueBusiness.Delete("06/12/2018");
 
             IActiveReportService activeReportService = ActiveReportService.GetInstance();
@@ -203,6 +206,8 @@ namespace AttackPrevent.WindowsService
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();
+
+            ConstValues.emailtimeout.ShouldBe(90000);
         }
         #endregion
 

@@ -3,6 +3,7 @@ using AttackPrevent.Model.Cloudflare;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,9 +24,16 @@ namespace AttackPrevent.Business
         private static object obj_Sync = new object();
         private static IActiveReportService activeReportService;
         private bool isProcessing = false;
+        private List<string> _suffixList;
 
         private ActiveReportService()
         {
+            var filterSuffixList = ConfigurationManager.AppSettings["FilterSuffixList"];
+            if (!string.IsNullOrEmpty(filterSuffixList))
+            {
+                _suffixList = filterSuffixList.Split(',').ToList();
+            }
+
 #if DEBUG
 #else
             isDebug = false;
@@ -107,6 +115,7 @@ namespace AttackPrevent.Business
             string zoneId = zone.ZoneId;
             //24个小时，取第一分钟的数据
             List<List<CloudflareLog>> cloudflareLogs = new List<List<CloudflareLog>>();
+
             for (int i = 0; i < oneDayCount; i++)
             {
                 double sample = 1;
@@ -133,7 +142,8 @@ namespace AttackPrevent.Business
                 {
                     ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
                     cloudflareLogHandleSercie.TaskStart();
-                    logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+                    logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
+                        .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
                 }            
                 
                 cloudflareLogs.Add(logs);
@@ -204,6 +214,10 @@ namespace AttackPrevent.Business
         }
         private void GeneratedActiveReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
+            var cloundFlareApiService = new CloundFlareApiService();
+            var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.whitelist);
+            var whiteListIps = whiteList.Select(a => a.configurationValue);
+
             var totalList = cloudflareLogs.SelectMany(a => a)
                                           .GroupBy(a => new { a.ClientIP, a.ClientRequestHost })
                                           .Select(
@@ -213,6 +227,7 @@ namespace AttackPrevent.Business
                                                         HostName = g.Key.ClientRequestHost,
                                                         Count = g.Count(),
                                                     })
+                                           .Where(a=>!whiteListIps.Contains(a.IP))
                                            .OrderByDescending(a => a.Count);
 
             List<string> ipList = new List<string>();
@@ -236,9 +251,9 @@ namespace AttackPrevent.Business
                 List<string> urls = GetTop5Urls(cloudflareLogs, item.IP, item.HostName);
                 string urlsJson = JsonConvert.SerializeObject(urls);
 
-                int maxHistory = ActionReportBusiness.GetMaxForAction(item.IP, item.HostName);
-                int minHistory = ActionReportBusiness.GetMinForAction(item.IP, item.HostName);
-                int avgHistory = ActionReportBusiness.GetAvgForAction(item.IP, item.HostName);
+                int maxHistory = ActionReportBusiness.GetMaxForAction(zone.ZoneId, item.IP, item.HostName);
+                int minHistory = ActionReportBusiness.GetMinForAction(zone.ZoneId, item.IP, item.HostName);
+                int avgHistory = ActionReportBusiness.GetAvgForAction(zone.ZoneId, item.IP, item.HostName);
 
                 string maxDisplay = string.Format("{0}({1})", max, maxHistory > 0 ? maxHistory.ToString() : nothing);
                 string minDisplay = string.Format("{0}({1})", min, minHistory > 0 ? minHistory.ToString() : nothing);
@@ -268,7 +283,7 @@ namespace AttackPrevent.Business
         private void GeneratedWhiteListReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
             var cloundFlareApiService = new CloundFlareApiService();
-            var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.challenge);
+            var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.whitelist);
             var subWhiteList = whiteList.Where(a => a.notes.Contains("WHITELIST CLEINT'S IP ADDRESS SITEID"))
                                         .Select(a => new WhiteListModel
                                         {
@@ -324,9 +339,9 @@ namespace AttackPrevent.Business
                 List<string> urls = GetTop5Urls(cloudflareLogs, item.IP, item.HostName);
                 string urlsJson = JsonConvert.SerializeObject(urls);
 
-                int maxHistory = ActionReportBusiness.GetMaxForWhiteList(item.IP, item.HostName);
-                int minHistory = ActionReportBusiness.GetMinForWhiteList(item.IP, item.HostName);
-                int avgHistory = ActionReportBusiness.GetAvgForWhiteList(item.IP, item.HostName);
+                int maxHistory = ActionReportBusiness.GetMaxForWhiteList(zone.ZoneId, item.IP, item.HostName);
+                int minHistory = ActionReportBusiness.GetMinForWhiteList(zone.ZoneId, item.IP, item.HostName);
+                int avgHistory = ActionReportBusiness.GetAvgForWhiteList(zone.ZoneId, item.IP, item.HostName);
 
                 string maxDisplay = string.Format("{0}({1})", max, maxHistory > 0 ? maxHistory.ToString() : nothing);
                 string minDisplay = string.Format("{0}({1})", min, minHistory > 0 ? minHistory.ToString() : nothing);
@@ -352,6 +367,17 @@ namespace AttackPrevent.Business
                 };
                 ActionReportBusiness.Add(report);
             }
+        }
+
+        private bool IfInSuffixList(string requestUrl)
+        {
+            foreach (var suffix in _suffixList)
+            {
+                if (requestUrl.ToLower().EndsWith($".{suffix}"))
+                    return true;
+            }
+
+            return false;
         }
     }
     

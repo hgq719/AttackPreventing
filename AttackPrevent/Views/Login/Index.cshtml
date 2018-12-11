@@ -71,7 +71,7 @@
                                 <span class="errorArrow"></span><span class="errorContent"></span>
                             </div>
                         </div>
-                        @if ((int)ViewBag.ErrorTimes >= 1 )
+                        @if ((int)ViewBag.ErrorTimes >= 10 )
 	                    {
                         <div id="divVerificationCode" style="position: relative;">
                             @Html.TextBoxFor(model => model.verificationcode, new { @autocomplete = "off", @style = "width: 105px;", @placeholder = "Verification Code" })

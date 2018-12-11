@@ -38,7 +38,7 @@ namespace AttackPrevent.Controllers
                 bool isCredentialValid = pc.ValidateCredentials(loginModel.UserName, loginModel.Password);
 
                 string checkCode = Session["CheckCode"] == null ? "" : Session["CheckCode"].ToString();
-                bool verificationCheck = !(errorTimes >= 1 && !loginModel.verificationcode.Equals(checkCode));
+                bool verificationCheck = !(errorTimes >= 10 && !loginModel.verificationcode.Equals(checkCode));
                 if (isCredentialValid)
                 {
                     CookieHelper.SetCookie(loginModel.UserName + "errorTimes", "0", DateTime.UtcNow.AddDays(-1));

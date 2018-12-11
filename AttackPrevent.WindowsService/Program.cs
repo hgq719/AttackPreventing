@@ -24,9 +24,9 @@ namespace AttackPrevent.WindowsService
         {
             //配置log4
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
-
-            //RunProgram().GetAwaiter().GetResult();
-            //Console.ReadKey();
+            //Test();
+            RunProgram().GetAwaiter().GetResult();
+            Console.ReadKey();
 
             while (true)
             {
@@ -142,7 +142,6 @@ namespace AttackPrevent.WindowsService
         #endregion
 
         #region Test
-        [Fact]
         public static void Test()
         {
             // Test

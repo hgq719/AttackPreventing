@@ -180,7 +180,7 @@ namespace AttackPrevent.Business
 
                 if (actionReport.AvgDisplay.Contains("("))
                 {
-                    string[] vls = actionReport.MaxDisplay.Replace(")", "").Split('(');
+                    string[] vls = actionReport.AvgDisplay.Replace(")", "").Split('(');
                     int firNum = Convert.ToInt32(vls[0]);
                     int lstNum = Convert.ToInt32(vls[1]);
 

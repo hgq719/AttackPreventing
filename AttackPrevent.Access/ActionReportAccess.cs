@@ -122,6 +122,89 @@ namespace AttackPrevent.Access
             return result;
         }
 
+        public static List<ActionReport> GetWhiteListByIp(int limit, int offset, DateTime startTime, DateTime endTime, string ip)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            List<ActionReport> result = new List<ActionReport>();
+
+            long arrange = offset + limit;
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"SELECT TOP(@limit) *
+                            FROM 
+                            (
+                                SELECT TOP(@arrange) ROW_NUMBER() OVER (ORDER BY CONVERT( DATETIME, Title) DESC ) AS RowNum, * 
+                                FROM t_Action_Report 
+                                WHERE IP=@ip AND mode = 'WhiteList' AND CreatedTime >= @startTime AND CreatedTime <= @endTime
+                            ) AS tempTable
+                            WHERE RowNum BETWEEN @offset + 1 AND @arrange
+                            ORDER BY RowNum";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@ip", ip);
+                cmd.Parameters.AddWithValue("@limit", limit);
+                cmd.Parameters.AddWithValue("@arrange", arrange);
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@startTime", startTime);
+                cmd.Parameters.AddWithValue("@endTime", endTime);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        ActionReport item = new ActionReport();
+                        item.Id = Convert.ToInt32(reader["Id"]);
+                        item.Title = Convert.ToString(reader["Title"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.IP = Convert.ToString(reader["IP"]);
+                        item.HostName = Convert.ToString(reader["HostName"]);
+                        item.Max = Convert.ToInt32(reader["Max"]);
+                        item.Min = Convert.ToInt32(reader["Min"]);
+                        item.Avg = Convert.ToInt32(reader["Avg"]);
+                        item.FullUrl = Convert.ToString(reader["FullUrl"]);
+                        item.CreatedTime = Convert.ToDateTime(reader["CreatedTime"]);
+                        item.Mode = Convert.ToString(reader["Mode"]);
+                        item.Count = Convert.ToInt32(reader["Count"]);
+                        item.Remark = Convert.ToString(reader["Remark"]);
+                        item.MaxDisplay = Convert.ToString(reader["MaxDisplay"]);
+                        item.MinDisplay = Convert.ToString(reader["MinDisplay"]);
+                        item.AvgDisplay = Convert.ToString(reader["AvgDisplay"]);
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static int GetWhiteCountListByIp(DateTime startTime, DateTime endTime, string ip)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"SELECT COUNT(*) as count FROM t_Action_Report WHERE IP=@ip AND mode = 'WhiteList' AND CreatedTime >= @startTime AND CreatedTime <= @endTime";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@ip", ip);
+                cmd.Parameters.AddWithValue("@startTime", startTime);
+                cmd.Parameters.AddWithValue("@endTime", endTime);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result = Convert.ToInt32(reader["count"]);
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public static void Add(ActionReport item)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();

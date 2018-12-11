@@ -125,5 +125,12 @@ namespace AttackPrevent.Business
             var rows = query.Skip(offset).Take(limit).ToList();
             return new { total = total, rows = rows };
         }
+
+        public dynamic GetWhiteListDetail(int limit, int offset, DateTime startTime, DateTime endTime, string ip)
+        {
+            var data = ActionReportBusiness.GetWhiteListByIp(limit, offset, startTime, endTime, ip);
+            var total = ActionReportBusiness.GetWhiteCountListByIp(startTime, endTime, ip);
+            return new { total = total, rows = data };
+        }
     }
 }

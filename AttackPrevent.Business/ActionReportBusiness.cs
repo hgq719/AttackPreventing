@@ -36,36 +36,36 @@ namespace AttackPrevent.Business
             ActionReportAccess.Delete(title);
         }
 
-        public static int GetMaxForAction(string ip, string hostName)
+        public static int GetMaxForAction(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
-            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.Mode == "Action"&& a.HostName==hostName)?.Max;
+            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId &&  a.Mode == "Action"&& a.HostName==hostName)?.Max;
             return result.HasValue ? result.Value : 0;
         }
-        public static int GetMaxForWhiteList(string ip, string hostName)
+        public static int GetMaxForWhiteList(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
-            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.Mode == "WhiteList" && a.HostName == hostName)?.Max;
+            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName)?.Max;
             return result.HasValue ? result.Value : 0;
         }
-        public static int GetMinForAction(string ip, string hostName)
+        public static int GetMinForAction(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
-            int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.Mode == "Action" && a.HostName == hostName)?.Min;
+            int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName)?.Min;
             return result.HasValue ? result.Value : 0;
         }
-        public static int GetMinForWhiteList(string ip, string hostName)
+        public static int GetMinForWhiteList(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
-            int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.Mode == "WhiteList" && a.HostName == hostName)?.Min;
+            int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName)?.Min;
             return result.HasValue ? result.Value : 0;
         }
-        public static int GetAvgForAction(string ip, string hostName)
+        public static int GetAvgForAction(string zoneId, string ip, string hostName)
         {
             int result = -1;
             List<ActionReport> actionReports = GetListByIp(ip);
-            int sum = actionReports.Where(a => a.Mode == "Action" && a.HostName == hostName).Sum(a => a.Avg);
-            int count = actionReports.Where(a => a.Mode == "Action" && a.HostName == hostName).Count();
+            int sum = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName).Sum(a => a.Avg);
+            int count = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName).Count();
             if(count == 0)
             {
                 result = 0;
@@ -76,12 +76,12 @@ namespace AttackPrevent.Business
             }
             return result;
         }
-        public static int GetAvgForWhiteList(string ip, string hostName)
+        public static int GetAvgForWhiteList(string zoneId, string ip, string hostName)
         {
             int result = -1;
             List<ActionReport> actionReports = GetListByIp(ip);
-            int sum = actionReports.Where(a => a.Mode == "WhiteList" && a.HostName == hostName).Sum(a => a.Avg);
-            int count = actionReports.Where(a => a.Mode == "WhiteList" && a.HostName == hostName).Count();
+            int sum = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName).Sum(a => a.Avg);
+            int count = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName).Count();
             if (count == 0)
             {
                 result = 0;

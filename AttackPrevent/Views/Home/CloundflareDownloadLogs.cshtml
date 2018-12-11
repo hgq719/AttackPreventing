@@ -184,25 +184,21 @@
                 }, {
                     field: 'ClientIP',
                     title: 'IP',
-                    width: '8%',
+                    width: '10%',
                 }, {
                     field: 'ClientRequestURI',
-                    title: 'Request URI',
-                    width: '42%',
+                    title: 'Request URL',
+                    width: '50%',
                 }, {
                     field: 'CacheCacheStatus',
                     title: 'Cache Status',
-                    width: '10%',
-                }, {
-                    field: 'ClientRequestMethod',
-                    title: 'Request Method',
                     width: '10%',
                 },
                 {
                     field: 'EdgeResponseStatus',
                     title: 'Response Status',
                     width: '10%',
-                },
+                }
                 ]
             });
         };
@@ -231,7 +227,7 @@
     $(document).ready(function () {
         oTable.Init();
         
-        $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-10).ToString("MM/dd/yyyy HH:mm")');
+        $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-6).ToString("MM/dd/yyyy HH:mm")');
         $("#txt-EndTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("MM/dd/yyyy HH:mm")');        
     });
     $("#btn-query").click(function () {
@@ -323,6 +319,11 @@
                 result = false;
             }
         }
+        
+        if (timeDifference(end, start) > 5) {
+            showWarning("The interval should not exceed 5 minutes.");
+            result = false;
+        }
 
         return result;
     }
@@ -357,5 +358,8 @@
         //a.setAttribute('download', '');// download属性
         //a.setAttribute('href', uuu);// href链接
         //a.click();// 自执行点击事件
+    }
+    function timeDifference(date2, date1) {        
+        return Math.abs(Date.parse(date2) - Date.parse(date1)) / 1000 / 60;
     }
 </script>

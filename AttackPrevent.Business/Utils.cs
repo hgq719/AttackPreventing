@@ -109,12 +109,17 @@ namespace AttackPrevent.Business
         /// <param name="strto">收件人</param>
         /// <param name="subj">主题</param>
         /// <param name="bodys">内容</param>
-        public static void SendMail(string smtpserver, bool enablessl, string userName, string pwd, string nickName, string strfrom, string strto, string subj, string bodys)
+        public static void SendMail(string smtpserver, bool enablessl, string userName, string pwd, string nickName, string strfrom, string strto, string subj, string bodys, int port, bool authentication, int timeout)
         {
             SmtpClient _smtpClient = new SmtpClient();
             _smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;//指定电子邮件发送方式
             _smtpClient.Host = smtpserver;//指定SMTP服务器
-            _smtpClient.Credentials = new System.Net.NetworkCredential(userName, pwd);//用户名和密码
+            if (authentication)
+            {
+                _smtpClient.Credentials = new System.Net.NetworkCredential(userName, pwd);//用户名和密码
+            }
+            _smtpClient.Timeout = timeout;
+            _smtpClient.Port = port;
             if (enablessl == true)
             {
                 _smtpClient.EnableSsl = true;

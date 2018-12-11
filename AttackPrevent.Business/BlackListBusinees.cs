@@ -104,7 +104,7 @@ namespace AttackPrevent.Business
             }
             if (!string.IsNullOrEmpty(ip))
             {
-                query = query.Where(a => a.IP == ip);
+                query = query.Where(a => a.IP.Contains(ip));
             }
             //if (Convert.ToDateTime(end.ToString("yyyy-MM-dd HH:mm")) > Convert.ToDateTime(start.ToString("yyyy-MM-dd HH:mm")))
             //{

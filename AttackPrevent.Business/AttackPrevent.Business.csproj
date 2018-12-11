@@ -45,6 +45,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
@@ -58,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveReportService.cs" />
+    <Compile Include="CookiesHelper.cs" />
     <Compile Include="SendMailService.cs" />
     <Compile Include="ConstValues.cs" />
     <Compile Include="SmtpQueueBusiness.cs" />

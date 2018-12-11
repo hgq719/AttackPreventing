@@ -61,7 +61,8 @@ body {
     font-family: 'Roboto Condensed Light', "OpenSans-Light", "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
     color: #888;
     font-size: 12px;
-    background: #F6F6F6
+    background: #F6F6F6;
+    height: 100%;
 }
 
 article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
@@ -515,25 +516,6 @@ a.btn:hover {
     transition: all .2s
 }
 
-.c-layout-header .c-quick-search > .form-control {
-    font-size: 22px;
-    font-weight: 400;
-    font-family: 'Roboto Condensed', sans-serif;
-    display: block;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none
-}
-
-    .c-layout-header .c-quick-search > .form-control::-ms-clear {
-        display: none
-    }
-
-    .c-layout-header .c-quick-search > .form-control:focus, .c-layout-header .c-quick-search > .form-control:active {
-        box-shadow: none
-    }
-
 .c-layout-header .c-quick-search > span {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 36px;
@@ -603,11 +585,7 @@ a.btn:hover {
         display: none
     }
 
-    .c-layout-header .c-quick-search > .form-control {
-        height: 52px;
-        padding: 10px 0
-    }
-
+    
     .c-layout-header .c-quick-search > span {
         top: 0;
         right: -2px
@@ -671,11 +649,7 @@ a.btn:hover {
             transition: all .2s
         }
 
-    .c-page-on-scroll.c-layout-header-fixed .c-layout-header .c-quick-search > .form-control {
-        font-size: 22px;
-        height: 65px;
-        padding: 10px 0
-    }
+    
 
     .c-page-on-scroll.c-layout-header-fixed .c-layout-header .c-quick-search > span {
         font-size: 36px;
@@ -775,11 +749,6 @@ a.btn:hover {
         position: relative
     }
 
-        .c-layout-header .c-quick-search > .form-control {
-            font-size: 20px;
-            height: 65px;
-            padding: 10px 15px
-        }
 
         .c-layout-header .c-quick-search > span {
             font-size: 36px;
@@ -1107,14 +1076,7 @@ a.btn:hover {
 }
 
 @media(min-width:992px) {
-    .c-layout-header.c-layout-header-default .c-quick-search > .form-control:-ms-input-placeholder {
-        color: white
-    }
-
-    .c-layout-header.c-layout-header-default .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: white
-    }
-
+    
     .c-page-on-scroll .c-layout-header.c-layout-header-default {
         border-bottom: 0;
         background: rgba(0, 0, 0, .7);
@@ -1142,14 +1104,7 @@ a.btn:hover {
 }
 
 @media(max-width:991px) {
-    .c-layout-header.c-layout-header-default-mobile .c-quick-search > .form-control:-ms-input-placeholder {
-        color: #818e9a
-    }
-
-    .c-layout-header.c-layout-header-default-mobile .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: #818e9a
-    }
-
+   
     .c-layout-header-fixed.c-layout-header-mobile-fixed .c-layout-header {
         border-bottom: 1px solid #eee;
         box-shadow: 0 3px 9px -4px rgba(0, 0, 0, .25)
@@ -1204,26 +1159,6 @@ a.btn:hover {
             color: white
         }
 
-        .c-layout-header.c-layout-header-dark-mobile .c-quick-search > .form-control {
-            color: #454545
-        }
-
-            .c-layout-header.c-layout-header-dark-mobile .c-quick-search > .form-control::-moz-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-dark-mobile .c-quick-search > .form-control:-moz-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-dark-mobile .c-quick-search > .form-control:-ms-input-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-dark-mobile .c-quick-search > .form-control::-webkit-input-placeholder {
-                color: #969696
-            }
-
         .c-layout-header.c-layout-header-dark-mobile .c-quick-search > span {
             color: #454545
         }
@@ -1274,27 +1209,7 @@ a.btn:hover {
             .c-layout-header.c-layout-header-2 .c-navbar .c-mega-menu > .nav.navbar-nav > li.c-active > a:not(.btn) {
                 color: #fff
             }
-
-        .c-layout-header.c-layout-header-2 .c-quick-search > .form-control {
-            color: #454545
-        }
-
-            .c-layout-header.c-layout-header-2 .c-quick-search > .form-control::-moz-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-2 .c-quick-search > .form-control:-moz-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-2 .c-quick-search > .form-control:-ms-input-placeholder {
-                color: #969696
-            }
-
-            .c-layout-header.c-layout-header-2 .c-quick-search > .form-control::-webkit-input-placeholder {
-                color: #969696
-            }
-
+        
         .c-layout-header.c-layout-header-2 .c-quick-search > span {
             color: #454545
         }
@@ -1320,14 +1235,7 @@ a.btn:hover {
 }
 
 @media(min-width:992px) {
-    .c-layout-header.c-layout-header-3 .c-quick-search > .form-control:-ms-input-placeholder {
-        color: white
-    }
-
-    .c-layout-header.c-layout-header-3 .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: white
-    }
-
+   
     .c-page-on-scroll .c-layout-header.c-layout-header-3 {
         border-bottom: 0;
         background: #2f353b;
@@ -1347,121 +1255,6 @@ a.btn:hover {
         }
 }
 
-@media(min-width:992px) {
-    .c-layout-header.c-layout-header-4 .c-quick-search > .form-control:-ms-input-placeholder {
-        color: #828b96
-    }
-
-    .c-layout-header.c-layout-header-4 .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: #828b96
-    }
-
-    .c-page-on-scroll .c-layout-header.c-layout-header-4 {
-        border-bottom: 1px solid #e6eff3;
-        background: #fff;
-        box-shadow: none
-    }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon, .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link {
-            color: #69727c
-        }
-
-            .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:hover, .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:focus, .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:hover, .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:focus {
-                color: #69727c
-            }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-4 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-quick-sidebar-toggler > .c-line {
-            background-color: #757f8a
-        }
-}
-
-@media(min-width:992px) {
-    .c-layout-header.c-layout-header-5 .c-quick-search > .form-control:-ms-input-placeholder {
-        color: #828b96
-    }
-
-    .c-layout-header.c-layout-header-5 .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: #828b96
-    }
-
-    .c-page-on-scroll .c-layout-header.c-layout-header-5 {
-        border-bottom: 0;
-        background: #2f353b;
-        box-shadow: none
-    }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon, .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link {
-            color: #fff
-        }
-
-            .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:hover, .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:focus, .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:hover, .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:focus {
-                color: #fff
-            }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-5 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-quick-sidebar-toggler > .c-line {
-            background-color: white
-        }
-}
-
-@media(min-width:992px) {
-    .c-layout-header.c-layout-header-6 .c-quick-search > .form-control:-ms-input-placeholder {
-        color: #828b96
-    }
-
-    .c-layout-header.c-layout-header-6 .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: #828b96
-    }
-
-    .c-page-on-scroll .c-layout-header.c-layout-header-6 {
-        border-bottom: 0;
-        background: #2f353b;
-        box-shadow: none
-    }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon, .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link {
-            color: #fff
-        }
-
-            .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:hover, .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-btn-icon:focus, .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:hover, .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-link:focus {
-                color: #fff
-            }
-
-        .c-page-on-scroll .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu > .nav.navbar-nav > li > .c-quick-sidebar-toggler > .c-line {
-            background-color: white
-        }
-}
-
-@media(min-width:992px) {
-    .c-page-on-scroll.c-layout-header-fixed .c-layout-header.c-layout-header-6 {
-        height: 67px
-    }
-}
-
-@media(max-width:991px) {
-    .c-layout-header.c-layout-header-6 .c-topbar .c-top-menu:after {
-        clear: both
-    }
-
-    .c-layout-header.c-layout-header-6 .c-topbar .c-brand:after {
-        clear: both
-    }
-
-    .c-layout-quick-search-shown .c-layout-header.c-layout-header-6 .c-topbar .c-brand {
-        display: none
-    }
-
-    .c-layout-quick-search-shown .c-layout-header.c-layout-header-6 .c-navbar .c-mega-menu {
-        display: none
-    }
-
-    .c-layout-header.c-layout-header-6 .c-quick-search > .form-control:-ms-input-placeholder {
-        color: #040505
-    }
-
-    .c-layout-header.c-layout-header-6 .c-quick-search > .form-control::-webkit-input-placeholder {
-        color: #040505
-    }
-}
 
 @media(min-width:992px) {
     .c-layout-header .c-navbar .c-mega-menu.c-mega-menu-light > .nav.navbar-nav > li > .dropdown-menu {
@@ -1663,46 +1456,6 @@ a.btn:hover {
 
     .c-theme-nav li.c-active > a:not(.btn) {
         color: #329fd9 !important
-    }
-
-.form-control {
-    display: block;
-    width: 100%;
-    height: 34px;
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.42857143;
-    color: #555;
-    background-color: #fff;
-    background-image: none;
-    border: 1px solid #ccc;
-    outline: none;
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
-    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
-}
-
-    .form-control:focus {
-        border-color: #66afe9;
-        outline: 0;
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6)
-    }
-
-    .form-control::-moz-placeholder {
-        color: #999;
-        opacity: 1
-    }
-
-    .form-control:-ms-input-placeholder {
-        color: #999
-    }
-
-    .form-control::-webkit-input-placeholder {
-        color: #999
     }
 
 .c-theme-link:hover {
@@ -2442,6 +2195,8 @@ nav {
             padding: 10px 10px;
             font-family: "OpenSans", "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
             box-sizing: unset;
+            font-size: 13.333px;
+            height:auto;
         }
 
 .login .tryitfree {

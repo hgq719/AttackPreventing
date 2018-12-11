@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AttackPrevent.Business;
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace AttackPrevent.Controllers
                 ReturnUrl = ReturnUrl
 
             };
+            ViewBag.ErrorTimes = 0;
             ViewBag.ErrorMessage = string.Empty;
             return View(model);
         }
@@ -28,34 +30,49 @@ namespace AttackPrevent.Controllers
         [HttpPost]
         public ActionResult Index(Models.LoginModel loginModel)
         {
-            /*
-                
-            */
-            PrincipalContext pc = new PrincipalContext(ContextType.Machine);
-            bool isCredentialValid = pc.ValidateCredentials(loginModel.UserName, loginModel.Password);
-            if (isCredentialValid)
+            
+            if (ModelState.IsValid)
             {
-                Session["UserName"] = loginModel.UserName;
-                if (Url.IsLocalUrl(loginModel.ReturnUrl) && loginModel.ReturnUrl.Length > 1 && loginModel.ReturnUrl.StartsWith("/") && !loginModel.ReturnUrl.StartsWith("//") && !loginModel.ReturnUrl.StartsWith("/\\"))
+                int errorTimes = string.IsNullOrWhiteSpace(CookieHelper.GetCookie(loginModel.UserName + "errorTimes")) ? 0 : Convert.ToInt32(CookieHelper.GetCookie(loginModel.UserName+ "errorTimes"));
+                PrincipalContext pc = new PrincipalContext(ContextType.Machine);
+                bool isCredentialValid = pc.ValidateCredentials(loginModel.UserName, loginModel.Password);
+
+                string checkCode = Session["CheckCode"] == null ? "" : Session["CheckCode"].ToString();
+                bool verificationCheck = !(errorTimes >= 1 && !loginModel.verificationcode.Equals(checkCode));
+                if (isCredentialValid)
                 {
-                    return Redirect(loginModel.ReturnUrl);
+                    CookieHelper.SetCookie(loginModel.UserName + "errorTimes", "0", DateTime.UtcNow.AddDays(-1));
+                    Session["UserName"] = loginModel.UserName;
+                    if (Url.IsLocalUrl(loginModel.ReturnUrl) && loginModel.ReturnUrl.Length > 1 && loginModel.ReturnUrl.StartsWith("/") && !loginModel.ReturnUrl.StartsWith("//") && !loginModel.ReturnUrl.StartsWith("/\\"))
+                    {
+                        return Redirect(loginModel.ReturnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("CloundflareDownloadLogs", "Home");
+                    }
                 }
                 else
                 {
-                    return RedirectToAction("CloundflareDownloadLogs", "Home");
+                    Models.LoginModel model = new Models.LoginModel
+                    {
+                        ReturnUrl = loginModel.ReturnUrl,
+                        UserName = loginModel.UserName
+
+                    };
+                    errorTimes += 1;
+                    CookieHelper.SetCookie(loginModel.UserName + "errorTimes", errorTimes.ToString(), DateTime.UtcNow.AddMinutes(3));
+                    ViewBag.ErrorTimes = errorTimes;
+                    ViewBag.ErrorMessage = "Account or password is wrong.";
+                    return View(model);
                 }
             }
             else
             {
-                Models.LoginModel model = new Models.LoginModel
-                {
-                    ReturnUrl = loginModel.ReturnUrl,
-                    UserName = loginModel.UserName
-
-                };
-                ViewBag.ErrorMessage = "Account or password is wrong.";
-                return View(model);
+                ViewBag.ErrorTimes = 0;
+                return View(loginModel);
             }
+            
         }
 
         // POST: /Account/LogOff

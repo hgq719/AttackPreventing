@@ -21,6 +21,7 @@ namespace AttackPrevent.Access
                                                              EnlargementFactor, 
                                                              RateLimitTriggerIpCount, 
                                                              LatestTriggerTime,
+                                                             ZoneId,
                                                              Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
@@ -73,7 +74,9 @@ namespace AttackPrevent.Access
                             EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]),
                             RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
-                            TableID = Convert.ToInt32(reader["Id"])
+                            TableID = Convert.ToInt32(reader["Id"]),
+                            ZoneId = reader["ZoneId"].ToString(),
+                            
                         });
                     }
                 }

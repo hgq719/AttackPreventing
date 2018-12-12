@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AttackPrevent.Business
 {
@@ -390,7 +391,7 @@ namespace AttackPrevent.Business
                         firewallAccessRules.Add(new FirewallAccessRule
                         {
                             id = result.id,
-                            notes = result.notes,
+                            notes = System.Web.HttpUtility.HtmlDecode(result.notes),
                             mode = result.mode,
                             configurationTarget = result.configuration.target,
                             configurationValue = result.configuration.value,

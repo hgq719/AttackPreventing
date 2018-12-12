@@ -57,6 +57,18 @@ $(document).ready(function () {
         autoclose: true,
     });
 
+    $("input[name='startTimeBasic']").datetimepicker({
+        format: 'mm/dd/yyyy',
+        autoclose: true,
+        minView: "month"
+    });
+
+    $("input[name='endTimeBasic']").datetimepicker({
+        format: 'mm/dd/yyyy',
+        autoclose: true,
+        minView: "month"
+    });
+
     $("[name='o-iftest']").bootstrapSwitch({
         onText: "Test",
         offText: "NotTest",

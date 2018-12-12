@@ -3,9 +3,8 @@ IF NOT EXISTS
     SELECT name 
 	FROM syscolumns
 	WHERE id=object_id('t_Zone_Info')   
-	  AND name='ThresholdForHost'  
+	  AND name='IfAnalyzeByHostRule'  
 )
 BEGIN
-   ALTER TABLE t_Zone_Info ADD ThresholdForHost int not null default 500;
-   ALTER TABLE t_Zone_Info ADD PeriodForHost int not null default 60;
+   ALTER TABLE t_Zone_Info ADD IfAnalyzeByHostRule int not null default 0;
 END;

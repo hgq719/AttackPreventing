@@ -21,6 +21,16 @@ namespace AttackPrevent.Business
             return ActionReportAccess.GetListByIp(ip);
         }
 
+        public static List<ActionReport> GetWhiteListByIp(int limit, int offset, DateTime startTime, DateTime endTime, string ip)
+        {
+            return ActionReportAccess.GetWhiteListByIp(limit, offset, startTime, endTime, ip);
+        }
+
+        public static int GetWhiteCountListByIp(DateTime startTime, DateTime endTime, string ip)
+        {
+            return ActionReportAccess.GetWhiteCountListByIp(startTime, endTime, ip);
+        }
+
         public static void Add(ActionReport item)
         {
             ActionReportAccess.Add(item);

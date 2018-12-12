@@ -253,6 +253,7 @@
     <Content Include="Views\HostConfiguration\Create.cshtml" />
     <Content Include="Views\HostConfiguration\Edit.cshtml" />
     <Content Include="Views\Login\Index.cshtml" />
+    <Content Include="Views\Home\WhiteListDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -760,6 +760,23 @@ namespace AttackPrevent.Controllers
             return Json(new { isSuccessed, errorMsg = errorMsg }, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult WhiteListDetail(string ip)
+        {
+            ViewBag.Ip = ip;
+            if (!IsAdmin)
+            {
+                return new HttpUnauthorizedResult();
+            }
+            return View();
+        }
+
+        public JsonResult GetWhiteListDetail(int limit, int offset, DateTime startTime, DateTime endTime, string ip)
+        {
+            var backgroundTaskService = new WhiteListBusinees();
+            var result = backgroundTaskService.GetWhiteListDetail(limit, offset, startTime, endTime, ip);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult GetBlackLists(int limit, int offset, string zoneID, DateTime startTime, DateTime endTime, string ip, string notes)
         {
             string authEmail = "";

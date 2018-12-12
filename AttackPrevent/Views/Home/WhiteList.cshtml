@@ -163,6 +163,9 @@
                     field: 'IP',
                     title: 'IP',
                     width: '10%',
+                    formatter: function (value, row, index) {
+                        return '<a href="/home/WhiteListDetail?ip=' + value + '" >' + value + '</a>';
+                    },
                 }, {
                     field: 'CreateTime',
                     title: 'Create Time',

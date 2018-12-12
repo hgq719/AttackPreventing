@@ -24,7 +24,7 @@
                 <label for="txt-StartTime">Start Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="startTime" id="txt-StartTime" class="form-control" />
+                <input type="text" name="startTimeBasic" id="txt-StartTime" class="form-control" />
             </div>
         </div>
 
@@ -33,7 +33,7 @@
                 <label for="txt-EndTime">End Time</label>
             </div>
             <div class="col-md-8">
-                <input type="text" name="endTime" id="txt-EndTime" class="form-control" />
+                <input type="text" name="endTimeBasic" id="txt-EndTime" class="form-control" />
             </div>
         </div>
 
@@ -136,7 +136,7 @@
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 Ip: '@ViewBag.Ip',
-                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddMinutes(-5)' : $("#txt-StartTime").val(),
+                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddDays(-5)' : $("#txt-StartTime").val(),
                 endTime:  $("#txt-EndTime").val() === "" ? '@DateTime.UtcNow' : $("#txt-EndTime").val(),
             };
             return temp;
@@ -148,8 +148,8 @@
     $(document).ready(function () {
         oTable.Init();
 
-         $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("MM/dd/yyyy HH:mm")');
-        $("#txt-EndTime").val('@DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm")');        
+         $("#txt-StartTime").val('@DateTime.UtcNow.AddDays(-5).ToString("MM/dd/yyyy")');
+        $("#txt-EndTime").val('@DateTime.UtcNow.ToString("MM/dd/yyyy")');        
     });
 
     $("#btn-query").click(function () {

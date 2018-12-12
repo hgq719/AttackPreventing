@@ -8,13 +8,16 @@ namespace AttackPrevent.Models
 {
     public class LoginModel
     {
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
+        [StringLength(100)]
         public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The {0} is required.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
         public string ReturnUrl { get; set; }
+
+        public string verificationcode { get; set; }
     }
 }

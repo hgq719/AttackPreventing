@@ -14,7 +14,7 @@
                 <label for="select-zoneName">Zone Name</label>
             </div>
             <div class="col-md-8">
-                @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+                @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text", ViewBag.DefaultValue), new { @class = "form-control" })
             </div>
         </div>
 
@@ -131,11 +131,11 @@
                         formatter: function (value, row, index) {
                             var btnEdit = '<a href="/home/EditRateLimiting?id=' + row.TableID + '" class="rate-edit " ><span class="glyphicon glyphicon-edit btn-in-table" aria-hidden="true" title="Edit"></span></a>';
                             var btnDelete = '<a href="/home/DeleteRateLimiting?id=' + row.TableID + '&order=' + row.OrderNo + '" class="rate-delete " ><span class="glyphicon glyphicon-trash btn-in-table" aria-hidden="true" title="Delete"></span></a>';
-                            var btnUp = '<a href="/home/EditRateLimitingOrder?actionb=1&id=' + row.TableID + '&order=' + row.OrderNo + '&zoneId=' + row.zoneID + '" class="rate-up " ><span class="glyphicon glyphicon-arrow-up btn-in-table" aria-hidden="true" Title="up"></span></a>';
+                            var btnUp = '<a href="/home/EditRateLimitingOrder?actionb=1&id=' + row.TableID + '&order=' + row.OrderNo + '&zoneId=' + row.ZoneId + '" class="rate-up " ><span class="glyphicon glyphicon-arrow-up btn-in-table" aria-hidden="true" Title="up"></span></a>';
                             if (row.OrderNo === 1) {
                                 btnUp = '';
                             }
-                            var btnDown = '<a id="btnDown' + row.OrderNo + '" href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '&zoneId=' + row.zoneID +  '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true" Title="down"></span></a>';
+                            var btnDown = '<a id="btnDown' + row.OrderNo + '" href="/home/EditRateLimitingOrder?actionb=2&id=' + row.TableID + '&order=' + row.OrderNo + '&zoneId=' + row.ZoneId +  '" class="rate-down" ><span class="glyphicon glyphicon-arrow-down btn-in-table" aria-hidden="true" Title="down"></span></a>';
                             
                             return btnEdit + btnDelete + btnUp + btnDown;
                         },
@@ -147,7 +147,25 @@
                         field: 'ZoneId',
                         visible: false
                     }
-                ]
+                ],
+                onLoadSuccess: function () {
+                    $.ajax({
+                        type: "GET",
+                        url: "/Home/RateLimitGetMaxOrder",
+                        data: {
+                            zoneId: $("#select-zoneName").val()
+                        },
+                        dataType: "json",
+                        async: true,
+                        success: function (data) {
+                            $('#btnDown' + data.maxOrderNo).hide();
+
+                        },
+                        error: function (jqXHR) {
+
+                        }
+                    });
+                }
             });
         };
 
@@ -171,45 +189,10 @@
         
         oTable.Init();
 
-        $.ajax({
-            type: "GET",
-            url: "/Home/RateLimitGetMaxOrder",
-            data: {
-                zoneId: $("#select-zoneName").val()
-            },
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                console.log('btnDown' + data.maxOrderNo);
-                $('#btnDown' + data.maxOrderNo).hide();
-
-            },
-            error: function (jqXHR) {
-
-            }
-        });
     });
 
     $("#queryRateLimit").click(function () {
-        $('#rateLimitingTable').bootstrapTable('refresh');
-
-        $.ajax({
-            type: "GET",
-            url: "/Home/RateLimitGetMaxOrder",
-            data: {
-                zoneId: $("#select-zoneName").val()
-            },
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                console.log('btnDown' + data.maxOrderNo);
-                $('#btnDown' + data.maxOrderNo).hide();
-                
-            },
-            error: function (jqXHR) {
-                
-            }
-        });
+        $('#rateLimitingTable').bootstrapTable('refresh');        
              
     });
 

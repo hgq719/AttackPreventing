@@ -2,7 +2,8 @@
     Layout = null;
 }
 
-@Styles.Render("~/Content/login.css")
+@Styles.Render("~/Content/bootstrap.css")
+@Styles.Render("~/Content/login.css?v=20181211")
 @Scripts.Render("~/bundles/jquery")
 
 @model AttackPrevent.Models.LoginModel
@@ -39,31 +40,48 @@
                 <div class="divMsg">
 
                 </div>
-                <div class="divMsg" id="ajaxError" style="display: none;">
-                    <div class="dialogcontainer">
-                        <div class="dialogerror">
-                        </div>
-                        <div class="dialogerrorcontainer">
-                            <div class="dialogtitle" style="font-size: 16px">
-                                Error signing into the account
+                @if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMessage))
+                {
+                    <div class="divMsg" id="ajaxError" style="">
+                        <div class="dialogcontainer">
+                            <div class="dialogerror">
                             </div>
-                            <div class="dialogtext" id="ajaxErrorMsg">
-                                @ViewBag.ErrorMessage
+                            <div class="dialogerrorcontainer">
+                                <div class="dialogtitle" style="font-size: 16px">
+                                    Error signing into the account
+                                </div>
+                                <div class="dialogtext" id="ajaxErrorMsg">
+                                    @ViewBag.ErrorMessage
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
+
                 <div class="login">
                     <div id="loginContent">
-                        <div style="position: relative">
-                            @Html.TextBoxFor(model => model.UserName, new { @placeholder = "Account" })
+                        <div style="position: relative" class="form-group">
+                            @Html.TextBoxFor(model => model.UserName, new { @placeholder = "Account", @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.UserName)
                         </div>
-                        <div style="position: relative">
-                            @Html.PasswordFor(model => model.Password, new { @placeholder = "Password" })
+                        <div style="position: relative" class="form-group">
+                            @Html.PasswordFor(model => model.Password, new { @placeholder = "Password", @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Password)
                             <div class="registerError" id="errorPasswordExceed" style="display: none; width: 285px; left: 310px;">
                                 <span class="errorArrow"></span><span class="errorContent"></span>
                             </div>
                         </div>
+                        @if ((int)ViewBag.ErrorTimes >= 10 )
+	                    {
+                        <div id="divVerificationCode" style="position: relative;">
+                            @Html.TextBoxFor(model => model.verificationcode, new { @autocomplete = "off", @style = "width: 105px;", @placeholder = "Verification Code" })
+                            <img id="check_img" src="/Image/GetCheckCode" alt="Verfication Code" style="border-width: 0px; padding: 0px 8px 0px 3px; cursor: pointer; margin-bottom: -10px; border: 0;" onclick="refreshCheckCode('check_img')" />
+                            <span>
+                                <a href="javascript:refreshCheckCode('check_img');">Refresh</a>
+                            </span>
+                        </div>
+	                    }
+                        
                         <input id="lblLogin" type="submit" value="Sign in" class="btn btn-blue tryitfree" style="height: 46px; line-height: 46px; padding: 0">
                     </div>
                     <div id="adminAuthorization" style="display: none">
@@ -85,8 +103,23 @@
 
 <script type="text/javascript">
 
+    function refreshCheckCode(imgCtr) {
+        $("#" + imgCtr).attr("src", '/Image/GetCheckCode?' + Math.random());
+    }
+
     $(document).ready(function () {
+
+        $('.input-validation-error').parents('.form-group').addClass('has-error');
+        $('.field-validation-error').addClass('text-danger');
+
+        $('input.form-control').change(function () {
+            $(this).next('span').removeClass('text-danger');
+            $(this).next('span').text('');
+            $(this).parents('.form-group').removeClass('has-error');
+        });
+
         $('#lblLogin').click(function () {
+            $("#ajaxError").hide();
             $("#lblLogin").val("Signing in").addClass("waiting");
         });
     });

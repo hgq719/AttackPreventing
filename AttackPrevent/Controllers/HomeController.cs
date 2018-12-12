@@ -68,11 +68,11 @@ namespace AttackPrevent.Controllers
             return View();
         }
 
-        public ActionResult RateLimitingList()
+        public ActionResult RateLimitingList(string zoneId = "")
         {
             var ZoneList = ZoneBusiness.GetZoneSelectList();
             ViewBag.ZoneList = ZoneList;
-            //ViewBag.DefaultValue = string.IsNullOrWhiteSpace(zoneId);
+            ViewBag.DefaultValue = string.IsNullOrWhiteSpace(zoneId)? ZoneList.FirstOrDefault().Value : zoneId;
             ViewBag.IsAdmin = IsAdmin;
             return View();
         }
@@ -127,7 +127,7 @@ namespace AttackPrevent.Controllers
                     LogTime = DateTime.UtcNow,
                     Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
                 });
-                return RedirectToAction("RateLimitingList");
+                return RedirectToAction("RateLimitingList", new { zoneId=rateLimitModel.ZoneId });
             }
             else
             {
@@ -194,7 +194,7 @@ namespace AttackPrevent.Controllers
                 return View(rateLimitModel);
             }            
             
-            return RedirectToAction("RateLimitingList");
+            return RedirectToAction("RateLimitingList", new { zoneId = rateLimitModel.ZoneId });
         }
 
         public ActionResult DeleteRateLimiting(int id, int order)
@@ -211,7 +211,7 @@ namespace AttackPrevent.Controllers
                 LogTime = DateTime.UtcNow,
                 Detail = $"[Audit] {"DeleteRateLimit"} {JsonConvert.SerializeObject(item)}",
             });
-            return RedirectToAction("RateLimitingList");
+            return RedirectToAction("RateLimitingList", new { zoneId = item.ZoneId });
         }
 
         public ActionResult EditRateLimitingOrder(int id, int order, int actionb, string zoneId)
@@ -228,7 +228,7 @@ namespace AttackPrevent.Controllers
                 LogTime = DateTime.UtcNow,
                 Detail = $"[Audit] {"EditRateLimit order"} [{optionStr}] {JsonConvert.SerializeObject(item)}",
             });
-            return RedirectToAction("RateLimitingList");
+            return RedirectToAction("RateLimitingList", new { zoneId });
         }
 
         public ActionResult AuditLogs() 

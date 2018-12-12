@@ -115,7 +115,7 @@ namespace AttackPrevent.Business
         {
             StringBuilder mail = new StringBuilder();
             mail.AppendLine("<div>");
-            mail.AppendFormat("<p style=\"margin-left:10px; \">{0}</p>", zoneName);
+            mail.AppendFormat("<p style=\"margin-left:10px; \">zone:{0}</p>", zoneName);
             mail.AppendFormat("<table style=\"border: 1px solid #0094ff; width:98%; min-height: 25px; line-height: 25px; text-align: center; border-collapse: collapse; padding:2px; margin-left:10px;word-wrap:break-word; word-break:break-all;\">");
             mail.AppendFormat("<tr style=\"border: 1px solid #0094ff;\">");
             mail.AppendFormat("<th style=\"border: 1px solid #0094ff;width:7%;\">IP</th>");

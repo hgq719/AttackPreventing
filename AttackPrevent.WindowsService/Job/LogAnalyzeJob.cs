@@ -96,7 +96,7 @@ namespace AttackPrevent.WindowsService.Job
             }
             var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
             var ipWhiteList = cloudflare.GetIpWhitelist();
-            var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p=>p.OrderNo);
+            var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p=>p.OrderNo).ToList();
 
             foreach (var keyValuePair in timeStageList)
             {

@@ -133,7 +133,7 @@ namespace AttackPrevent.Access
                 string query = @"SELECT TOP(@limit) *
                             FROM 
                             (
-                                SELECT TOP(@arrange) ROW_NUMBER() OVER (ORDER BY CONVERT( DATETIME, Title) DESC ) AS RowNum, * 
+                                SELECT TOP(@arrange) ROW_NUMBER() OVER (ORDER BY CreatedTime DESC ) AS RowNum, * 
                                 FROM t_Action_Report 
                                 WHERE IP=@ip AND mode = 'WhiteList' AND CreatedTime >= @startTime AND CreatedTime <= @endTime
                             ) AS tempTable

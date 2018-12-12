@@ -136,8 +136,8 @@
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 Ip: '@ViewBag.Ip',
-                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddDays(-5)' : $("#txt-StartTime").val(),
-                endTime:  $("#txt-EndTime").val() === "" ? '@DateTime.UtcNow' : $("#txt-EndTime").val(),
+                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddDays(-4)' : $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val() === "" ? '@DateTime.UtcNow' : $("#txt-EndTime").val() + ' 23:59:59',
             };
             return temp;
         };
@@ -148,7 +148,7 @@
     $(document).ready(function () {
         oTable.Init();
 
-         $("#txt-StartTime").val('@DateTime.UtcNow.AddDays(-5).ToString("MM/dd/yyyy")');
+         $("#txt-StartTime").val('@DateTime.UtcNow.AddDays(-4).ToString("MM/dd/yyyy")');
         $("#txt-EndTime").val('@DateTime.UtcNow.ToString("MM/dd/yyyy")');        
     });
 
@@ -170,31 +170,7 @@
         $("body").mLoading({
             text: "Processing..."
         }, "show");
-
-        GetWhiteListDetail(limit, offset, startTime, endTime, ip, refresh);
     });
-
-    function GetWhiteListDetail(limit, offset, startTime, endTime, ip, callback) {
-        $.ajax({
-            type: "GET",
-            url: "/Home/GetWhiteListDetail?limit=" + limit + "&offset=" + offset + "&startTime=" + startTime + "&endTime=" + endTime + "&ip=" + ip,
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                var status = data.status;
-                if (status === "Processing") {
-                    GetWhiteListDetail(limit, offset, startTime, endTime, ip, callback);
-                } else {
-                    $("body").mLoading("hide");
-                    callback();
-                }
-            },
-            error: function (jqXHR) {
-                $("body").mLoading("hide");
-                console.log("Error: " + jqXHR.status);
-            }
-        });
-    }
 
     function refresh() {
         $('#table').bootstrapTable('refresh');

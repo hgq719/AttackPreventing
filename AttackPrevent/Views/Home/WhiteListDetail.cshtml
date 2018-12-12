@@ -136,7 +136,7 @@
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
                 Ip: '@ViewBag.Ip',
-                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddDays(-5)' : $("#txt-StartTime").val(),
+                startTime:  $("#txt-StartTime").val() === "" ? '@DateTime.UtcNow.AddMinutes(-5)' : $("#txt-StartTime").val(),
                 endTime:  $("#txt-EndTime").val() === "" ? '@DateTime.UtcNow' : $("#txt-EndTime").val(),
             };
             return temp;
@@ -147,6 +147,9 @@
     var oTable = new TableInit();
     $(document).ready(function () {
         oTable.Init();
+
+         $("#txt-StartTime").val('@DateTime.UtcNow.AddMinutes(-5).ToString("MM/dd/yyyy HH:mm")');
+        $("#txt-EndTime").val('@DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm")');        
     });
 
     $("#btn-query").click(function () {

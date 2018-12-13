@@ -96,7 +96,7 @@ namespace AttackPrevent.WindowsService.Job
             }
             var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
             var ipWhiteList = cloudflare.GetIpWhitelist();
-            var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId);
+            var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p=>p.OrderNo).ToList();
 
             foreach (var keyValuePair in timeStageList)
             {
@@ -219,11 +219,12 @@ namespace AttackPrevent.WindowsService.Job
 
                         // Ban Ip    
                         banIpLog = BanIpByRateHostConfiguration(zoneEntity, ifTestStage, cloudflare, timeStage, ipRequestRecord, currentHostConfigList);
+                     
                         if (!string.IsNullOrEmpty(banIpLog))
                         {
                             sbDetail.Append(banIpLog);
                         }
-
+                        
                         systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit, sbDetail.ToString()));
                     }
                 }
@@ -346,6 +347,7 @@ namespace AttackPrevent.WindowsService.Job
                                     sbDetail.Append($"IP [{rule.IP}] visited [{rateLimit.Url}] [{rule.RequestCount}] times, time range：[{timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]).<br />");
                                 }
                                 banIpLog = BanIpByRateLimitRule(zoneEntity, dtNow, ifTestStage, cloudflare, rateLimit, timeStage, rule);
+                                logs.RemoveAll(p => p.IP == rule.IP);
                                 if (!string.IsNullOrEmpty(banIpLog)) sbDetail.Append(banIpLog);
 
                                 systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.Audit, sbDetail.ToString()));

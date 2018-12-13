@@ -18,7 +18,7 @@
         <group>Group1</group>
         <job-name>GeneratedActiveReportJob</job-name>
         <job-group>Group1</job-group><!--0 0/5 8-16 * * ?|*/5 * * * * ?-->
-        <cron-expression>*/5 * * * * ?</cron-expression>
+        <cron-expression>0 0/5 8-16 * * ?</cron-expression>
       </cron>
     </trigger>
     <job>
@@ -35,7 +35,7 @@
         <group>Group1</group>
         <job-name>EmailSendJob</job-name>
         <job-group>Group1</job-group><!--0 0/15 9-18 * * ?|*/5 * * * * ?-->
-        <cron-expression>*/5 * * * * ?</cron-expression>
+        <cron-expression>0 0/15 1-11 * * ?</cron-expression>
       </cron>
     </trigger>
   </schedule>

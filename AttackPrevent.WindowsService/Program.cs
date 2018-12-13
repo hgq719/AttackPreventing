@@ -22,6 +22,11 @@ namespace AttackPrevent.WindowsService
 
         static void Main(string[] args)
         {
+            //var x = Math.Ceiling(1 / (float)2);
+
+            //var xx = DateTime.UtcNow;
+            //var xy = DateTime.Now;
+
             //配置log4
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
             //Test();

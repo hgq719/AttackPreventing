@@ -82,7 +82,7 @@ namespace AttackPrevent.Business
             }
             else
             {
-                result = sum / count;
+                result = (int)Math.Ceiling(sum / (float)count);
             }
             return result;
         }
@@ -98,7 +98,7 @@ namespace AttackPrevent.Business
             }
             else
             {
-                result = sum / count;
+                result = (int)Math.Ceiling(sum / (float)count);
             }
             return result;
         }

@@ -253,7 +253,10 @@ namespace AttackPrevent.Business
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
             }
-            
+
+            //为了防止异常导致之前已经存储进去的数据重复，先删除对应的数据
+            ActionReportBusiness.Delete(title);
+
             GeneratedActiveReport(title, zone, cloudflareLogs);
             GeneratedWhiteListReport(title, zone, cloudflareLogs);
         }

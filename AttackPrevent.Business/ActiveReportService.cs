@@ -253,7 +253,10 @@ namespace AttackPrevent.Business
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
             }
-            
+
+            //为了防止异常导致之前已经存储进去的数据重复，先删除对应的数据
+            ActionReportBusiness.Delete(title);
+
             GeneratedActiveReport(title, zone, cloudflareLogs);
             GeneratedWhiteListReport(title, zone, cloudflareLogs);
         }
@@ -356,13 +359,13 @@ namespace AttackPrevent.Business
                 List<string> urls = GetTop5Urls(cloudflareLogs, item.IP, item.HostName);
                 string urlsJson = JsonConvert.SerializeObject(urls);
 
-                int maxHistory = ActionReportBusiness.GetMaxForAction(zone.ZoneId, item.IP, item.HostName);
-                int minHistory = ActionReportBusiness.GetMinForAction(zone.ZoneId, item.IP, item.HostName);
-                int avgHistory = ActionReportBusiness.GetAvgForAction(zone.ZoneId, item.IP, item.HostName);
+                int? maxHistory = ActionReportBusiness.GetMaxForAction(zone.ZoneId, item.IP, item.HostName);
+                int? minHistory = ActionReportBusiness.GetMinForAction(zone.ZoneId, item.IP, item.HostName);
+                int? avgHistory = ActionReportBusiness.GetAvgForAction(zone.ZoneId, item.IP, item.HostName);
 
-                string maxDisplay = string.Format("{0}({1})", max, maxHistory > 0 ? maxHistory.ToString() : nothing);
-                string minDisplay = string.Format("{0}({1})", min, minHistory > 0 ? minHistory.ToString() : nothing);
-                string avgDisplay = string.Format("{0}({1})", avg, avgHistory > 0 ? avgHistory.ToString() : nothing);
+                string maxDisplay = string.Format("{0}({1})", max, maxHistory.HasValue ? maxHistory.Value.ToString() : nothing);
+                string minDisplay = string.Format("{0}({1})", min, minHistory.HasValue ? minHistory.Value.ToString() : nothing);
+                string avgDisplay = string.Format("{0}({1})", avg, avgHistory.HasValue ? avgHistory.Value.ToString() : nothing);
 
                 ActionReport report = new ActionReport
                 {
@@ -444,13 +447,13 @@ namespace AttackPrevent.Business
                 List<string> urls = GetTop5Urls(cloudflareLogs, item.IP, item.HostName);
                 string urlsJson = JsonConvert.SerializeObject(urls);
 
-                int maxHistory = ActionReportBusiness.GetMaxForWhiteList(zone.ZoneId, item.IP, item.HostName);
-                int minHistory = ActionReportBusiness.GetMinForWhiteList(zone.ZoneId, item.IP, item.HostName);
-                int avgHistory = ActionReportBusiness.GetAvgForWhiteList(zone.ZoneId, item.IP, item.HostName);
+                int? maxHistory = ActionReportBusiness.GetMaxForWhiteList(zone.ZoneId, item.IP, item.HostName);
+                int? minHistory = ActionReportBusiness.GetMinForWhiteList(zone.ZoneId, item.IP, item.HostName);
+                int? avgHistory = ActionReportBusiness.GetAvgForWhiteList(zone.ZoneId, item.IP, item.HostName);
 
-                string maxDisplay = string.Format("{0}({1})", max, maxHistory > 0 ? maxHistory.ToString() : nothing);
-                string minDisplay = string.Format("{0}({1})", min, minHistory > 0 ? minHistory.ToString() : nothing);
-                string avgDisplay = string.Format("{0}({1})", avg, avgHistory > 0 ? avgHistory.ToString() : nothing);
+                string maxDisplay = string.Format("{0}({1})", max, maxHistory.HasValue ? maxHistory.Value.ToString() : nothing);
+                string minDisplay = string.Format("{0}({1})", min, minHistory.HasValue ? minHistory.Value.ToString() : nothing);
+                string avgDisplay = string.Format("{0}({1})", avg, avgHistory.HasValue ? avgHistory.Value.ToString() : nothing);
 
                 ActionReport report = new ActionReport
                 {

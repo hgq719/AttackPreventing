@@ -173,15 +173,15 @@ namespace AttackPrevent.WindowsService
             List<Model.ActionReport> reportList = ActionReportBusiness.GetListByIp("xx.xx.xx.xx");
             actionReport = ActionReportBusiness.GetListByTitle("06/12/2018").FirstOrDefault();
             actionReport.Mode = "Action";
-            int maxWhiteList = ActionReportBusiness.GetMaxForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
-            int minWhiteList = ActionReportBusiness.GetMinForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
-            int avgWhiteList = ActionReportBusiness.GetAvgForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
+            int? maxWhiteList = ActionReportBusiness.GetMaxForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
+            int? minWhiteList = ActionReportBusiness.GetMinForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
+            int? avgWhiteList = ActionReportBusiness.GetAvgForWhiteList("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
             ActionReportBusiness.Edit(actionReport);
 
-            int maxAction = ActionReportBusiness.GetMaxForAction("2068c8964a4dcef78ee5103471a8db03","xx.xx.xx.xx", "comm100.com");
-            int minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
-            int avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
+            int? maxAction = ActionReportBusiness.GetMaxForAction("2068c8964a4dcef78ee5103471a8db03","xx.xx.xx.xx", "comm100.com");
+            int? minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
+            int? avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
             ActionReportBusiness.Delete("06/12/2018");
 

@@ -46,59 +46,58 @@ namespace AttackPrevent.Business
             ActionReportAccess.Delete(title);
         }
 
-        public static int GetMaxForAction(string zoneId, string ip, string hostName)
+        public static int? GetMaxForAction(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
             int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId &&  a.Mode == "Action"&& a.HostName==hostName)?.Max;
-            return result.HasValue ? result.Value : 0;
+            return result;
         }
-        public static int GetMaxForWhiteList(string zoneId, string ip, string hostName)
+        public static int? GetMaxForWhiteList(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
             int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName)?.Max;
-            return result.HasValue ? result.Value : 0;
+            return result;
         }
-        public static int GetMinForAction(string zoneId, string ip, string hostName)
+        public static int? GetMinForAction(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
             int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName)?.Min;
-            return result.HasValue ? result.Value : 0;
+            return result;
         }
-        public static int GetMinForWhiteList(string zoneId, string ip, string hostName)
+        public static int? GetMinForWhiteList(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
             int? result = actionReports.OrderBy(a => a.Min).FirstOrDefault(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName)?.Min;
-            return result.HasValue ? result.Value : 0;
+            return result;
         }
-        public static int GetAvgForAction(string zoneId, string ip, string hostName)
+        public static int? GetAvgForAction(string zoneId, string ip, string hostName)
         {
-            int result = -1;
+            int? result = null;
             List<ActionReport> actionReports = GetListByIp(ip);
             int sum = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName).Sum(a => a.Avg);
             int count = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "Action" && a.HostName == hostName).Count();
             if(count == 0)
             {
-                result = 0;
             }
             else
             {
-                result = sum / count;
+                result = (int)Math.Ceiling(sum / (float)count);
             }
             return result;
         }
-        public static int GetAvgForWhiteList(string zoneId, string ip, string hostName)
+        public static int? GetAvgForWhiteList(string zoneId, string ip, string hostName)
         {
-            int result = -1;
+            int? result = null;
             List<ActionReport> actionReports = GetListByIp(ip);
             int sum = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName).Sum(a => a.Avg);
             int count = actionReports.Where(a => a.ZoneId == zoneId && a.Mode == "WhiteList" && a.HostName == hostName).Count();
             if (count == 0)
             {
-                result = 0;
+             
             }
             else
             {
-                result = sum / count;
+                result = (int)Math.Ceiling(sum / (float)count);
             }
             return result;
         }

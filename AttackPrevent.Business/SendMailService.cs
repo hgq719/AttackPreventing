@@ -100,7 +100,7 @@ namespace AttackPrevent.Business
                 mail.AppendLine("<div id=\"mail\">");
                 List<ActionReport> actionReports = ActionReportBusiness.GetListByTitle(title);
 
-                List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable && a.IfAttacking).ToList();
+                List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable).ToList();
                 foreach (ZoneEntity zone in zoneEntities)
                 {
                     List<ActionReport> subActionReports = actionReports.Where(a => a.ZoneId == zone.ZoneId).ToList();

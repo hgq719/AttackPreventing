@@ -217,6 +217,14 @@ namespace AttackPrevent.Business
         {
             string title = date.ToString("MM/dd/yyyy");
             string zoneId = zone.ZoneId;
+
+            var list = ActionReportBusiness.GetListByTitle(title);
+            if (list != null && list.Count(a => a.ZoneId == zoneId) > 0)
+            {
+                //如果本时段的数据已经存在则不必重复生成
+                return;
+            }
+
             //24个小时，取第一分钟的数据
             List<List<CloudflareLog>> cloudflareLogs = new List<List<CloudflareLog>>();
 
@@ -255,7 +263,7 @@ namespace AttackPrevent.Business
             }
 
             //为了防止异常导致之前已经存储进去的数据重复，先删除对应的数据
-            ActionReportBusiness.Delete(title);
+            ActionReportBusiness.Delete(zoneId, title);
 
             GeneratedActiveReport(title, zone, cloudflareLogs);
             GeneratedWhiteListReport(title, zone, cloudflareLogs);

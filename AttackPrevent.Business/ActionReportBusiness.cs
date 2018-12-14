@@ -45,6 +45,10 @@ namespace AttackPrevent.Business
         {
             ActionReportAccess.Delete(title);
         }
+        public static void Delete(string zoneId, string title)
+        {
+            ActionReportAccess.Delete(zoneId,title);
+        }
 
         public static int? GetMaxForAction(string zoneId, string ip, string hostName)
         {

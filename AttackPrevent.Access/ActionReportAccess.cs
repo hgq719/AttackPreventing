@@ -333,5 +333,24 @@ namespace AttackPrevent.Access
             }
         }
 
+        public static void Delete(string zoneId, string title)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            StringBuilder query = new StringBuilder(@"DELETE dbo.t_Action_Report 
+                                                      WHERE ZoneId=@zoneId AND Title=@title");
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+
+                SqlCommand cmd = new SqlCommand(query.ToString(), conn);
+                cmd.Parameters.AddWithValue("@title", title);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                conn.Open();
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }

@@ -145,6 +145,17 @@ namespace AttackPrevent.WindowsService
         public static void Test()
         {
             // Test
+            DateTime startTime = new DateTime(2018, 12, 14, 0, 0, 0);
+            DateTime endTime = new DateTime(2018, 12, 14, 0, 1, 0);
+            double sample = 0.01d;
+            string zoneId = "2068c8964a4dcef78ee5103471a8db03";
+            string authEmail = "cloudflareapidep@comm100.com";
+            string authKey = "Bh4yzL0DRq5WFhawU3FmdD6OjQ5DLY5tmg3gSbLJDObu8rGR4yKvvngn8pGDhn2d";
+            string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+            ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+            cloudflareLogHandleSercie.TaskStart();
+            var logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+
             List<string> urls = new List<string>() {
                 "ent.comm100.com/LiveChathandler3.ashx?siteId=1000234 (Avg: 954)",
                 "ent.comm100.com/FileUploadHandler.ashx?siteId=1000234 (Avg: 634)",

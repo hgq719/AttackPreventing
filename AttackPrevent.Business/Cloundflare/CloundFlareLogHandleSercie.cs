@@ -30,7 +30,7 @@ namespace AttackPrevent.Business
         private int timeSpan = 20;
         private DateTime startTime;
         private DateTime endTime;
-        private int taskCount = 1;
+        private int taskCount = 2;
         private string zoneId;
         private string authEmail;
         private string authKey;
@@ -111,14 +111,14 @@ namespace AttackPrevent.Business
                             cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
                         }
 
-                        if (cloudflareLogs != null && cloudflareLogs.Count > 0)
+                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                        if (!dicCloudflareLogs.Keys.Contains(key))
                         {
-                            string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample,zoneId);
-                            if (!dicCloudflareLogs.Keys.Contains(key))
-                            {
-                                dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
-                            }
+                            dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
+                        }
 
+                        if (cloudflareLogs != null && cloudflareLogs.Count > 0)
+                        {                            
                             dicCloudflareLogs[key].AddRange(cloudflareLogs);
                         }
 

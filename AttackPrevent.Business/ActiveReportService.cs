@@ -173,6 +173,14 @@ namespace AttackPrevent.Business
         {
             string title = date.ToString("MM/dd/yyyy HH");
             string zoneId = zone.ZoneId;
+
+            var list = ActionReportBusiness.GetListByTitle(title);
+            if (list != null && list.Count(a => a.ZoneId == zoneId) > 0)
+            {
+                //如果本时段的数据已经存在则不必重复生成
+                return;
+            }
+
             //24个小时，取第一分钟的数据
             List<List<CloudflareLog>> cloudflareLogs = new List<List<CloudflareLog>>();
 
@@ -180,35 +188,24 @@ namespace AttackPrevent.Business
             {
                 double sample = 1;
                 DateTime startTime = Convert.ToDateTime(date.ToString(string.Format("yyyy-MM-dd HH:{0}:00", i.ToString("00"))));
-                DateTime endTime = Convert.ToDateTime(date.ToString(string.Format("yyyy-MM-dd HH:{0}:00", (i+1).ToString("00"))));
+                DateTime endTime = Convert.ToDateTime(date.ToString(string.Format("yyyy-MM-dd HH:{0}:00", (i + 1).ToString("00"))));
                 string authEmail = zone.AuthEmail;
                 string authKey = zone.AuthKey;
                 string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
                 List<CloudflareLog> logs = new List<CloudflareLog>();
-                //if (isDebug)
-                //{
-                //    //logs.Add(new CloudflareLog {
-                //    //    ClientIP="xxxxx",
-                //    //    ClientRequestHost="aaaa",
-                //    //});
-                //    //logService.Debug(JsonConvert.SerializeObject(logs));
-                //    //string xx = Utils.GetFileContext("Logs_20181207.txt");
-                //    //string jf = xx.Substring(xx.IndexOf("[{"));
-                //    string log = Utils.GetFileContext("logs-debug.txt");
-                //    logs = JsonConvert.DeserializeObject<List<CloudflareLog>>(log.Substring(log.IndexOf("[{")));
-                //}
-                //else
-                //{
-                    ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
-                    cloudflareLogHandleSercie.TaskStart();
-                    logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
-                        .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
-                //}
+
+                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                cloudflareLogHandleSercie.TaskStart();
+                logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
+                    .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
 
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
             }
+
+            //为了防止异常导致之前已经存储进去的数据重复，先删除对应的数据
+            ActionReportBusiness.Delete(zoneId, title);
 
             GeneratedActiveReport(title, zone, cloudflareLogs);
             GeneratedWhiteListReport(title, zone, cloudflareLogs);
@@ -238,26 +235,12 @@ namespace AttackPrevent.Business
                 string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
                 List<CloudflareLog> logs = new List<CloudflareLog>();
-                if (isDebug)
-                {
-                    //logs.Add(new CloudflareLog {
-                    //    ClientIP="xxxxx",
-                    //    ClientRequestHost="aaaa",
-                    //});
-                    //logService.Debug(JsonConvert.SerializeObject(logs));
-                    //string xx = Utils.GetFileContext("Logs_20181207.txt");
-                    //string jf = xx.Substring(xx.IndexOf("[{"));
-                    string log = Utils.GetFileContext("logs-debug.txt");
-                    logs = JsonConvert.DeserializeObject<List<CloudflareLog>>(log.Substring(log.IndexOf("[{")));
-                }
-                else
-                {
-                    ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
-                    cloudflareLogHandleSercie.TaskStart();
-                    logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
-                        .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
-                }            
-                
+
+                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                cloudflareLogHandleSercie.TaskStart();
+                logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
+                    .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
+
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
             }

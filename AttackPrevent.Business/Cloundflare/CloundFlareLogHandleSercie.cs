@@ -30,7 +30,7 @@ namespace AttackPrevent.Business
         private int timeSpan = 20;
         private DateTime startTime;
         private DateTime endTime;
-        private int taskCount = 2;
+        private int taskCount = 1;
         private string zoneId;
         private string authEmail;
         private string authKey;
@@ -78,39 +78,48 @@ namespace AttackPrevent.Business
         {
             while (true)
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
                 KeyValuePair<DateTime, DateTime> keyValuePair = default(KeyValuePair<DateTime, DateTime>);
-                if (keyValuePairs.TryDequeue(out keyValuePair))
+                try
                 {
-                    DateTime start = keyValuePair.Key;
-                    DateTime end = keyValuePair.Value;
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
 
-                    string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
-                    bool retry = false;
-                    List<CloudflareLog> cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
-                    while (retry == true)
+                    if (keyValuePairs.TryDequeue(out keyValuePair))
                     {
-                        cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
-                    }
+                        DateTime start = keyValuePair.Key;
+                        DateTime end = keyValuePair.Value;
 
-                    string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
-                    if (!dicCloudflareLogs.Keys.Contains(key))
+                        string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
+                        bool retry = false;
+                        List<CloudflareLog> cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
+                        while (retry == true)
+                        {
+                            cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
+                        }
+
+                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                        if (!dicCloudflareLogs.Keys.Contains(key))
+                        {
+                            dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
+                        }
+
+                        if (cloudflareLogs != null && cloudflareLogs.Count > 0)
+                        {
+                            dicCloudflareLogs[key].AddRange(cloudflareLogs);
+                        }
+
+                        stopwatch.Stop();
+
+                    }
+                    else
                     {
-                        dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
+                        break;
                     }
-
-                    if (cloudflareLogs != null && cloudflareLogs.Count > 0)
-                    {
-                        dicCloudflareLogs[key].AddRange(cloudflareLogs);
-                    }
-
-                    stopwatch.Stop();
-
                 }
-                else
+                catch (Exception e)
                 {
-                    break;
+                    logService.Error(e.StackTrace);
+                    keyValuePairs.Enqueue(keyValuePair); //异常重新入队列
                 }
             }
 

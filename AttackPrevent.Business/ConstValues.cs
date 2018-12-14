@@ -58,8 +58,7 @@ namespace AttackPrevent.Business
                 emailtimeout = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerTimeout"]);
                 emailport = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
                 emailauthentication = Convert.ToBoolean(ConfigurationManager.AppSettings["MailServerIfAuthentication"]);
-
-                emailfrom = emailusername;
+                emailfrom = ConfigurationManager.AppSettings["MailServereFrom"];
             }
             catch(Exception e)
             {

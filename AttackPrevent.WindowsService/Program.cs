@@ -23,6 +23,7 @@ namespace AttackPrevent.WindowsService
         static void Main(string[] args)
         {
             //配置log4
+            var en = Utils.AesEncrypt("Aa00000000");
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
             //Test();
             RunProgram().GetAwaiter().GetResult();
@@ -145,16 +146,16 @@ namespace AttackPrevent.WindowsService
         public static void Test()
         {
             // Test
-            DateTime startTime = new DateTime(2018, 12, 14, 0, 0, 0);
-            DateTime endTime = new DateTime(2018, 12, 14, 0, 1, 0);
-            double sample = 0.01d;
-            string zoneId = "2068c8964a4dcef78ee5103471a8db03";
-            string authEmail = "cloudflareapidep@comm100.com";
-            string authKey = "Bh4yzL0DRq5WFhawU3FmdD6OjQ5DLY5tmg3gSbLJDObu8rGR4yKvvngn8pGDhn2d";
-            string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
-            ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
-            cloudflareLogHandleSercie.TaskStart();
-            var logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
+            //DateTime startTime = new DateTime(2018, 12, 14, 0, 0, 0);
+            //DateTime endTime = new DateTime(2018, 12, 14, 0, 1, 0);
+            //double sample = 0.01d;
+            //string zoneId = "2068c8964a4dcef78ee5103471a8db03";
+            //string authEmail = "cloudflareapidep@comm100.com";
+            //string authKey = "Bh4yzL0DRq5WFhawU3FmdD6OjQ5DLY5tmg3gSbLJDObu8rGR4yKvvngn8pGDhn2d";
+            //string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+            //ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+            //cloudflareLogHandleSercie.TaskStart();
+            //var logs = cloudflareLogHandleSercie.GetCloudflareLogs(key);
 
             List<string> urls = new List<string>() {
                 "ent.comm100.com/LiveChathandler3.ashx?siteId=1000234 (Avg: 954)",
@@ -194,7 +195,7 @@ namespace AttackPrevent.WindowsService
             int? minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
             int? avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
-            ActionReportBusiness.Delete("06/12/2018");
+            //ActionReportBusiness.Delete("06/12/2018");
 
             Model.SmtpQueue smtpQueue = new Model.SmtpQueue
             {
@@ -209,10 +210,10 @@ namespace AttackPrevent.WindowsService
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
             SmtpQueueBusiness.Edit(smtpQueue);
-            SmtpQueueBusiness.Delete("06/12/2018");
+            //SmtpQueueBusiness.Delete("06/12/2018");
 
-            IActiveReportService activeReportService = ActiveReportService.GetInstance();
-            activeReportService.GeneratedActiveReport();
+            //IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            //activeReportService.GeneratedActiveReport();
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();

@@ -2,9 +2,6 @@
 using AttackPrevent.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
@@ -24,23 +21,23 @@ namespace AttackPrevent.Business
             }
         }
 
-        public static bool Add(BanIpHistory banIPHistory)
+        public static bool Add(BanIpHistory banIpHistory)
         {
             try
             {
-                var banIpHistories = BanIpHistoryAccess.Get(banIPHistory.ZoneId, banIPHistory.IP);
+                var banIpHistories = BanIpHistoryAccess.Get(banIpHistory.ZoneId, banIpHistory.IP);
                 if (null != banIpHistories && banIpHistories.Count > 0)
                 {
-                    return BanIpHistoryAccess.Update(banIPHistory);
+                    return BanIpHistoryAccess.Update(banIpHistory);
                 }
                 else
                 {
-                    return BanIpHistoryAccess.Add(banIPHistory);
+                    return BanIpHistoryAccess.Add(banIpHistory);
                 }
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(banIPHistory.ZoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(banIpHistory.ZoneId, LogLevel.Error,
                     $"Add ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return false;
             }
@@ -60,9 +57,9 @@ namespace AttackPrevent.Business
             }
         }
 
-        public static void AddList(List<BanIpHistory> banIPHistory)
+        public static void AddList(List<BanIpHistory> banIpHistory)
         {
-            BanIpHistoryAccess.Add(banIPHistory);
+            BanIpHistoryAccess.Add(banIpHistory);
         }
     }
 }

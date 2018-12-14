@@ -16,7 +16,9 @@ namespace AttackPrevent.Access
             var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             using (var conn = new SqlConnection(cons))
             {
-                var sbSql = new StringBuilder("SELECT [ID], [ZoneId], [IP], [LatestTriggerTime], [RuleId], [Remark] FROM T_Ban_IP_History WHERE ZoneId = @ZoneId");
+                var sbSql = new StringBuilder(@"SELECT [ID], [ZoneId], [IP], [LatestTriggerTime], [RuleId], [Remark] 
+                                                FROM T_Ban_IP_History WITH(NOLOCK) 
+                                                WHERE ZoneId = @ZoneId");
 
                 var cmd = new SqlCommand();
                 cmd.Parameters.AddWithValue("@ZoneId", zoneId);
@@ -51,7 +53,7 @@ namespace AttackPrevent.Access
 
         }
 
-        public static bool Add(BanIpHistory banIPHistory)
+        public static bool Add(BanIpHistory banIpHistory)
         {
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
@@ -72,17 +74,17 @@ namespace AttackPrevent.Access
             {
 
                 var cmd = new SqlCommand(strSql, conn);
-                cmd.Parameters.AddWithValue("@ZoneId", banIPHistory.ZoneId);
-                cmd.Parameters.AddWithValue("@IP", banIPHistory.IP);
-                cmd.Parameters.AddWithValue("@RuleId", banIPHistory.RuleId);
-                cmd.Parameters.AddWithValue("@Remark", banIPHistory.Remark);
+                cmd.Parameters.AddWithValue("@ZoneId", banIpHistory.ZoneId);
+                cmd.Parameters.AddWithValue("@IP", banIpHistory.IP);
+                cmd.Parameters.AddWithValue("@RuleId", banIpHistory.RuleId);
+                cmd.Parameters.AddWithValue("@Remark", banIpHistory.Remark);
                 conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
 
-        public static bool Update(BanIpHistory banIPHistory)
+        public static bool Update(BanIpHistory banIpHistory)
         {
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
@@ -96,10 +98,10 @@ namespace AttackPrevent.Access
             {
 
                 var cmd = new SqlCommand(strSql, conn);
-                cmd.Parameters.AddWithValue("@ZoneId", banIPHistory.ZoneId);
-                cmd.Parameters.AddWithValue("@IP", banIPHistory.IP);
-                cmd.Parameters.AddWithValue("@RuleId", banIPHistory.RuleId);
-                cmd.Parameters.AddWithValue("@Remark", banIPHistory.Remark);
+                cmd.Parameters.AddWithValue("@ZoneId", banIpHistory.ZoneId);
+                cmd.Parameters.AddWithValue("@IP", banIpHistory.IP);
+                cmd.Parameters.AddWithValue("@RuleId", banIpHistory.RuleId);
+                cmd.Parameters.AddWithValue("@Remark", banIpHistory.Remark);
                 conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;

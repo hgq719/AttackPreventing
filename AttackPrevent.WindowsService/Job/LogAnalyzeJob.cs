@@ -49,7 +49,7 @@ namespace AttackPrevent.WindowsService.Job
             _hostConfigList = HostConfigurationBusiness.GetList();
 
             var zoneList = ZoneBusiness.GetAllList();
-            if (null == zoneList || zoneList.Count <= 0) return Task.FromResult(0);
+            if (zoneList.Count <= 0) return Task.FromResult(0);
 
             var waits = new List<EventWaitHandle>();
             var manualEvents =
@@ -60,8 +60,12 @@ namespace AttackPrevent.WindowsService.Job
             {
                 try
                 {
-                    zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
-                    tasks.Add(Task.Run(() => StartAnalyze(zoneEntity)));
+                    var rateLimitingCount = RateLimitBusiness.GetList(zoneEntity.ZoneId).Count();
+                    if (zoneEntity.IfEnable || rateLimitingCount > 0)
+                    {
+                        zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
+                        tasks.Add(Task.Run(() => StartAnalyze(zoneEntity)));
+                    }
                 }
                 catch (Exception ex)
                 {

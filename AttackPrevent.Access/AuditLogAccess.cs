@@ -18,7 +18,7 @@ namespace AttackPrevent.Access
                                                    LogTime, 
                                                    LogOperator, 
                                                    Detail 
-                                            FROM t_Logs");
+                                            FROM t_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();
             where.Append(" ZoneId=@zoneID AND ");
             if (startTime.HasValue)
@@ -55,6 +55,7 @@ namespace AttackPrevent.Access
             {
                 
                 var cmd = new SqlCommand(query.ToString(), conn);
+                cmd.CommandTimeout = 2 * 60;
                 cmd.Parameters.AddWithValue("@zoneID", zoneId);             
                 if (startTime.HasValue)
                 {

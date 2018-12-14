@@ -23,10 +23,9 @@ namespace AttackPrevent.WindowsService
         static void Main(string[] args)
         {
             //配置log4
-            var en = Utils.AesEncrypt("Aa00000000");
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
             //Test();
-            RunProgram().GetAwaiter().GetResult();
+            //RunProgram().GetAwaiter().GetResult();
             //Console.ReadKey();
 
             while (true)

@@ -103,7 +103,7 @@ namespace AttackPrevent.Business
                 }
                 else
                 {
-                    DateTime lastDate = DateTime.Parse(lastTitle + ":00:00");
+                    DateTime lastDate = DateTime.Parse(lastTitle.Contains(" ") ? lastTitle + ":00:00" : lastTitle);
                     date = lastDate.AddHours(1);
                     title = date.ToString("MM/dd/yyyy HH");
                 }
@@ -470,11 +470,13 @@ namespace AttackPrevent.Business
 
         private bool IfInSuffixList(string requestUrl)
         {
-            foreach (var suffix in _suffixList)
+            if (!string.IsNullOrEmpty(requestUrl))
             {
-                if (requestUrl.ToLower().EndsWith($".{suffix}"))
+                if(_suffixList.Any(a=> requestUrl.ToLower().EndsWith($".{a}")))
+                {
                     return true;
-            }
+                }               
+            }          
 
             return false;
         }

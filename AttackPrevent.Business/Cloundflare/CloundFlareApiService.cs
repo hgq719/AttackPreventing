@@ -86,7 +86,7 @@ namespace AttackPrevent.Business
             //解密
             var authKeyDecrypt = Utils.AesDecrypt(authKey);
             string content = HttpGet(authEmail, authKeyDecrypt, url, 1200);
-            if (content.Contains("\"}"))
+            if (content.Contains("\"}") && !content.Contains("{\"success\":false"))
             {
                 content = content.Replace("\"}", "\"},");
                 CloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>(string.Format("[{0}]", content));

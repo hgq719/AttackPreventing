@@ -34,7 +34,7 @@ namespace AttackPrevent.WindowsService.SysConfig
             {
                 while (true)
                 {
-                    new LogAnalyzeJob().Execute(null);
+                    new LogAnalyzeJob().Execute();
                     Thread.Sleep(5000);
                     //var thread = new Thread();
                     //thread.Start(new LogAnalyzeJob().Execute(null));

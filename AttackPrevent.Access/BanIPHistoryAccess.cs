@@ -167,6 +167,7 @@ namespace AttackPrevent.Access
         public static void Add(List<BanIpHistory> banIpHistories)
         {
             var zoneId = banIpHistories[0].ZoneId;
+            var zoneTableId = ZoneAccess.GetZoneByZoneId(zoneId).TableID;
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (var conn = new SqlConnection(connStr))
@@ -185,7 +186,7 @@ namespace AttackPrevent.Access
                 catch (Exception ex)
                 {
                     tran.Rollback();
-                    AuditLogAccess.Add(new AuditLogEntity(zoneId, LogLevel.Error, $"Error when adding ban ip history, \n eror message:{ex.Message} \n stack trace:{ex.StackTrace}"));
+                    AuditLogAccess.Add(new AuditLogEntity(zoneTableId, LogLevel.Error, $"Error when adding ban ip history, \n eror message:{ex.Message} \n stack trace:{ex.StackTrace}"));
                 }
                 finally
                 {

@@ -19,19 +19,26 @@ namespace AttackPrevent.Business
 
         public static List<SelectListItem> GetZoneSelectList()
         {
-            //Code review By Michael 不要的代码就都删掉吧.
-            //List<SelectListItem> zonelist = new List<SelectListItem>() {
-            //    new SelectListItem() {Value="111",Text="ent.comm100.com"},
-            //    new SelectListItem() {Value="222",Text="hosted.comm100.com"},
-            //    new SelectListItem() {Value="333",Text="app.comm100.com"},
-            //};
-
             List<SelectListItem> zonelist = new List<SelectListItem>();
             List<ZoneEntity> alllist = GetAllList();
 
             alllist.ForEach(item =>
             {
                 zonelist.Add(new SelectListItem() { Value = item.ZoneId, Text = item.ZoneName });
+            });
+
+
+            return zonelist;
+        }
+
+        public static List<SelectListItem> GetZoneSelectListForAuditLog()
+        {
+            List<SelectListItem> zonelist = new List<SelectListItem>();
+            List<ZoneEntity> alllist = GetAllList();
+
+            alllist.ForEach(item =>
+            {
+                zonelist.Add(new SelectListItem() { Value = item.TableID.ToString(), Text = item.ZoneName });
             });
 
 
@@ -84,6 +91,11 @@ namespace AttackPrevent.Business
         public static ZoneEntity GetZone(string zoneID, string zoneName)
         {
             return ZoneAccess.GetZone(zoneID, zoneName);
+        }
+
+        public static ZoneEntity GetZoneByZoneId(string zoneID)
+        {
+            return ZoneAccess.GetZoneByZoneId(zoneID);
         }
 
         public static bool UpdateAttackFlag(bool ifAttacking, string zoneId)

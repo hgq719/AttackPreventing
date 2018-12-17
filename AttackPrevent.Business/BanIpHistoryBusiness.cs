@@ -15,7 +15,8 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(zoneId, LogLevel.Error,
+                var zoneTableId = ZoneAccess.GetZoneByZoneId(zoneId).TableID;
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"Get ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return new List<BanIpHistory>();
             }
@@ -37,7 +38,8 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(banIpHistory.ZoneId, LogLevel.Error,
+                var zoneTableId = ZoneAccess.GetZoneByZoneId(banIpHistory.ZoneId).TableID;
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"Add ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return false;
             }
@@ -51,7 +53,8 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(zoneId, LogLevel.Error,
+                var zoneTableId = ZoneAccess.GetZoneByZoneId(zoneId).TableID;
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"delete ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return false;
             }

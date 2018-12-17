@@ -10,8 +10,9 @@ namespace AttackPrevent.Access
 {
     public class AuditLogAccess
     {
-        public static List<AuditLogEntity> GetList(string zoneId, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        public static List<AuditLogEntity> GetList(int zoneTableId, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {
+
             var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             var result = new List<AuditLogEntity>();
             var query = new StringBuilder(@"SELECT LogLevel, 
@@ -20,7 +21,7 @@ namespace AttackPrevent.Access
                                                    Detail 
                                             FROM t_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();
-            where.Append(" ZoneId=@zoneID AND ");
+            
             if (startTime.HasValue)
             {
                 where.Append(" LogTime >= @startTime AND ");
@@ -29,6 +30,7 @@ namespace AttackPrevent.Access
             {
                 where.Append(" LogTime <= @endTime AND ");
             }
+            where.Append(" ZoneTableId=@zoneTableId AND ");
             if (!string.IsNullOrWhiteSpace(logType))
             {
                 where.Append(" LogLevel IN (");
@@ -56,7 +58,7 @@ namespace AttackPrevent.Access
                 
                 var cmd = new SqlCommand(query.ToString(), conn);
                 cmd.CommandTimeout = 2 * 60;
-                cmd.Parameters.AddWithValue("@zoneID", zoneId);             
+                cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);             
                 if (startTime.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@startTime", startTime.Value);
@@ -88,7 +90,7 @@ namespace AttackPrevent.Access
                         var item = new AuditLogEntity
                         {
                             ID = index++,
-                            LogType = Convert.ToString(reader["LogLevel"]),
+                            LogType = (LogLevel)Convert.ToInt32(reader["LogLevel"]),
                             LogTime = Convert.ToDateTime(reader["LogTime"]),
                             LogOperator = Convert.ToString(reader["LogOperator"]),
                             Detail = Convert.ToString(reader["Detail"])
@@ -103,6 +105,7 @@ namespace AttackPrevent.Access
 
         public static void Add(AuditLogEntity item)
         {
+            int zoneTableId = ZoneAccess.GetZoneByZoneId(item.ZoneID).TableID;
             try
             {
                 var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
@@ -110,7 +113,7 @@ namespace AttackPrevent.Access
                 using (var conn = new SqlConnection(cons))
                 {
                     const string query = @"INSERT INTO dbo.t_Logs
-                                ( ZoneId ,
+                                ( ZoneTableId ,
                                   LogLevel ,
                                   LogTime ,
                                   LogOperator ,
@@ -118,7 +121,7 @@ namespace AttackPrevent.Access
                                   Detail ,
                                   Remark
                                 )
-                        VALUES  ( @zoneID , 
+                        VALUES  ( @zoneTableId , 
                                   @logLevel ,
                                   @logTime ,
                                   @operator , 
@@ -127,7 +130,7 @@ namespace AttackPrevent.Access
                                   N''
                                 )";
                     var cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@zoneID", item.ZoneID);
+                    cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);
                     cmd.Parameters.AddWithValue("@logLevel", item.LogType);
                     cmd.Parameters.AddWithValue("@operator", item.LogOperator);
                     cmd.Parameters.AddWithValue("@logTime", item.LogTime);
@@ -164,7 +167,7 @@ namespace AttackPrevent.Access
         private static void Add(AuditLogEntity log, SqlTransaction trans, SqlConnection conn)
         {
             const string insertSql = @"INSERT INTO dbo.t_Logs
-                                ( ZoneId ,
+                                ( ZoneTableId ,
                                   LogLevel ,
                                   LogTime ,
                                   LogOperator ,
@@ -172,7 +175,7 @@ namespace AttackPrevent.Access
                                   Detail ,
                                   Remark
                                 )
-                        VALUES  ( @zoneID ,
+                        VALUES  ( @zoneTableId ,
                                   @logLevel ,
                                   @logTime ,
                                   @operator ,
@@ -181,7 +184,7 @@ namespace AttackPrevent.Access
                                   N''
                                 )";
             var cmd = new SqlCommand(insertSql, conn, trans);
-            cmd.Parameters.AddWithValue("@zoneID", log.ZoneID);
+            cmd.Parameters.AddWithValue("@zoneTableId", log.ZoneTableID);
             cmd.Parameters.AddWithValue("@logLevel", log.LogType);
             cmd.Parameters.AddWithValue("@operator", log.LogOperator);
             cmd.Parameters.AddWithValue("@logTime", log.LogTime);
@@ -193,7 +196,7 @@ namespace AttackPrevent.Access
 
         public static void Add(List<AuditLogEntity> logs)
         {
-            var zoneId = logs[0].ZoneID;
+            var zoneId = logs[0].ZoneTableID;
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (var conn = new SqlConnection(connStr))

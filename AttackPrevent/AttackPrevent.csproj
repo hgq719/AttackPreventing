@@ -17,10 +17,14 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort>44301</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
-    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
+    <IISExpressSSLPort>
+    </IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>
+    </IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>
+    </IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>
+    </IISExpressUseClassicPipelineMode>
     <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <Use64BitIISExpress />
     <UseGlobalApplicationHostFile />
@@ -150,6 +154,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AuditLogController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HostConfigurationController.cs" />
     <Compile Include="Controllers\ImageController.cs" />
@@ -239,7 +244,7 @@
     <Content Include="Views\Home\WhiteList.cshtml" />
     <Content Include="Views\Home\BlackList.cshtml" />
     <Content Include="Views\Home\RateLimitingList.cshtml" />
-    <Content Include="Views\Home\AuditLogs.cshtml" />
+    <Content Include="Views\AuditLog\AuditLogs.cshtml" />
     <Content Include="Views\Home\AddWhiteList.cshtml" />
     <Content Include="Views\Home\AddBlackList.cshtml" />
     <Content Include="Views\Home\AddRateLimiting.cshtml" />

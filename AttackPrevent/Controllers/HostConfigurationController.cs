@@ -65,7 +65,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = string.Empty,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -124,7 +124,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = string.Empty,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,

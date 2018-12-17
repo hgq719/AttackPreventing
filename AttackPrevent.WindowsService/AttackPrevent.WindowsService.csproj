@@ -108,6 +108,7 @@
     <Compile Include="Job\EmailSendJob.cs" />
     <Compile Include="Job\LogAnalyzeJob.cs" />
     <Compile Include="SysConfig\WindowsServiceInstaller.cs" />
+    <Compile Include="ZoneLocker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

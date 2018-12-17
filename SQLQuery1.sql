@@ -1,1 +1,8 @@
-﻿delete from t_logs
+﻿select * from t_logs;
+
+DELETE FROM T_LOGS;
+
+SELECT * FROM T_ZONE_INFO
+
+DELETE FROM T_ZONE_INFO
+WHERE ID =20;

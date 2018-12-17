@@ -9,8 +9,8 @@ namespace AttackPrevent.Model
     public class AuditLogEntity
     {
         public int ID { get; set; }
-        public string ZoneID { get; set; }
-        public string LogType { get; set; }
+        public int ZoneTableID { get; set; }
+        public LogLevel LogType { get; set; }
         public DateTime LogTime { get; set; }
         public string LogOperator { get; set; }
         public string Detail { get; set; }
@@ -19,10 +19,10 @@ namespace AttackPrevent.Model
 
         public AuditLogEntity() { }
 
-        public AuditLogEntity(string zoneId, LogLevel logType, string detail)
+        public AuditLogEntity(int zoneTableId, LogLevel logType, string detail)
         {
-            ZoneID = zoneId;
-            LogType = logType.ToString();
+            ZoneTableID = zoneTableId;
+            LogType = logType;
             LogTime = DateTime.UtcNow;
             Detail = $"[{LogType}] {LogTime:MM/dd/yyyy HH:mm:ss fff} {detail}";
             IP = "127.0.0.1";

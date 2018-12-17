@@ -31,7 +31,7 @@ namespace AttackPrevent.Business
 
             alllist.ForEach(item =>
             {
-                zonelist.Add(new SelectListItem() { Value = item.ZoneId, Text = item.ZoneName });
+                zonelist.Add(new SelectListItem() { Value = item.TableID.ToString(), Text = item.ZoneName });
             });
 
 
@@ -63,10 +63,10 @@ namespace AttackPrevent.Business
             return new { total, rows };
         }
 
-        public static void Add(ZoneEntity item)
+        public static int Add(ZoneEntity item)
         {
 
-            ZoneAccess.Add(item);
+            return ZoneAccess.Add(item);
 
         }
 

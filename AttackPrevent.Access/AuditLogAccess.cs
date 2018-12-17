@@ -88,7 +88,7 @@ namespace AttackPrevent.Access
                         var item = new AuditLogEntity
                         {
                             ID = index++,
-                            LogType = Convert.ToString(reader["LogLevel"]),
+                            LogType = (LogLevel)Convert.ToInt32(reader["LogLevel"]),
                             LogTime = Convert.ToDateTime(reader["LogTime"]),
                             LogOperator = Convert.ToString(reader["LogOperator"]),
                             Detail = Convert.ToString(reader["Detail"])
@@ -127,7 +127,7 @@ namespace AttackPrevent.Access
                                   N''
                                 )";
                     var cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@zoneID", item.ZoneID);
+                    cmd.Parameters.AddWithValue("@zoneID", item.ZoneTableID);
                     cmd.Parameters.AddWithValue("@logLevel", item.LogType);
                     cmd.Parameters.AddWithValue("@operator", item.LogOperator);
                     cmd.Parameters.AddWithValue("@logTime", item.LogTime);
@@ -181,7 +181,7 @@ namespace AttackPrevent.Access
                                   N''
                                 )";
             var cmd = new SqlCommand(insertSql, conn, trans);
-            cmd.Parameters.AddWithValue("@zoneID", log.ZoneID);
+            cmd.Parameters.AddWithValue("@zoneID", log.ZoneTableID);
             cmd.Parameters.AddWithValue("@logLevel", log.LogType);
             cmd.Parameters.AddWithValue("@operator", log.LogOperator);
             cmd.Parameters.AddWithValue("@logTime", log.LogTime);
@@ -193,7 +193,7 @@ namespace AttackPrevent.Access
 
         public static void Add(List<AuditLogEntity> logs)
         {
-            var zoneId = logs[0].ZoneID;
+            var zoneId = logs[0].ZoneTableID;
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (var conn = new SqlConnection(connStr))

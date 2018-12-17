@@ -107,7 +107,7 @@ namespace AttackPrevent.Controllers
             {
                 RateLimitEntity item = new RateLimitEntity()
                 {
-                    ZoneId = rateLimitModel.ZoneId,
+                    ZoneTableId = rateLimitModel.ZoneTableId,
                     Period = rateLimitModel.Period,
                     EnlargementFactor = rateLimitModel.EnlargementFactor,
                     RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
@@ -121,13 +121,13 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = rateLimitModel.ZoneId,
+                    LogType = LogLevel.Audit,
+                    ZoneTableID = rateLimitModel.ZoneTableId,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
                     Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
                 });
-                return RedirectToAction("RateLimitingList", new { zoneId=rateLimitModel.ZoneId });
+                return RedirectToAction("RateLimitingList", new { zoneId=rateLimitModel.ZoneTableId });
             }
             else
             {
@@ -153,7 +153,7 @@ namespace AttackPrevent.Controllers
                 RateLimitTriggerTime = item.RateLimitTriggerTime,
                 Threshold = item.Threshold,
                 Url = item.Url,
-                ZoneId = item.ZoneId,
+                ZoneTableId = item.ZoneTableId,
                 TableID = item.TableID
             };
             return View(rateLimitModel);
@@ -170,7 +170,7 @@ namespace AttackPrevent.Controllers
                     CreatedBy = UserName,
                     EnlargementFactor = rateLimitModel.EnlargementFactor,
                     Period = rateLimitModel.Period,
-                    ZoneId = rateLimitModel.ZoneId,
+                    ZoneTableId = rateLimitModel.ZoneTableId,
                     RateLimitTriggerIpCount = rateLimitModel.RateLimitTriggerIpCount,
                     RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
                     TableID = rateLimitModel.TableID,
@@ -182,8 +182,8 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = rateLimitModel.ZoneId,
+                    LogType = LogLevel.Audit,
+                    ZoneTableID = rateLimitModel.ZoneTableId,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
                     Detail = $"[Audit] {"EditRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
@@ -194,7 +194,7 @@ namespace AttackPrevent.Controllers
                 return View(rateLimitModel);
             }            
             
-            return RedirectToAction("RateLimitingList", new { zoneId = rateLimitModel.ZoneId });
+            return RedirectToAction("RateLimitingList", new { zoneId = rateLimitModel.ZoneTableId });
         }
 
         public ActionResult DeleteRateLimiting(int id, int order)
@@ -205,13 +205,13 @@ namespace AttackPrevent.Controllers
             AuditLogBusiness.Add(new AuditLogEntity
             {
                 IP = Request.UserHostAddress,
-                LogType = LogLevel.Audit.ToString(),
-                ZoneID = item.ZoneId,
+                LogType = LogLevel.Audit,
+                ZoneTableID = item.ZoneTableId,
                 LogOperator = UserName,
                 LogTime = DateTime.UtcNow,
                 Detail = $"[Audit] {"DeleteRateLimit"} {JsonConvert.SerializeObject(item)}",
             });
-            return RedirectToAction("RateLimitingList", new { zoneId = item.ZoneId });
+            return RedirectToAction("RateLimitingList", new { zoneId = item.ZoneTableId });
         }
 
         public ActionResult EditRateLimitingOrder(int id, int order, int actionb, string zoneId)
@@ -222,8 +222,8 @@ namespace AttackPrevent.Controllers
             AuditLogBusiness.Add(new AuditLogEntity
             {
                 IP = Request.UserHostAddress,
-                LogType = LogLevel.Audit.ToString(),
-                ZoneID = item.ZoneId,
+                LogType = LogLevel.Audit,
+                ZoneTableID = item.ZoneTableId,
                 LogOperator = UserName,
                 LogTime = DateTime.UtcNow,
                 Detail = $"[Audit] {"EditRateLimit order"} [{optionStr}] {JsonConvert.SerializeObject(item)}",
@@ -255,14 +255,14 @@ namespace AttackPrevent.Controllers
                 IWhiteListBusinees whiteListBusinees = new WhiteListBusinees();
                 string[] ipList = whiteListModel.IP.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 var zoneList = ZoneBusiness.GetZoneList();
-                string zoneID = whiteListModel.ZoneId;
-                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                int zoneTableID = whiteListModel.ZoneTableId;
+                var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
                 string authEmail = zone.AuthEmail;
                 string authKey = zone.AuthKey;
 
                 foreach (string ip in ipList)
                 {
-                    bool isSuccessed = whiteListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, whiteListModel.Comment);
+                    bool isSuccessed = whiteListBusinees.CreateAccessRule(zoneTableID, authEmail, authKey, ip, whiteListModel.Comment);
                     if (!isSuccessed)
                     {
                         break;
@@ -270,8 +270,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = zoneID,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = zoneTableID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         Detail = string.Format("[Audit] {1} [{0}] Add White List successfully.", ip, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")),
@@ -304,14 +304,14 @@ namespace AttackPrevent.Controllers
                 IBlackListBusinees blackListBusinees = new BlackListBusinees();
                 string[] ipList = blackListModel.IP.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 var zoneList = ZoneBusiness.GetZoneList();
-                string zoneID = blackListModel.ZoneId;
-                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                int zoneTableID = blackListModel.ZoneTableId;
+                var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
                 string authEmail = zone.AuthEmail;
                 string authKey = zone.AuthKey;
 
                 foreach (string ip in ipList)
                 {
-                    bool isSuccessed = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, blackListModel.Comment);
+                    bool isSuccessed = blackListBusinees.CreateAccessRule(zoneTableID, authEmail, authKey, ip, blackListModel.Comment);
                     if (!isSuccessed)
                     {
                         break;
@@ -319,8 +319,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = zoneID,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = zoneTableID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         //Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
@@ -385,12 +385,12 @@ namespace AttackPrevent.Controllers
                 }
                 else
                 {
-                    ZoneBusiness.Add(item);
+                    int id = ZoneBusiness.Add(item);
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = item.ZoneId,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = id,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         Detail = $"[Audit] {"AddZone"} {JsonConvert.SerializeObject(zoneModel)}",
@@ -462,8 +462,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = item.ZoneId,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = item.TableID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         Detail = $"[Audit] {"EditZone"} {JsonConvert.SerializeObject(zoneModel)}",
@@ -666,7 +666,7 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveWhiteList(string zoneID, string ips, string comment, string vcode)
+        public JsonResult SaveWhiteList(int zoneTableID, string ips, string comment, string vcode)
         {
             //Code review by michael, 怎么这里都还是手动写的.
             string authEmail = "";
@@ -674,7 +674,7 @@ namespace AttackPrevent.Controllers
             //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
             authEmail = zone.AuthEmail;
             authKey = zone.AuthKey;
 
@@ -689,7 +689,7 @@ namespace AttackPrevent.Controllers
 
                 foreach (string ip in ipList)
                 {
-                    isSuccessed = backgroundTaskService.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    isSuccessed = backgroundTaskService.CreateAccessRule(zoneTableID, authEmail, authKey, ip, comment);
                     if (!isSuccessed)
                     {
                         break;
@@ -698,8 +698,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = zoneID,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = zoneTableID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         //Detail = JsonConvert.SerializeObject(new { comment,remark= "Add WhiteList", isSuccessed }),
@@ -716,7 +716,7 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteWhiteList(string zoneID, string ip, string vcode)
+        public JsonResult DeleteWhiteList(int zoneTableID, string ip, string vcode)
         {
             bool isSuccessed = true;
             string errorMsg = "";
@@ -734,12 +734,12 @@ namespace AttackPrevent.Controllers
             else
             {
                 var zoneList = ZoneBusiness.GetZoneList();
-                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
                 authEmail = zone.AuthEmail;
                 authKey = zone.AuthKey;
 
                 IWhiteListBusinees backgroundTaskService = new WhiteListBusinees();
-                isSuccessed = backgroundTaskService.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+                isSuccessed = backgroundTaskService.DeleteAccessRule(zoneTableID, authEmail, authKey, ip);
                 if (!isSuccessed)
                 {
                     errorMsg = "Delete failed.";
@@ -747,8 +747,8 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = ip,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = zoneID,
+                    LogType = LogLevel.Audit,
+                    ZoneTableID = zoneTableID,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
                     //Detail = JsonConvert.SerializeObject(new { remark = "Delete WhiteList", isSuccessed= result }),
@@ -794,14 +794,14 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveBlackList(string zoneID, string ips, string comment, string vcode)
+        public JsonResult SaveBlackList(int zoneTableID, string ips, string comment, string vcode)
         {
             string authEmail = "";
             string authKey = "";
             //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
             authEmail = zone.AuthEmail;
             authKey = zone.AuthKey;
 
@@ -816,7 +816,7 @@ namespace AttackPrevent.Controllers
 
                 foreach (string ip in ipList)
                 {
-                    isSuccessed = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    isSuccessed = blackListBusinees.CreateAccessRule(zoneTableID, authEmail, authKey, ip, comment);
                     if (!isSuccessed)
                     {
                         break;
@@ -824,8 +824,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = zoneID,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = zoneTableID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         //Detail = JsonConvert.SerializeObject(new { comment, remark = "Add BlackList", isSuccessed }),
@@ -842,7 +842,7 @@ namespace AttackPrevent.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteBlackList(string zoneID, string ip, string vcode)
+        public JsonResult DeleteBlackList(int zoneTableID, string ip, string vcode)
         {
             bool isSuccessed = true;
             string errorMsg = "";
@@ -852,7 +852,7 @@ namespace AttackPrevent.Controllers
             //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+            var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
             authEmail = zone.AuthEmail;
             authKey = zone.AuthKey;
 
@@ -866,7 +866,7 @@ namespace AttackPrevent.Controllers
             else
             {
                 IBlackListBusinees blackListBusinees = new BlackListBusinees();
-                isSuccessed = blackListBusinees.DeleteAccessRule(zoneID, authEmail, authKey, ip);
+                isSuccessed = blackListBusinees.DeleteAccessRule(zoneTableID, authEmail, authKey, ip);
                 if (!isSuccessed)
                 {
                     errorMsg = "Delete failed.";
@@ -874,8 +874,8 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = ip,
-                    LogType = LogLevel.Audit.ToString(),
-                    ZoneID = zoneID,
+                    LogType = LogLevel.Audit,
+                    ZoneTableID = zoneTableID,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
                     //Detail = JsonConvert.SerializeObject(new { remark = "Delete BlackList", isSuccessed = result }),

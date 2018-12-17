@@ -12,8 +12,7 @@ namespace AttackPrevent.Models
     public class WhiteListModel
     {
         [Required]
-        [StringLength(50)]
-        public string ZoneId { get; set; }
+        public int ZoneTableId { get; set; }
 
         [Required]
         [CheckIP]

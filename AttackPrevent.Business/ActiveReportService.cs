@@ -73,7 +73,7 @@ namespace AttackPrevent.Business
             }
             catch (Exception e)
             {
-                logService.Error(e);
+                logService.Error(e.StackTrace);
                 isProcessing = false;
             }
             finally

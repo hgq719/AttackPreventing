@@ -19,7 +19,7 @@ namespace AttackPrevent.WindowsService.Job
             }
             catch (Exception e)
             {
-                logService.Error(e);
+                logService.Error(e.StackTrace);
             }
             finally
             {

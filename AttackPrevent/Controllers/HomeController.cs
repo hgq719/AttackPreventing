@@ -259,10 +259,11 @@ namespace AttackPrevent.Controllers
                 var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
                 string authEmail = zone.AuthEmail;
                 string authKey = zone.AuthKey;
+                string zoneId = zone.ZoneId;
 
                 foreach (string ip in ipList)
                 {
-                    bool isSuccessed = whiteListBusinees.CreateAccessRule(zoneTableID, authEmail, authKey, ip, whiteListModel.Comment);
+                    bool isSuccessed = whiteListBusinees.CreateAccessRule(zoneId, authEmail, authKey, ip, whiteListModel.Comment);
                     if (!isSuccessed)
                     {
                         break;
@@ -308,10 +309,11 @@ namespace AttackPrevent.Controllers
                 var zone = zoneList.FirstOrDefault(a => a.TableID == zoneTableID);
                 string authEmail = zone.AuthEmail;
                 string authKey = zone.AuthKey;
+                string zoneId = zone.ZoneId;
 
                 foreach (string ip in ipList)
                 {
-                    bool isSuccessed = blackListBusinees.CreateAccessRule(zoneTableID, authEmail, authKey, ip, blackListModel.Comment);
+                    bool isSuccessed = blackListBusinees.CreateAccessRule(zoneId, authEmail, authKey, ip, blackListModel.Comment);
                     if (!isSuccessed)
                     {
                         break;

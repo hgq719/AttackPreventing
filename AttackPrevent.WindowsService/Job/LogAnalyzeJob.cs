@@ -19,6 +19,8 @@ namespace AttackPrevent.WindowsService.Job
         private int _timeSpan = 60;
         private int _cancelBanIpTime = 120;
         private List<HostConfigurationEntity> _hostConfigList = null;
+
+        
         private List<string> _suffixList = new List<string>
         {
             "bmp","ejs","jpeg","pdf","ps","ttf","class","eot","jpg","pict"
@@ -61,7 +63,7 @@ namespace AttackPrevent.WindowsService.Job
                 try
                 {
                     var rateLimitingCount = RateLimitBusiness.GetList(zoneEntity.ZoneId).Count();
-                    if (zoneEntity.IfEnable || rateLimitingCount > 0)
+                    if (rateLimitingCount > 0)
                     {
                         zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
                         tasks.Add(Task.Run(() => StartAnalyze(zoneEntity)));

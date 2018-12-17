@@ -97,7 +97,11 @@ namespace AttackPrevent.Business
                 {
                     retry = true;
                 }
-                logger.Error(content);
+
+                if( !string.IsNullOrEmpty(content))
+                {
+                    logger.Error(content);
+                }                    
             }
             return CloudflareLogs;
         }        

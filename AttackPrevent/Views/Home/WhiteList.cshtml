@@ -11,6 +11,7 @@
         table-layout: fixed;
         word-break: break-all;
     }
+
     .hidden-input {
         position: relative;
         width: 0;
@@ -23,6 +24,7 @@
             left: -1000px;
         }
 </style>
+
 <div class="logContainer">
 
 
@@ -89,7 +91,7 @@
         </div>
     </div>
 
-    <div class="resultContainer">
+    <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
         <table id="table" class="table table-bordered"></table>
     </div>
 </div>
@@ -136,7 +138,7 @@
                 queryParams: oTableInit.queryParams,//传递参数（*）
                 sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
                 pageNumber: 1,                       //初始化加载第一页，默认第一页
-                pageSize: 10,                       //每页的记录行数（*）
+                pageSize: 100,                       //每页的记录行数（*）
                 pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
                 search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
                 strictSearch: true,
@@ -144,7 +146,7 @@
                 showRefresh: false,                  //是否显示刷新按钮
                 minimumCountColumns: 2,             //最少允许的列数
                 clickToSelect: true,                //是否启用点击选中行
-                height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                //height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 uniqueId: "IP",                     //每一行的唯一标识，一般为主键列
                 showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
                 cardView: false,                    //是否显示详细视图
@@ -219,7 +221,7 @@
             var para = oTable.queryParams({ limit: 10, offset: 0 });
             var zoneID = para.zoneID;
             var ip = currRow.IP;
-            
+
             var code = $("#ValidateCode").val();
             if (!code) {
                 showWarning("Verification Code is requierd.");
@@ -231,7 +233,7 @@
                 url: "/Home/DeleteWhiteList?zoneID=" + zoneID + "&ip=" + ip + "&vcode=" + code,
                 dataType: "json",
                 async: true,
-                success: function (data) {                    
+                success: function (data) {
                     if (data.isSuccessed) {
                         $('#myModal').modal('hide');
                         refresh();
@@ -289,7 +291,7 @@
         'click #btn-delete': function (e, value, row, index) {
             if (confirm('Are you sure want to remove this IP from the whitelist?')) {
                 currRow = row;
-                $("#myModal").modal('show');          
+                $("#myModal").modal('show');
             }
         }
     }

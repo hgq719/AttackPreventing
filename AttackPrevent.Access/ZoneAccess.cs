@@ -137,7 +137,7 @@ namespace AttackPrevent.Access
             return result;
         }
 
-        public static void Add(ZoneEntity item)
+        public static int Add(ZoneEntity item)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             
@@ -163,7 +163,8 @@ namespace AttackPrevent.Access
                                                           @thresholdForHost ,  -- ThresholdForHost - int
                                                           @periodForHost ,  -- PeriodForHost - int                                                          
                                                           @ifAnalyzeByHostRule   -- IfAnalyzeByHostRule - int
-                                                        )");
+                                                        )
+                                                SELECT @@IDENTITY AS Id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -181,7 +182,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@ifAnalyzeByHostRule", item.IfAnalyzeByHostRule);
                 conn.Open();
 
-                cmd.ExecuteNonQuery();
+                return (int)cmd.ExecuteScalar();
             }
         }
 

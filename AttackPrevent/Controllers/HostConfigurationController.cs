@@ -65,8 +65,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = string.Empty,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = -1,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         Detail = $"[Audit] {"AddHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",
@@ -124,8 +124,8 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
-                        ZoneID = string.Empty,
+                        LogType = LogLevel.Audit,
+                        ZoneTableID = -1,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
                         Detail = $"[Audit] {"EditHostConfiguration"} {JsonConvert.SerializeObject(hostConfigurationModel)}",

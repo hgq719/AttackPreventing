@@ -75,7 +75,7 @@ namespace AttackPrevent.Access
                             RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
                             TableID = Convert.ToInt32(reader["Id"]),
-                            ZoneId = reader["ZoneId"].ToString(),
+                            ZoneTableId = reader["ZoneId"].ToString(),
                             
                         });
                     }
@@ -121,7 +121,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           GETUTCDATE()  -- CreatedTime - datetime
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
+                cmd.Parameters.AddWithValue("@zoneID", item.ZoneTableId);
                 cmd.Parameters.AddWithValue("@order", item.OrderNo);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
@@ -153,7 +153,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                             CreatedBy = @user
                                     WHERE   Id = @id;";
                 var cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
+                cmd.Parameters.AddWithValue("@zoneID", item.ZoneTableId);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
                 cmd.Parameters.AddWithValue("@url", item.Url);
@@ -257,7 +257,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
-                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneTableId = Convert.ToString(reader["ZoneId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }
@@ -297,7 +297,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
-                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneTableId = Convert.ToString(reader["ZoneId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }

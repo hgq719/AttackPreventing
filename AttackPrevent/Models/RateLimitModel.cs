@@ -10,7 +10,7 @@ namespace AttackPrevent.Models
     {
         public int TableID { get; set; }
 
-        public string ZoneId { get; set; }
+        public int ZoneTableId { get; set; }
 
         public int OrderNo { get; set; }
 

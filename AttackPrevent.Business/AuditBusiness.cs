@@ -84,7 +84,7 @@ namespace AttackPrevent.Business
             for (int i = 0; i < list.Count; i++)
             {
                 var rowtemp = sheet1.CreateRow(i + 1);
-                rowtemp.CreateCell(0).SetCellValue(list[i].LogType);
+                rowtemp.CreateCell(0).SetCellValue(list[i].LogType.ToString());
                 rowtemp.CreateCell(1).SetCellValue(list[i].Detail.Replace("<br />","\n"));
                 rowtemp.Cells[1].CellStyle = notesStyle;
                 rowtemp.CreateCell(2).SetCellValue(list[i].LogTime.ToString(CultureInfo.InvariantCulture));

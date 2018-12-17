@@ -52,7 +52,7 @@ namespace AttackPrevent.Access
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY Id desc");
+            query.Append("ORDER BY LogTime desc");
             using (var conn = new SqlConnection(cons))
             {
                 
@@ -101,6 +101,173 @@ namespace AttackPrevent.Access
             }
 
             return result;
+        }
+
+        public static List<AuditLogEntity> GetListByPage(int offset, int limit, int zoneTableId, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        {
+
+            var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            var result = new List<AuditLogEntity>();
+            var query = new StringBuilder(@"SELECT LogLevel, 
+                                                   LogTime, 
+                                                   LogOperator, 
+                                                   Detail 
+                                            FROM t_Logs WITH(NOLOCK) ");
+            var where = new StringBuilder();
+
+            if (startTime.HasValue)
+            {
+                where.Append(" LogTime >= @startTime AND ");
+            }
+            if (endTime.HasValue)
+            {
+                where.Append(" LogTime <= @endTime AND ");
+            }
+            where.Append(" ZoneTableId=@zoneTableId AND ");
+            if (!string.IsNullOrWhiteSpace(logType))
+            {
+                where.Append(" LogLevel IN (");
+                logType = logType.Remove(logType.Length - 1);
+                string[] ar = logType.Split(',');
+                for (var i = 0; i < ar.Length; i++)
+                {
+                    where.Append("@logType" + i + ",");
+                }
+                where.Remove(where.Length - 1, 1);
+                where.Append(") AND ");
+            }
+            if (!string.IsNullOrWhiteSpace(detail))
+            {
+                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+            }
+            if (where.Length > 0)
+            {
+                where.Remove(where.Length - 4, 4);
+            }
+            query.AppendFormat(" WHERE {0}", where.ToString());
+            query.Append("ORDER BY LogTime desc offset @offset rows fetch next @limit rows only");
+            using (var conn = new SqlConnection(cons))
+            {
+
+                var cmd = new SqlCommand(query.ToString(), conn);
+                cmd.CommandTimeout = 2 * 60;
+                cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);
+                if (startTime.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@startTime", startTime.Value);
+                }
+                if (endTime.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@endTime", endTime.Value.AddMinutes(1));
+                }
+                if (!string.IsNullOrWhiteSpace(logType))
+                {
+                    var ar = logType.Split(',');
+                    for (var i = 0; i < ar.Length; i++)
+                    {
+                        cmd.Parameters.AddWithValue("@logType" + i, ar[i]);
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(detail))
+                {
+                    cmd.Parameters.AddWithValue("@detail", detail);
+                }
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@limit", limit);
+
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    var index = 1;
+                    while (reader.Read())
+                    {
+                        var item = new AuditLogEntity
+                        {
+                            ID = index++,
+                            LogType = (LogLevel)Convert.ToInt32(reader["LogLevel"]),
+                            LogTime = Convert.ToDateTime(reader["LogTime"]),
+                            LogOperator = Convert.ToString(reader["LogOperator"]),
+                            Detail = Convert.ToString(reader["Detail"])
+                        };
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static int GetCountByPage(int zoneTableId, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        {
+            var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            
+            var query = new StringBuilder(@"SELECT count(1) FROM t_Logs WITH(NOLOCK) ");
+            var where = new StringBuilder();
+
+            if (startTime.HasValue)
+            {
+                where.Append(" LogTime >= @startTime AND ");
+            }
+            if (endTime.HasValue)
+            {
+                where.Append(" LogTime <= @endTime AND ");
+            }
+            where.Append(" ZoneTableId=@zoneTableId AND ");
+            if (!string.IsNullOrWhiteSpace(logType))
+            {
+                where.Append(" LogLevel IN (");
+                logType = logType.Remove(logType.Length - 1);
+                string[] ar = logType.Split(',');
+                for (var i = 0; i < ar.Length; i++)
+                {
+                    where.Append("@logType" + i + ",");
+                }
+                where.Remove(where.Length - 1, 1);
+                where.Append(") AND ");
+            }
+            if (!string.IsNullOrWhiteSpace(detail))
+            {
+                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+            }
+            if (where.Length > 0)
+            {
+                where.Remove(where.Length - 4, 4);
+            }
+            query.AppendFormat(" WHERE {0}", where.ToString());
+            
+            using (var conn = new SqlConnection(cons))
+            {
+
+                var cmd = new SqlCommand(query.ToString(), conn);
+                cmd.CommandTimeout = 2 * 60;
+                cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);
+                if (startTime.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@startTime", startTime.Value);
+                }
+                if (endTime.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@endTime", endTime.Value.AddMinutes(1));
+                }
+                if (!string.IsNullOrWhiteSpace(logType))
+                {
+                    var ar = logType.Split(',');
+                    for (var i = 0; i < ar.Length; i++)
+                    {
+                        cmd.Parameters.AddWithValue("@logType" + i, ar[i]);
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(detail))
+                {
+                    cmd.Parameters.AddWithValue("@detail", detail);
+                }
+
+                conn.Open();
+
+                return (int)cmd.ExecuteScalar();
+            }
+
         }
 
         public static void Add(AuditLogEntity item)

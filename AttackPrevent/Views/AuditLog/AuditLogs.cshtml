@@ -144,7 +144,24 @@
                     //}
                 }, {
                     field: 'LogType',
-                    title: 'Log Type'
+                        title: 'Log Type',
+                        formatter: function (value, row, index) {
+                            var typeStr = "";
+                            switch (value) {
+                                case 0:
+                                    typeStr = "App";
+                                    break;
+                                case 1:
+                                    typeStr = "Error";
+                                    break;
+                                case 2:
+                                    typeStr = "Audit";
+                                    break;
+                                default:
+                            }
+
+                            return typeStr;
+                        }
                 }, {
                     field: 'Detail',
                         title: 'Detail',

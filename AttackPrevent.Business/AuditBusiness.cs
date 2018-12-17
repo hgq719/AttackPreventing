@@ -14,19 +14,6 @@ namespace AttackPrevent.Business
 
         public static dynamic GetAuditLog(int limit, int offset, int zoneTableID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache, string userName)
         {
-            //List<AuditLogEntity> list = new List<AuditLogEntity>();
-            //for (int i = 0; i < 50; i++)
-            //{
-            //    AuditLogEntity en = new AuditLogEntity();
-            //    en.ID = i;
-            //    en.LogType = "App";
-            //    en.Detail = "detail" + i;
-            //    en.LogTime = DateTime.Now;
-            //    en.LogOperator = "Michael.he";
-
-            //    list.Add(en);
-            //}
-
             if (ifUseCache)
             {
                 List<AuditLogEntity> list = Utils.GetMemoryCache<List<AuditLogEntity>>(cacheKey+userName);
@@ -49,6 +36,13 @@ namespace AttackPrevent.Business
                 return new { cacheKey = cacheKey + userName };
             }
             
+        }
+
+        public static dynamic GetAuditLogByPage(int limit, int offset, int zoneTableID, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        {
+            var total = AuditLogAccess.GetCountByPage(zoneTableID, startTime, endTime, logType, detail);
+            var rows = AuditLogAccess.GetListByPage(offset, limit, zoneTableID, startTime, endTime, logType, detail);
+            return new { total, rows };
         }
 
         public static MemoryStream ExportAuditLog(int zoneTableId, DateTime? startTime, DateTime? endTime, string logType, string detail)

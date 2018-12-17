@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace AttackPrevent.WindowsService.Job
 {
-    public class LogAnalyzeJob : IJob
+    public class LogAnalyzeJob 
     {
         private double _sample = 1;
         private int _timeSpan = 60;
@@ -29,9 +29,9 @@ namespace AttackPrevent.WindowsService.Job
             ,"docx","jar","otf","pptx","tiff","xlsx"
         };
         
-        public Task Execute(IJobExecutionContext context)
+        public void Execute()
         {
-            #region 设置全局参数
+            //Set global paramter
             var globalConfigurations = GlobalConfigurationBusiness.GetConfigurationList();
             if (null != globalConfigurations && globalConfigurations.Count > 0)
             {
@@ -46,17 +46,11 @@ namespace AttackPrevent.WindowsService.Job
                 _suffixList = filterSuffixList.Split(',').ToList();
             }
 
-            #endregion
 
             _hostConfigList = HostConfigurationBusiness.GetList();
 
             var zoneList = ZoneBusiness.GetAllList();
-            if (zoneList.Count <= 0) return Task.FromResult(0);
-
-            var waits = new List<EventWaitHandle>();
-            var manualEvents =
-                new WaitHandle[zoneList.Count];
-            var tasks = new List<Task>();
+            if(zoneList.Count == 0) { return;}
 
             foreach (var zoneEntity in zoneList)
             {
@@ -66,7 +60,8 @@ namespace AttackPrevent.WindowsService.Job
                     if (rateLimitingCount > 0)
                     {
                         zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
-                        tasks.Add(Task.Run(() => StartAnalyze(zoneEntity)));
+                        var task = new Task(()=> { StartAnalyze(zoneEntity); });
+                        task.Start();
                     }
                 }
                 catch (Exception ex)
@@ -75,86 +70,109 @@ namespace AttackPrevent.WindowsService.Job
                 }
             }
 
-            Task.WaitAll(tasks.ToArray());
-
-            return Task.FromResult(result: 0);
         }
         
-
-        private Task StartAnalyze(ZoneEntity zoneEntity)
+        private void StartAnalyze(ZoneEntity zoneEntity)
         {
-            var dtNow = DateTime.UtcNow;
-            var dtStart = dtNow.AddMinutes(-7).AddSeconds(0 - dtNow.Second);
-            var dtEnd = dtStart.AddMinutes(2);
+            Console.WriteLine($"{DateTime.UtcNow} Start to analyze zone: {zoneEntity.ZoneName}");
 
-            var timeStageList = new List<KeyValuePair<DateTime, DateTime>>();
-            while (true)
+            var zoneId = zoneEntity.ZoneId;
+            try
             {
-                timeStageList.Add(new KeyValuePair<DateTime, DateTime>(dtStart, dtStart.AddSeconds(_timeSpan)));
-
-                dtStart = dtStart.AddSeconds(_timeSpan);
-
-                if (dtStart >= dtEnd)
+                if (ZoneLockerManager.IsRunning(zoneId))
                 {
-                    break;
+                    return;
                 }
-            }
-            var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-            var ipWhiteList = cloudflare.GetIpWhitelist();
-            var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p=>p.OrderNo).ToList();
-
-            foreach (var keyValuePair in timeStageList)
-            {
-                var retryCount = 0;
-                dtStart = keyValuePair.Key;
-                dtEnd = keyValuePair.Value;
-
-                var timeStage = $"{dtStart:MM/dd/yyyy HH:mm:ss}]-[{dtEnd:MM/dd/yyyy HH:mm:ss}";
-                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App,
-                    $"Start getting logs, time range is [{timeStage}]."));
-
-                var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var retry);
-
-                while (retry && retryCount < 10)
+                else
                 {
-                    retryCount++;
-                    cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
+                    ZoneLockerManager.SetZoneRunningStatus(zoneId, true);
                 }
 
-                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App, $"Finished getting total [{cloudflareLogs.Count}] records, time range is [{timeStage}]."));
+                var dtNow = DateTime.UtcNow;
+                var dtStart = dtNow.AddMinutes(-7).AddSeconds(0 - dtNow.Second);
+                var dtEnd = dtStart.AddMinutes(2);
 
-                if (cloudflareLogs.Count > 0)
+                var timeStageList = new List<KeyValuePair<DateTime, DateTime>>();
+                while (true)
                 {
-                    var requestDetailList = cloudflareLogs.Where(x => !ipWhiteList.Contains(x.ClientIP)).Select(x =>
-                    {
-                        var model = new LogAnalyzeModel
-                        {
-                            IP = x.ClientIP,
-                            RequestHost = x.ClientRequestHost,
-                            RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
-                            RequestUrl =
-                                $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
-                        };
-                        return model;
-                    }).Where(x => !IfInSuffixList(x.RequestUrl)).ToList();
+                    timeStageList.Add(new KeyValuePair<DateTime, DateTime>(dtStart, dtStart.AddSeconds(_timeSpan)));
 
+                    dtStart = dtStart.AddSeconds(_timeSpan);
 
-                    if (requestDetailList.Count > 0)
+                    if (dtStart >= dtEnd)
                     {
-                        AnalyzeLog(requestDetailList, zoneEntity, rateLimits, timeStage);
+                        break;
                     }
-                    
                 }
+                var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
+                var ipWhiteList = cloudflare.GetIpWhitelist();
+                var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p => p.OrderNo).ToList();
 
-                var removeLog = RemoveIpFromBlacklistByLastTriggerTime(zoneEntity.ZoneId, dtNow, zoneEntity.IfTestStage, cloudflare, timeStage);
-                if (removeLog.Length > 0)
+                foreach (var keyValuePair in timeStageList)
                 {
-                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.Audit, removeLog));
+                    var retryCount = 0;
+                    dtStart = keyValuePair.Key;
+                    dtEnd = keyValuePair.Value;
+
+                    var timeStage = $"{dtStart:MM/dd/yyyy HH:mm:ss}]-[{dtEnd:MM/dd/yyyy HH:mm:ss}";
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App,
+                        $"Start getting logs, time range is [{timeStage}]."));
+
+                    var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var
+                    retry)
+                    ;
+
+                    while (retry && retryCount < 10)
+                    {
+                        retryCount++;
+                        cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
+                    }
+
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App,
+                        $"Finished getting total [{cloudflareLogs.Count}] records, time range is [{timeStage}]."));
+
+                    if (cloudflareLogs.Count > 0)
+                    {
+                        var requestDetailList = cloudflareLogs.Where(x => !ipWhiteList.Contains(x.ClientIP)).Select(x =>
+                        {
+                            var model = new LogAnalyzeModel
+                            {
+                                IP = x.ClientIP,
+                                RequestHost = x.ClientRequestHost,
+                                RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
+                                RequestUrl =
+                                    $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
+                            };
+                            return model;
+                        }).Where(x => !IfInSuffixList(x.RequestUrl)).ToList();
+
+
+                        if (requestDetailList.Count > 0)
+                        {
+                            AnalyzeLog(requestDetailList, zoneEntity, rateLimits, timeStage);
+                        }
+
+                    }
+
+                    var removeLog = RemoveIpFromBlacklistByLastTriggerTime(zoneEntity.ZoneId, dtNow,
+                        zoneEntity.IfTestStage, cloudflare, timeStage);
+                    if (removeLog.Length > 0)
+                    {
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.Audit, removeLog));
+                    }
+
                 }
-              
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                ZoneLockerManager.SetZoneRunningStatus(zoneId, false);
+                Console.WriteLine($"{DateTime.UtcNow} end to analyze zone: {zoneEntity.ZoneName}");
             }
 
-            return Task.FromResult(result: 0);
         }
 
         private void AnalyzeLog(List<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits, string timeStage)

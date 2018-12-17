@@ -62,7 +62,7 @@ namespace AttackPrevent.WindowsService
 
         }
 
-        public static void SetZoneAsRunning(string zoneId)
+        public static void SetZoneRunningStatus(string zoneId, bool isRunning)
         {
             _lock.EnterWriteLock();
             try
@@ -70,7 +70,7 @@ namespace AttackPrevent.WindowsService
                 var zonelocker = _zoneLockers.Find(p => p.ZoneId == zoneId);
                 if (zonelocker != null)
                 {
-                    zonelocker.IsRunning = true;
+                    zonelocker.IsRunning = isRunning;
                 }
             }
             finally

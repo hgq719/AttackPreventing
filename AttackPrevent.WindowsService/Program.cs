@@ -194,7 +194,7 @@ namespace AttackPrevent.WindowsService
             int? minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
             int? avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
-            //ActionReportBusiness.Delete("06/12/2018");
+            ActionReportBusiness.Delete("06/12/2018");
 
             Model.SmtpQueue smtpQueue = new Model.SmtpQueue
             {
@@ -209,10 +209,10 @@ namespace AttackPrevent.WindowsService
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
             SmtpQueueBusiness.Edit(smtpQueue);
-            //SmtpQueueBusiness.Delete("06/12/2018");
+            SmtpQueueBusiness.Delete("06/12/2018");
 
-            //IActiveReportService activeReportService = ActiveReportService.GetInstance();
-            //activeReportService.GeneratedActiveReport();
+            IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            activeReportService.GeneratedActiveReport();
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();

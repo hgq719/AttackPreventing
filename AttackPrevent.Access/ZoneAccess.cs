@@ -17,6 +17,7 @@ namespace AttackPrevent.Access
             using (var conn = new SqlConnection(cons))
             {
                 const string query = @"SELECT [ZoneId],
+                                        [Id],
                                         [ZoneName],
                                         [AuthEmail],
                                         [IfTestStage],
@@ -44,7 +45,9 @@ namespace AttackPrevent.Access
                             AuthKey = Convert.ToString(reader["AuthKey"]),
                             ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]),
                             PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]),
-                            IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0
+                            IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0,
+                            ID = Convert.ToInt32(reader["Id"]),
+                            TableID = Convert.ToInt32(reader["Id"])
                         });
                     }
                 }

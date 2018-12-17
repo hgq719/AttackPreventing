@@ -601,6 +601,7 @@ namespace AttackPrevent.Business
 
         public List<CloudflareLog> GetLogs(DateTime start, DateTime end, double sample, out bool retry)
         {
+            var zoneTableId = ZoneBusiness.GetZoneByZoneId(_zoneId).TableID;
             retry = false;
             var cloudflareLogs = new List<CloudflareLog>();
             try
@@ -621,7 +622,7 @@ namespace AttackPrevent.Business
                     else
                     {
                         var errorResponse = JsonConvert.DeserializeObject<CloudflareLogErrorResponse>(content);
-                        AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                             $"Got logs failure, the reason is:[{ (errorResponse.Errors.Count > 0 ? errorResponse.Errors[0].Message : "No error message from Cloudflare.")}]."));
                     }
                 }
@@ -636,7 +637,7 @@ namespace AttackPrevent.Business
             catch (Exception ex)
             {
                 retry = true;
-                AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"Got logs failure, the reason is:[{ex.Message}]. <br />stack trace:{ex.StackTrace}]."));
                 return cloudflareLogs;
             }
@@ -712,6 +713,7 @@ namespace AttackPrevent.Business
 
         public bool OpenRateLimit(string url, int threshold, int period, out AuditLogEntity errorLog)
         {
+            var zoneTableId = ZoneBusiness.GetZoneByZoneId(_zoneId).TableID;
             errorLog = null;
             var ratelimit = GetRateLimitRule(url, threshold, period);
             if (null != ratelimit)
@@ -720,7 +722,7 @@ namespace AttackPrevent.Business
                 var response = UpdateRateLimit(ratelimit);
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                    errorLog = new AuditLogEntity(zoneTableId, LogLevel.Error,
                         $"Open rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
@@ -730,7 +732,7 @@ namespace AttackPrevent.Business
                 var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period, "Create Rate limit rule By Attack Prevent Windows service!"));
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                    errorLog = new AuditLogEntity(zoneTableId, LogLevel.Error,
                         $"Create rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;

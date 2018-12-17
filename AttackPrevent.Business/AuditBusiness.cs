@@ -12,7 +12,7 @@ namespace AttackPrevent.Business
     {
         public static readonly string cacheKey = "auditLogCache";
 
-        public static dynamic GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache, string userName)
+        public static dynamic GetAuditLog(int limit, int offset, int zoneTableID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache, string userName)
         {
             //List<AuditLogEntity> list = new List<AuditLogEntity>();
             //for (int i = 0; i < 50; i++)
@@ -42,7 +42,7 @@ namespace AttackPrevent.Business
             else
             {
                 Utils.RemoveMemoryCache(cacheKey+userName);
-                List<AuditLogEntity> list = AuditLogAccess.GetList(zoneID, startTime, endTime, logType, detail);
+                List<AuditLogEntity> list = AuditLogAccess.GetList(zoneTableID, startTime, endTime, logType, detail);
                 Utils.SetMemoryCache(cacheKey+userName, list);
                 //string cacheKeyStr = cacheKey + userName;
 
@@ -51,7 +51,7 @@ namespace AttackPrevent.Business
             
         }
 
-        public static MemoryStream ExportAuditLog(string zoneId, DateTime? startTime, DateTime? endTime, string logType, string detail)
+        public static MemoryStream ExportAuditLog(int zoneTableId, DateTime? startTime, DateTime? endTime, string logType, string detail)
         {
             //创建Excel文件的对象
             NPOI.HSSF.UserModel.HSSFWorkbook book = new NPOI.HSSF.UserModel.HSSFWorkbook();
@@ -71,7 +71,7 @@ namespace AttackPrevent.Business
             //    list.Add(en);
             //}
 
-            List<AuditLogEntity> list = AuditLogAccess.GetList(zoneId, startTime, endTime, logType, detail);
+            List<AuditLogEntity> list = AuditLogAccess.GetList(zoneTableId, startTime, endTime, logType, detail);
             //给sheet1添加第一行的头部标题
             NPOI.SS.UserModel.IRow row1 = sheet1.CreateRow(0);
             row1.CreateCell(0).SetCellValue("Log Type");
@@ -84,7 +84,7 @@ namespace AttackPrevent.Business
             for (int i = 0; i < list.Count; i++)
             {
                 var rowtemp = sheet1.CreateRow(i + 1);
-                rowtemp.CreateCell(0).SetCellValue(list[i].LogType);
+                rowtemp.CreateCell(0).SetCellValue(list[i].LogType.ToString());
                 rowtemp.CreateCell(1).SetCellValue(list[i].Detail.Replace("<br />","\n"));
                 rowtemp.Cells[1].CellStyle = notesStyle;
                 rowtemp.CreateCell(2).SetCellValue(list[i].LogTime.ToString(CultureInfo.InvariantCulture));

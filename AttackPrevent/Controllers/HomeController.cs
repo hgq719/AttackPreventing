@@ -121,7 +121,7 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
+                    LogType = LogLevel.Audit,
                     ZoneID = rateLimitModel.ZoneId,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
@@ -182,7 +182,7 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit.ToString(),
+                    LogType = LogLevel.Audit,
                     ZoneID = rateLimitModel.ZoneId,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
@@ -205,7 +205,7 @@ namespace AttackPrevent.Controllers
             AuditLogBusiness.Add(new AuditLogEntity
             {
                 IP = Request.UserHostAddress,
-                LogType = LogLevel.Audit.ToString(),
+                LogType = LogLevel.Audit,
                 ZoneID = item.ZoneId,
                 LogOperator = UserName,
                 LogTime = DateTime.UtcNow,
@@ -222,20 +222,13 @@ namespace AttackPrevent.Controllers
             AuditLogBusiness.Add(new AuditLogEntity
             {
                 IP = Request.UserHostAddress,
-                LogType = LogLevel.Audit.ToString(),
+                LogType = LogLevel.Audit,
                 ZoneID = item.ZoneId,
                 LogOperator = UserName,
                 LogTime = DateTime.UtcNow,
                 Detail = $"[Audit] {"EditRateLimit order"} [{optionStr}] {JsonConvert.SerializeObject(item)}",
             });
             return RedirectToAction("RateLimitingList", new { zoneId });
-        }
-
-        public ActionResult AuditLogs() 
-        {
-            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
-            Utils.RemoveMemoryCache(AuditLogBusiness.cacheKey+UserName);
-            return View();
         }
 
         public ActionResult AddWhiteList()
@@ -270,7 +263,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = zoneID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -319,7 +312,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = zoneID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -389,7 +382,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = item.ZoneId,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -462,7 +455,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = Request.UserHostAddress,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = item.ZoneId,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -505,20 +498,6 @@ namespace AttackPrevent.Controllers
         {
             ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
             return View();
-        }
-
-        public JsonResult GetAuditLog(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
-        {   
-
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneID, startTime, endTime, logType, detail, ifUseCache, UserName);
-
-            return Json(result, JsonRequestBehavior.AllowGet);
-        }
-
-        public FileResult ExportAuditLog(string zoneID, DateTime? startTime, DateTime? endTime, string logType, string detail) 
-        {
-            MemoryStream ms = AuditLogBusiness.ExportAuditLog(zoneID, startTime, endTime, logType, detail);
-            return File(ms, "application/vnd.ms-excel", "AuditLog.xls");
         }
 
         //Code review By Michael, 如果出错会怎么样? 我看View 里面也没有做处理.
@@ -698,7 +677,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = zoneID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -747,7 +726,7 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = ip,
-                    LogType = LogLevel.Audit.ToString(),
+                    LogType = LogLevel.Audit,
                     ZoneID = zoneID,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,
@@ -824,7 +803,7 @@ namespace AttackPrevent.Controllers
                     AuditLogBusiness.Add(new AuditLogEntity
                     {
                         IP = ip,
-                        LogType = LogLevel.Audit.ToString(),
+                        LogType = LogLevel.Audit,
                         ZoneID = zoneID,
                         LogOperator = UserName,
                         LogTime = DateTime.UtcNow,
@@ -874,7 +853,7 @@ namespace AttackPrevent.Controllers
                 AuditLogBusiness.Add(new AuditLogEntity
                 {
                     IP = ip,
-                    LogType = LogLevel.Audit.ToString(),
+                    LogType = LogLevel.Audit,
                     ZoneID = zoneID,
                     LogOperator = UserName,
                     LogTime = DateTime.UtcNow,

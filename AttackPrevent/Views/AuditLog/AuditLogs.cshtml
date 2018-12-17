@@ -41,34 +41,14 @@
             </div>
             <div class="col-md-8">
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="logtype" id="check-app" value="App" /> App
+                    <input type="checkbox" name="logtype" id="check-app" value="0" /> App
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
+                    <input type="checkbox" name="logtype" id="check-audit" value="2" /> Audit
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
+                    <input type="checkbox" name="logtype" id="check-error" value="1" /> Error
                 </label>
-                @*<div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="logtype" id="check-app" value="App" /> App
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="logtype" id="check-audit" value="Audit" /> Audit
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="logtype" id="check-error" value="Error" /> Error
-                        </label>
-                    </div>*@
-                @*<select id="select-logType" class="form-control">
-                        <option>App</option>
-                        <option>Audit</option>
-                        <option>Error</option>
-                    </select>*@
             </div>
         </div>
         <div class="col-md-4 form-group">
@@ -130,7 +110,7 @@
         //初始化Table
         oTableInit.Init = function () {
             $('#auditLogTable').bootstrapTable({
-                url: '/Home/GetAuditLog',         //请求后台的URL（*）
+                url: '/AuditLog/GetAuditLog',         //请求后台的URL（*）
                 method: 'get',                      //请求方式（*）
                 toolbar: '#toolbar',                //工具按钮用哪个容器
                 striped: true,                      //是否显示行间隔色
@@ -220,7 +200,7 @@
             var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
                 limit: params.limit,   //页面大小
                 offset: params.offset,  //页码
-                zoneID: $("#select-zoneName").val(),
+                zoneTableID: $("#select-zoneName").val(),
                 startTime: $("#txt-StartTime").val(),
                 endTime: $("#txt-EndTime").val(),
                 logType: logtypeStr,
@@ -245,7 +225,7 @@
         var para = oTable.queryParams({ limit: 10, offset: 0 });
         $.ajax({
             type: "GET",
-            url: "/Home/GetAuditLog",
+            url: "/AuditLog/GetAuditLog",
             data: Object.assign(para, { ifUseCache: false, }),
             dataType: "json",
             async: true,
@@ -264,7 +244,7 @@
 
     $('#export').click(function () {
         var para = oTable.queryParams({limit: 10,offset:0});
-        var uuu = "/home/ExportAuditLog?zoneID=" + para.zoneID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
+        var uuu = "/AuditLog/ExportAuditLog?zoneTableID=" + para.zoneTableID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
         $('#export').attr("href", uuu);
         //$.get(uuu);
     });

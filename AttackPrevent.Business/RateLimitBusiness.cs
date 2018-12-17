@@ -10,7 +10,7 @@ namespace AttackPrevent.Business
 {
     public class RateLimitBusiness
     {
-        public static dynamic GetRateLimit(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime, string url)
+        public static dynamic GetRateLimit(int limit, int offset, int zoneTableId, DateTime? startTime, DateTime? endTime, string url)
         {
             //List<RateLimitEntity> list = new List<RateLimitEntity>();
             //for (int i = 0; i < 50; i++)
@@ -27,7 +27,7 @@ namespace AttackPrevent.Business
 
             //    list.Add(en);
             //}
-            List<RateLimitEntity> list = RateLimitAccess.GetRateLimits(zoneID, startTime, endTime, url);
+            List<RateLimitEntity> list = RateLimitAccess.GetRateLimits(zoneTableId, startTime, endTime, url);
 
             var total = list.Count;
             var rows = list.Skip(offset).Take(limit).ToList();
@@ -35,9 +35,9 @@ namespace AttackPrevent.Business
             return new { total, rows };
         }
 
-        public static List<RateLimitEntity> GetList(string zoneId)
+        public static List<RateLimitEntity> GetList(int zoneTableId)
         {
-            return RateLimitAccess.GetRateLimits(zoneId, null, null, null);
+            return RateLimitAccess.GetRateLimits(zoneTableId, null, null, null);
         }
 
         public static void Add(RateLimitEntity item)
@@ -78,9 +78,9 @@ namespace AttackPrevent.Business
             }
         }
 
-        public static int GetRateLimitMaxOrder(string zoneId)
+        public static int GetRateLimitMaxOrder(int zoneTableId)
         {
-            return RateLimitAccess.GetRateLimitMaxOrder(zoneId);
+            return RateLimitAccess.GetRateLimitMaxOrder(zoneTableId);
         }
     }
 }

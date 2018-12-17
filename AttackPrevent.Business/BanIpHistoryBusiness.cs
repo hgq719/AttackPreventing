@@ -7,15 +7,15 @@ namespace AttackPrevent.Business
 {
     public class BanIpHistoryBusiness
     {
-        public static List<BanIpHistory> Get(string zoneId, string ip = null)
+        public static List<BanIpHistory> Get(int zoneTableId, string ip = null)
         {
             try
             {
-                return BanIpHistoryAccess.Get(zoneId, ip);
+                return BanIpHistoryAccess.Get(zoneTableId, ip);
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(zoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"Get ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return new List<BanIpHistory>();
             }
@@ -25,7 +25,7 @@ namespace AttackPrevent.Business
         {
             try
             {
-                var banIpHistories = BanIpHistoryAccess.Get(banIpHistory.ZoneId, banIpHistory.IP);
+                var banIpHistories = BanIpHistoryAccess.Get(banIpHistory.ZoneTableId, banIpHistory.IP);
                 if (null != banIpHistories && banIpHistories.Count > 0)
                 {
                     return BanIpHistoryAccess.Update(banIpHistory);
@@ -37,13 +37,13 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(banIpHistory.ZoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(banIpHistory.ZoneTableId, LogLevel.Error,
                     $"Add ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return false;
             }
         }
 
-        public static bool Delete(string zoneId, int id)
+        public static bool Delete(int zoneTableId, int id)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace AttackPrevent.Business
             }
             catch (Exception ex)
             {
-                AuditLogBusiness.Add(new AuditLogEntity(zoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(zoneTableId, LogLevel.Error,
                     $"delete ban ip histories failure, the reason is:[{ex.Message}].<br />stack trace:{ex.StackTrace}."));
                 return false;
             }

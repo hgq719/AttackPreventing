@@ -20,7 +20,7 @@ namespace AttackPrevent.Access
                                                    Detail 
                                             FROM t_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();
-            where.Append(" ZoneId=@zoneID AND ");
+            where.Append(" ZoneTableId=@zoneID AND ");
             if (startTime.HasValue)
             {
                 where.Append(" LogTime >= @startTime AND ");
@@ -110,7 +110,7 @@ namespace AttackPrevent.Access
                 using (var conn = new SqlConnection(cons))
                 {
                     const string query = @"INSERT INTO dbo.t_Logs
-                                ( ZoneId ,
+                                ( ZoneTableId ,
                                   LogLevel ,
                                   LogTime ,
                                   LogOperator ,
@@ -164,7 +164,7 @@ namespace AttackPrevent.Access
         private static void Add(AuditLogEntity log, SqlTransaction trans, SqlConnection conn)
         {
             const string insertSql = @"INSERT INTO dbo.t_Logs
-                                ( ZoneId ,
+                                ( ZoneTableId ,
                                   LogLevel ,
                                   LogTime ,
                                   LogOperator ,

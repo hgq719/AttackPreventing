@@ -18,7 +18,7 @@ namespace AttackPrevent.Access
             {
                 string query = @"SELECT Id,
                                         Title,
-                                        ZoneId,
+                                        ZoneTableId,
                                         IP,
                                         HostName,
                                         Max,
@@ -44,7 +44,7 @@ namespace AttackPrevent.Access
                         ActionReport item = new ActionReport();
                         item.Id = Convert.ToInt32(reader["Id"]);
                         item.Title = Convert.ToString(reader["Title"]);
-                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneTableId"]);
                         item.IP = Convert.ToString(reader["IP"]);
                         item.HostName = Convert.ToString(reader["HostName"]);
                         item.Max = Convert.ToInt32(reader["Max"]);
@@ -74,7 +74,7 @@ namespace AttackPrevent.Access
             {
                 string query = @"SELECT Id,
                                         Title,
-                                        ZoneId,
+                                        ZoneTableId,
                                         IP,
                                         HostName,
                                         Max,
@@ -100,7 +100,7 @@ namespace AttackPrevent.Access
                         ActionReport item = new ActionReport();
                         item.Id = Convert.ToInt32(reader["Id"]);
                         item.Title = Convert.ToString(reader["Title"]);
-                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneTableId"]);
                         item.IP = Convert.ToString(reader["IP"]);
                         item.HostName = Convert.ToString(reader["HostName"]);
                         item.Max = Convert.ToInt32(reader["Max"]);
@@ -156,7 +156,7 @@ namespace AttackPrevent.Access
                         ActionReport item = new ActionReport();
                         item.Id = Convert.ToInt32(reader["Id"]);
                         item.Title = Convert.ToString(reader["Title"]);
-                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneTableId"]);
                         item.IP = Convert.ToString(reader["IP"]);
                         item.HostName = Convert.ToString(reader["HostName"]);
                         item.Max = Convert.ToInt32(reader["Max"]);
@@ -211,7 +211,7 @@ namespace AttackPrevent.Access
             
             StringBuilder query = new StringBuilder(@"INSERT INTO dbo.t_Action_Report
                                                         ( Title,
-                                                          ZoneId,
+                                                          ZoneTableId,
                                                           IP,
                                                           HostName,
                                                           Max,
@@ -274,7 +274,7 @@ namespace AttackPrevent.Access
 
             StringBuilder query = new StringBuilder(@"UPDATE dbo.t_Action_Report 
                                                       SET Title=@title,
-                                                          ZoneId=@zoneId,
+                                                          ZoneTableId=@zoneId,
                                                           IP=@ip,
                                                           HostName=@hostName,
                                                           Max=@max,
@@ -338,7 +338,7 @@ namespace AttackPrevent.Access
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             StringBuilder query = new StringBuilder(@"DELETE dbo.t_Action_Report 
-                                                      WHERE ZoneId=@zoneId AND Title=@title");
+                                                      WHERE ZoneTableId=@zoneId AND Title=@title");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {

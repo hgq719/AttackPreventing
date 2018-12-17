@@ -9,7 +9,7 @@ namespace AttackPrevent.Model
     public class BanIpHistory
     {
         public int Id { get; set; }
-        public string ZoneId { get; set; }
+        public int ZoneTableId { get; set; }
         public string IP { get; set; }
         public DateTime LatestTriggerTime { get; set; }
         public int RuleId { get; set; }

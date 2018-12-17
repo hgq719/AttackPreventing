@@ -11,17 +11,17 @@ namespace AttackPrevent.Access
 {
     public class BanIpHistoryAccess
     {
-        public static List<BanIpHistory> Get(string zoneId, string ip = null)
+        public static List<BanIpHistory> Get(int zoneTableId, string ip = null)
         {
             var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             using (var conn = new SqlConnection(cons))
             {
-                var sbSql = new StringBuilder(@"SELECT [ID], [ZoneId], [IP], [LatestTriggerTime], [RuleId], [Remark] 
+                var sbSql = new StringBuilder(@"SELECT [ID], [ZoneTableId], [IP], [LatestTriggerTime], [RuleId], [Remark] 
                                                 FROM T_Ban_IP_History WITH(NOLOCK) 
-                                                WHERE ZoneId = @ZoneId");
+                                                WHERE ZoneTableId = @ZoneTableId");
 
                 var cmd = new SqlCommand();
-                cmd.Parameters.AddWithValue("@ZoneId", zoneId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", zoneTableId);
                 if (!string.IsNullOrEmpty(ip))
                 {
                     sbSql.Append(" And IP = @IP ");
@@ -41,7 +41,7 @@ namespace AttackPrevent.Access
                             Id = Convert.ToInt32(reader["ID"]),
                             IP = Convert.ToString(reader["IP"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
-                            ZoneId = Convert.ToString(reader["ZoneId"]),
+                            ZoneTableId = Convert.ToInt32(reader["ZoneTableId"]),
                             RuleId = Convert.ToInt32(reader["RuleId"]),
                             Remark = Convert.ToString(reader["Remark"])
                         });
@@ -58,13 +58,13 @@ namespace AttackPrevent.Access
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             var strSql = @"INSERT INTO T_Ban_IP_History(
-                                                [ZoneId],
+                                                [ZoneTableId],
                                                 [IP],
                                                 [LatestTriggerTime],
                                                 [RuleId], 
                                                 [Remark])
                                              VALUES (
-                                                @ZoneId,
+                                                @ZoneTableId,
                                                 @IP,
                                                 GETUTCDATE(),
                                                 @RuleId,
@@ -74,7 +74,7 @@ namespace AttackPrevent.Access
             {
 
                 var cmd = new SqlCommand(strSql, conn);
-                cmd.Parameters.AddWithValue("@ZoneId", banIpHistory.ZoneId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", banIpHistory.ZoneTableId);
                 cmd.Parameters.AddWithValue("@IP", banIpHistory.IP);
                 cmd.Parameters.AddWithValue("@RuleId", banIpHistory.RuleId);
                 cmd.Parameters.AddWithValue("@Remark", banIpHistory.Remark);
@@ -92,13 +92,13 @@ namespace AttackPrevent.Access
                            SET LatestTriggerTime = GETUTCDATE(), 
                                RuleId = @RuleId, 
                                Remark = @Remark
-                           WHERE ZoneId = @ZoneId And IP = @IP";
+                           WHERE ZoneTableId = @ZoneTableId And IP = @IP";
 
             using (var conn = new SqlConnection(connStr))
             {
 
                 var cmd = new SqlCommand(strSql, conn);
-                cmd.Parameters.AddWithValue("@ZoneId", banIpHistory.ZoneId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", banIpHistory.ZoneTableId);
                 cmd.Parameters.AddWithValue("@IP", banIpHistory.IP);
                 cmd.Parameters.AddWithValue("@RuleId", banIpHistory.RuleId);
                 cmd.Parameters.AddWithValue("@Remark", banIpHistory.Remark);
@@ -130,17 +130,17 @@ namespace AttackPrevent.Access
         {
             var strSql = @"IF NOT EXISTS 
                            (
-                                SELECT  ID FROM T_Ban_IP_History WHERE IP=@IP AND ZONEID =@ZoneId
+                                SELECT  ID FROM T_Ban_IP_History WHERE IP=@IP AND ZONEID =@ZoneTableId
                            )
                                BEGIN 
                                     INSERT INTO T_Ban_IP_History(
-                                                    [ZoneId],
+                                                    [ZoneTableId],
                                                     [IP],
                                                     [LatestTriggerTime],
                                                     [RuleId], 
                                                     [Remark])
                                                  VALUES (
-                                                    @ZoneId,
+                                                    @ZoneTableId,
                                                     @IP,
                                                     GETUTCDATE(),
                                                     @RuleId,
@@ -152,11 +152,11 @@ namespace AttackPrevent.Access
                                     SET LatestTriggerTime = GETUTCDATE(), 
                                         RuleId = @RuleId, 
                                         Remark = @Remark
-                                    WHERE ZoneId = @ZoneId And IP = @IP;
+                                    WHERE ZoneTableId = @ZoneTableId And IP = @IP;
                            END";
 
             var cmd = new SqlCommand(strSql, conn, trans);
-            cmd.Parameters.AddWithValue("@ZoneId", banIPHistory.ZoneId);
+            cmd.Parameters.AddWithValue("@ZoneTableId", banIPHistory.ZoneTableId);
             cmd.Parameters.AddWithValue("@IP", banIPHistory.IP);
             cmd.Parameters.AddWithValue("@RuleId", banIPHistory.RuleId);
             cmd.Parameters.AddWithValue("@Remark", banIPHistory.Remark);
@@ -166,7 +166,7 @@ namespace AttackPrevent.Access
 
         public static void Add(List<BanIpHistory> banIpHistories)
         {
-            var zoneId = banIpHistories[0].ZoneId;
+            var zoneId = banIpHistories[0].ZoneTableId;
             var connStr = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (var conn = new SqlConnection(connStr))

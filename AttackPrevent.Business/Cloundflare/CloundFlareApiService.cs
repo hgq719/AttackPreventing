@@ -36,7 +36,8 @@ namespace AttackPrevent.Business
     }
     public class CloundFlareApiService : ICloundFlareApiService
     {
-        private string _zoneId = "xxx";
+        private string _zoneId = "***";
+        private int _zoneTableId = 0;
         private string _authEmail = "xx@xx.com";
         private string _authKey = "xxxyyy";
         private string _apiUrlPrefix = "";
@@ -50,11 +51,12 @@ namespace AttackPrevent.Business
         {
         }
 
-        public CloundFlareApiService(string zoneId, string authEmail, string authKey, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
+        public CloundFlareApiService(string zoneId, string authEmail, string authKey, int zoneTableId, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
         {
             _zoneId = zoneId;
             _authEmail = authEmail;
             _authKey = authKey;
+            _zoneTableId = zoneTableId;
             _apiUrlPrefix = apiUrlPrefix;
         }
 
@@ -621,7 +623,7 @@ namespace AttackPrevent.Business
                     else
                     {
                         var errorResponse = JsonConvert.DeserializeObject<CloudflareLogErrorResponse>(content);
-                        AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                        AuditLogBusiness.Add(new AuditLogEntity(_zoneTableId, LogLevel.Error,
                             $"Got logs failure, the reason is:[{ (errorResponse.Errors.Count > 0 ? errorResponse.Errors[0].Message : "No error message from Cloudflare.")}]."));
                     }
                 }
@@ -636,7 +638,7 @@ namespace AttackPrevent.Business
             catch (Exception ex)
             {
                 retry = true;
-                AuditLogBusiness.Add(new AuditLogEntity(_zoneId, LogLevel.Error,
+                AuditLogBusiness.Add(new AuditLogEntity(_zoneTableId, LogLevel.Error,
                     $"Got logs failure, the reason is:[{ex.Message}]. <br />stack trace:{ex.StackTrace}]."));
                 return cloudflareLogs;
             }
@@ -720,7 +722,7 @@ namespace AttackPrevent.Business
                 var response = UpdateRateLimit(ratelimit);
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                    errorLog = new AuditLogEntity(_zoneTableId, LogLevel.Error,
                         $"Open rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
@@ -730,7 +732,7 @@ namespace AttackPrevent.Business
                 var response = CreateRateLimit(new CloudflareRateLimitRule(url, threshold, period, "Create Rate limit rule By Attack Prevent Windows service!"));
                 if (!response.success)
                 {
-                    errorLog = new AuditLogEntity(_zoneId, LogLevel.Error,
+                    errorLog = new AuditLogEntity(_zoneTableId, LogLevel.Error,
                         $"Create rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;

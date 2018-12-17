@@ -10,7 +10,7 @@ namespace AttackPrevent.Access
 {
     public class RateLimitAccess
     {
-        public static List<RateLimitEntity> GetRateLimits(string zoneId, DateTime? startTime, DateTime? endTime, string url)
+        public static List<RateLimitEntity> GetRateLimits(int zoneTableId, DateTime? startTime, DateTime? endTime, string url)
         {
             var cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
             var result = new List<RateLimitEntity>();
@@ -21,8 +21,8 @@ namespace AttackPrevent.Access
                                                              EnlargementFactor, 
                                                              RateLimitTriggerIpCount, 
                                                              LatestTriggerTime,
-                                                             ZoneId,
-                                                             Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
+                                                             ZoneTableId,
+                                                             Id FROM t_RateLimiting_Rules where ZoneTableId=@ZoneTableId");
             if (startTime.HasValue)
             {
                 query.Append(" AND CreatedTime >= @startTime ");
@@ -43,7 +43,7 @@ namespace AttackPrevent.Access
             using (var conn = new SqlConnection(cons))
             {
                 var cmd = new SqlCommand(query.ToString(), conn);
-                cmd.Parameters.AddWithValue("@zoneID", zoneId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", zoneTableId);
                 if (startTime.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@startTime", startTime.Value);
@@ -75,7 +75,7 @@ namespace AttackPrevent.Access
                             RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
                             TableID = Convert.ToInt32(reader["Id"]),
-                            ZoneTableId = reader["ZoneId"].ToString(),
+                            ZoneTableId = Convert.ToInt32(reader["ZoneTableId"].ToString()),
                             
                         });
                     }
@@ -92,7 +92,7 @@ namespace AttackPrevent.Access
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"INSERT INTO dbo.t_RateLimiting_Rules
-        ( ZoneId ,
+        ( ZoneTableId ,
           OrderNo ,
           Url ,
           Threshold ,
@@ -106,7 +106,7 @@ namespace AttackPrevent.Access
           CreatedBy ,
           CreatedTime
         )
-VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
+VALUES  ( @ZoneTableId , -- ZoneTableId - int
           @order , -- OrderNo - int
           @url , -- Url - nvarchar(512)
           @threshold , -- Threshold - int
@@ -121,7 +121,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           GETUTCDATE()  -- CreatedTime - datetime
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneID", item.ZoneTableId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", item.ZoneTableId);
                 cmd.Parameters.AddWithValue("@order", item.OrderNo);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
@@ -143,7 +143,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             using (var conn = new SqlConnection(cons))
             {
                 const string query = @"UPDATE  dbo.t_RateLimiting_Rules
-                                    SET     ZoneId = @zoneID ,
+                                    SET     ZoneTableId = @ZoneTableId ,
                                             Url = @url ,
                                             Threshold = @threshold ,
                                             Period = @period ,
@@ -153,7 +153,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                             CreatedBy = @user
                                     WHERE   Id = @id;";
                 var cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneID", item.ZoneTableId);
+                cmd.Parameters.AddWithValue("@ZoneTableId", item.ZoneTableId);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
                 cmd.Parameters.AddWithValue("@url", item.Url);
@@ -178,11 +178,13 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                  SET LatestTriggerTime = GETUTCDATE()  
                                  WHERE Url = @Url 
                                    AND Threshold = @Threshold
-                                   AND Period = @Period";
+                                   AND Period = @Period
+                                   AND ZoneTableId = @ZoneTableId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Threshold", rateLimit.Threshold);
                 cmd.Parameters.AddWithValue("@Period", rateLimit.Period);
                 cmd.Parameters.AddWithValue("@Url", rateLimit.Url);
+                cmd.Parameters.AddWithValue("@ZoneTableId", rateLimit.ZoneTableId);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -238,11 +240,11 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         EnlargementFactor, 
                                         RateLimitTriggerIpCount, 
                                         Id, 
-                                        ZoneId, 
-                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order and ZoneId=@zoneId";
+                                        ZoneTableId, 
+                                        RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order and ZoneTableId=@zoneTableId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@order", order);
-                cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                cmd.Parameters.AddWithValue("@zoneTableId", zoneId);
                 conn.Open();
                 
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -257,7 +259,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
-                        item.ZoneTableId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneTableId = Convert.ToInt32(reader["ZoneTableId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }
@@ -279,7 +281,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         EnlargementFactor, 
                                         RateLimitTriggerIpCount, 
                                         Id, 
-                                        ZoneId, 
+                                        ZoneTableId, 
                                         RateLimitTriggerTime FROM t_RateLimiting_Rules where Id=@id";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
@@ -297,7 +299,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.EnlargementFactor = Convert.ToInt32(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
-                        item.ZoneTableId = Convert.ToString(reader["ZoneId"]);
+                        item.ZoneTableId = Convert.ToInt32(reader["ZoneTableId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
                     }
                 }
@@ -306,7 +308,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             return item;
         }
 
-        public static int GetRateLimitMaxOrder(string zoneId)
+        public static int GetRateLimitMaxOrder(int zoneTableId)
         {
             int count = 0;
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
@@ -314,9 +316,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             {
                 string query = @"SELECT MAX(OrderNo) 
                                     FROM dbo.t_RateLimiting_Rules
-                                    WHERE ZoneId=@zoneId";
+                                    WHERE ZoneTableId=@zoneTableId";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);
                 conn.Open();
                 string counts = cmd.ExecuteScalar().ToString();
                 count = string.IsNullOrWhiteSpace(counts) ? 0 : int.Parse(counts);

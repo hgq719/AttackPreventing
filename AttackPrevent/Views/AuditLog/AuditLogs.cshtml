@@ -109,6 +109,7 @@
         var oTableInit = new Object();
         //初始化Table
         oTableInit.Init = function () {
+            $("body").mLoading({ text: "Processing..." }, "show");
             $('#auditLogTable').bootstrapTable({
                 url: '/AuditLog/GetAuditLog',         //请求后台的URL（*）
                 method: 'get',                      //请求方式（*）
@@ -202,9 +203,15 @@
                 //formatLoadingMessage: function () {
                 //    $("body").mLoading({ text: "Processing..." }, "show");
                 //},
-                //onLoadSuccess: function () {
-                //    $("body").mLoading("hide");
-                //}
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                },
+                onLoadError: function () {
+                    $("body").mLoading("hide");
+                },
+                onPageChange: function () {
+                    $("body").mLoading({ text: "Processing..." }, "show");
+                }
             });
         };
 

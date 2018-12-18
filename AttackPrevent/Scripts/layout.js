@@ -31,7 +31,7 @@ function getFormatDate(arg) {
 
 $(document).ready(function () {
     $(".headerRight-cm").hover(function () {
-        console.log("aaaa");
+        
         $(this).children(".divAvatarsHasTop").stop(false, true).slideDown(300);
     }, function () {
         $(this).children(".divAvatarsHasTop").stop(false, true).css("display", "none");

@@ -1,5 +1,5 @@
 
-IF NOT EXISTS
+IF EXISTS
 (
     SELECT name 
     FROM SYSOBJECTS
@@ -17,7 +17,8 @@ CREATE TABLE [dbo].[t_Logs] (
     [LogOperator] NVARCHAR (256)  DEFAULT ('') NOT NULL,
     [IP]          NVARCHAR (256)  DEFAULT ('') NOT NULL,
     [Detail]      NVARCHAR (MAX)  DEFAULT ('') NOT NULL,
-    [Remark]      NVARCHAR (1024) DEFAULT ('') NOT NULL
+    [Remark]      NVARCHAR (1024) DEFAULT ('') NOT NULL,
+	CONSTRAINT [PK_t_Logs] PRIMARY KEY CLUSTERED ([Id] DESC)
 );
 
 
@@ -26,6 +27,8 @@ IF NOT EXISTS
 	 FROM SYS.indexes
 	 WHERE NAME = 'IX_T_Logs'
 )
+
+
 
 CREATE NONCLUSTERED INDEX [IX_T_Logs_LOGTIME] ON [dbo].[t_Logs]
 (

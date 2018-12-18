@@ -17,7 +17,8 @@ namespace AttackPrevent.Controllers
         public JsonResult GetAuditLog(int limit, int offset, int zoneTableID, DateTime? startTime, DateTime? endTime, string logType, string detail, bool ifUseCache)
         {
 
-            dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneTableID, startTime, endTime, logType, detail, ifUseCache, UserName);
+            //dynamic result = AuditLogBusiness.GetAuditLog(limit, offset, zoneTableID, startTime, endTime, logType, detail, ifUseCache, UserName);
+            dynamic result = AuditLogBusiness.GetAuditLogByPage(limit, offset, zoneTableID, startTime, endTime, logType, detail);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

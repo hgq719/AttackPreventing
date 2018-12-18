@@ -1,8 +1,4 @@
-﻿select * from t_logs;
+﻿select count(*) from t_logs;
 
-DELETE FROM T_LOGS;
+delete from t_logs
 
-SELECT * FROM T_ZONE_INFO
-
-DELETE FROM T_ZONE_INFO
-WHERE ID =20;

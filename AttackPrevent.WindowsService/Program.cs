@@ -16,7 +16,7 @@ namespace AttackPrevent.WindowsService
 {
     public class Program
     {
-
+        private static readonly ILogService LogService = new LogService();
         static void Main()
         {
             try
@@ -27,7 +27,8 @@ namespace AttackPrevent.WindowsService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($" error message = {ex.Message}. \n stack trace = {ex.StackTrace}");
+                var msg = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
+                LogService.Error(msg);
             }
         }
 
@@ -40,17 +41,18 @@ namespace AttackPrevent.WindowsService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($" error message = {ex.Message}. \n stack trace = {ex.StackTrace}");
+                var msg = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
+                LogService.Error(msg);
             }
         }
-        #region 服务相关
+        
         private const string SrvName = "Comm100.AcctackLogAnalyzeService";
         private const string SrvDisplay = "Comm100.AcctackLogAnalyzeService";
         //Code review by michael (string not String, s 是小写的）
         private const String SrvDescription = "Acctack Log Analyze windodws Service for Comm100";
-        #endregion
+       
 
-        #region 方法定义
+      
 
         private static void Uninstall(WindowsServiceInstaller srv)
         {
@@ -92,7 +94,7 @@ namespace AttackPrevent.WindowsService
             };
             ServiceBase.Run(ServicesToRun);
         }
-        #endregion
+      
 
         #region Test
         public static void Test()

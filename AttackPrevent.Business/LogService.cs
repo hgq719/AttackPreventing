@@ -10,20 +10,27 @@ namespace AttackPrevent.Business
     public interface ILogService
     {
         void Debug(object message);
+        void Info(object message);
         void Error(object message);
+
     }
     public class LogService:ILogService
     {
-        private ILog logger = LogManager.GetLogger("WebLogger");
+        private readonly ILog _logger = LogManager.GetLogger("WebLogger");
 
         public void Debug(object message)
         {
-            logger.Debug(message);
+            _logger.Debug(message);
+        }
+
+        public void Info(object message)
+        {
+            _logger.Info(message);
         }
 
         public void Error(object message)
         {
-            logger.Error(message);
+            _logger.Error(message);
         }
     }
 }

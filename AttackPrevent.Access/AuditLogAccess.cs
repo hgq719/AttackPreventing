@@ -103,9 +103,11 @@ namespace AttackPrevent.Access
             return result;
         }
 
+      
         public static void Add(AuditLogEntity item)
         {
-            int zoneTableId = ZoneAccess.GetZoneByZoneId(item.ZoneID).TableID;
+           
+            if (item.ZoneTableID == 0) { item.ZoneTableID = ZoneAccess.GetZoneByZoneId(item.ZoneID).TableID; }
             try
             {
                 var cons = WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
@@ -130,7 +132,7 @@ namespace AttackPrevent.Access
                                   N''
                                 )";
                     var cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@zoneTableId", zoneTableId);
+                    cmd.Parameters.AddWithValue("@zoneTableId", item.ZoneTableID);
                     cmd.Parameters.AddWithValue("@logLevel", item.LogType);
                     cmd.Parameters.AddWithValue("@operator", item.LogOperator);
                     cmd.Parameters.AddWithValue("@logTime", item.LogTime);

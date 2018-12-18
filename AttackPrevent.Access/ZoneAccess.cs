@@ -331,12 +331,12 @@ namespace AttackPrevent.Access
                                                              [ThresholdForHost],
                                                              [PeriodForHost],
                                                              [IfAnalyzeByHostRule],
-                                                             [AuthKey] from [t_Zone_Info] WHERE [ZoneId] LIKE'%'+@zoneID+'%' ");
+                                                             [AuthKey] from [t_Zone_Info] WHERE [ZoneId] = @zoneID ");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
 
-                SqlCommand cmd = new SqlCommand(query.ToString(), conn);
+                var cmd = new SqlCommand(query.ToString(), conn);
                 cmd.Parameters.AddWithValue("@zoneID", zoneID);
                 conn.Open();
 
@@ -344,18 +344,20 @@ namespace AttackPrevent.Access
                 {
                     if (reader.Read())
                     {
-                        result = new ZoneEntity();
-                        result.ZoneId = Convert.ToString(reader["ZoneId"]);
-                        result.ZoneName = Convert.ToString(reader["ZoneName"]);
-                        result.AuthEmail = Convert.ToString(reader["AuthEmail"]);
-                        result.IfTestStage = Convert.ToInt32(reader["IfTestStage"]) > 0;
-                        result.IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0;
-                        result.IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0;
-                        result.TableID = Convert.ToInt32(reader["Id"]);
-                        result.AuthKey = Convert.ToString(reader["AuthKey"]);
-                        result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
-                        result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
-                        result.IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0;
+                        result = new ZoneEntity
+                        {
+                            ZoneId = Convert.ToString(reader["ZoneId"]),
+                            ZoneName = Convert.ToString(reader["ZoneName"]),
+                            AuthEmail = Convert.ToString(reader["AuthEmail"]),
+                            IfTestStage = Convert.ToInt32(reader["IfTestStage"]) > 0,
+                            IfEnable = Convert.ToInt32(reader["IfEnable"]) > 0,
+                            IfAttacking = Convert.ToInt32(reader["IfAttacking"]) > 0,
+                            TableID = Convert.ToInt32(reader["Id"]),
+                            AuthKey = Convert.ToString(reader["AuthKey"]),
+                            ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]),
+                            PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]),
+                            IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0
+                        };
                     }
                 }
             }

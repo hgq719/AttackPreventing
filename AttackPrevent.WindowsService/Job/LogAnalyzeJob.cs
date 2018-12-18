@@ -1,14 +1,12 @@
 ﻿using AttackPrevent.Business;
 using AttackPrevent.Model;
 using AttackPrevent.Model.Cloudflare;
-using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AttackPrevent.WindowsService.Job
@@ -18,9 +16,9 @@ namespace AttackPrevent.WindowsService.Job
         private double _sample = 1;
         private int _timeSpan = 60;
         private int _cancelBanIpTime = 120;
-        private List<HostConfigurationEntity> _hostConfigList = null;
+        private readonly ILogService _logService = new LogService();
 
-        
+
         private List<string> _suffixList = new List<string>
         {
             "bmp","ejs","jpeg","pdf","ps","ttf","class","eot","jpg","pict"
@@ -28,7 +26,11 @@ namespace AttackPrevent.WindowsService.Job
             ,"mid","png","swf","woff2","doc","ico","midi","ppt","tif","xls"
             ,"docx","jar","otf","pptx","tiff","xlsx"
         };
-        
+
+        public LogAnalyzeJob()
+        {
+        }
+
         public void Execute()
         {
             //Set global paramter
@@ -38,20 +40,18 @@ namespace AttackPrevent.WindowsService.Job
                 _sample = globalConfigurations[index: 0].GlobalSample;
                 _timeSpan = globalConfigurations[index: 0].GlobalTimeSpan;
                 _cancelBanIpTime = globalConfigurations[index: 0].CancelBanIPTime;
-            };
+            }
 
             var filterSuffixList = ConfigurationManager.AppSettings["FilterSuffixList"];
             if (!string.IsNullOrEmpty(filterSuffixList))
             {
                 _suffixList = filterSuffixList.Split(',').ToList();
             }
-
-
-            _hostConfigList = HostConfigurationBusiness.GetList();
-
+            
             var zoneList = ZoneBusiness.GetAllList();
             if(zoneList.Count == 0) { return;}
 
+            ZoneLockerManager.RefreshZoneLockers(zoneList);
             foreach (var zoneEntity in zoneList)
             {
                 try
@@ -67,6 +67,7 @@ namespace AttackPrevent.WindowsService.Job
                 catch (Exception ex)
                 {
                     AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error, $"Auth key is invalid."));
+                    _logService.Error($" error message = {ex.Message}. \n stack trace = {ex.StackTrace}");
                 }
             }
 
@@ -75,6 +76,8 @@ namespace AttackPrevent.WindowsService.Job
         private void StartAnalyze(ZoneEntity zoneEntity)
         {
             Console.WriteLine($"{DateTime.UtcNow} Start to analyze zone: {zoneEntity.ZoneName}");
+            var sw = new Stopwatch();
+            sw.Start();
 
             var zoneId = zoneEntity.ZoneId;
             try
@@ -115,7 +118,7 @@ namespace AttackPrevent.WindowsService.Job
                     dtEnd = keyValuePair.Value;
 
                     var timeStage = $"{dtStart:MM/dd/yyyy HH:mm:ss}]-[{dtEnd:MM/dd/yyyy HH:mm:ss}";
-                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App,
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
                         $"Start getting logs, time range is [{timeStage}]."));
 
                     var cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out var
@@ -128,8 +131,8 @@ namespace AttackPrevent.WindowsService.Job
                         cloudflareLogs = cloudflare.GetLogs(dtStart, dtEnd, 1, out retry);
                     }
 
-                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.App,
-                        $"Finished getting total [{cloudflareLogs.Count}] records, time range is [{timeStage}]."));
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                        $"Finished getting total [{cloudflareLogs.Count}] records, start to analyze logs, the time range is [{timeStage}]."));
 
                     if (cloudflareLogs.Count > 0)
                     {
@@ -158,43 +161,45 @@ namespace AttackPrevent.WindowsService.Job
                         zoneEntity.IfTestStage, cloudflare, timeStage);
                     if (removeLog.Length > 0)
                     {
-                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.ZoneId, LogLevel.Audit, removeLog));
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Audit, removeLog));
                     }
 
                 }
             }
             catch (Exception ex)
             {
-
+                var msg = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
+                _logService.Error(msg);
             }
             finally
             {
                 ZoneLockerManager.SetZoneRunningStatus(zoneId, false);
-                Console.WriteLine($"{DateTime.UtcNow} end to analyze zone: {zoneEntity.ZoneName}");
+                sw.Stop();
+                Console.WriteLine($"{DateTime.UtcNow} end to analyze zone: {zoneEntity.ZoneName},elapsed time : {sw.ElapsedMilliseconds/1000}s");
             }
 
         }
 
-        private void AnalyzeLog(List<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits, string timeStage)
+        private void AnalyzeLog(IEnumerable<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits, string timeStage)
         {
             var systemLogList = new List<AuditLogEntity>();
             var zoneTableId = zoneEntity.TableID;
             var ifTestStage = zoneEntity.IfTestStage;
             var ifAttacking = false;
             var dtNow = DateTime.UtcNow;
-            var banIpLog = string.Empty;
+            string banIpLog;
             try
             {
                 var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-                systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
-                    $"Start analyzing logs, time range is [{timeStage}]."));
+                //systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
+                //    $"Start analyzing logs, time range is [{timeStage}]."));
 
 
                 //抽取出所有ratelimit规则中的请求列表
                 var logs = logsAll.Where(x => IfInRateLimitRule(x.RequestUrl, rateLimits)).ToList();
 
                 #region Analyze log by rate limit rules
-                var ifContainWildcard = false;
+                bool ifContainWildcard;
                 foreach (var rateLimit in rateLimits)
                 {
                     //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
@@ -306,7 +311,7 @@ namespace AttackPrevent.WindowsService.Job
                                 {
                                     sbDetail.Append($"IP [{rule.IP}] visited [{rateLimit.Url}] [{rule.RequestCount}] times, time range：[{timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]).<br />");
                                 }
-                                banIpLog = BanIpByRateLimitRule(zoneEntity, dtNow, ifTestStage, cloudflare, rateLimit, timeStage, rule);
+                                banIpLog = BanIpByRateLimitRule(zoneEntity, ifTestStage, cloudflare, rateLimit, timeStage, rule);
                                 logs.RemoveAll(p => p.IP == rule.IP);
                                 if (!string.IsNullOrEmpty(banIpLog)) sbDetail.Append(banIpLog);
 
@@ -332,9 +337,6 @@ namespace AttackPrevent.WindowsService.Job
                             systemLogList.Add(removeRateLimitLog);
                         }
                     }
-
-                    //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
-                    //    $"Finished analyzing rate limit rule [Url={rateLimit.Url},Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]."));
                 }
                 #endregion
                 
@@ -362,40 +364,7 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
-        private string BanIpByRateHostConfiguration(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage, LogAnalyzeModel ipRequestRecord, List<HostConfigurationEntity> currentHostConfigList)
-        {
-            var sbDetail = new StringBuilder();
-            if (ifTestStage)
-            {
-                sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", ipRequestRecord.IP);
-            }
-            else
-            {
-                var cloudflareAccessRuleResponse = cloudflare.BanIp(ipRequestRecord.IP, "Ban Ip By Attack Prevent Windows service!");
-                if (cloudflareAccessRuleResponse.Success)
-                {
-                    sbDetail.AppendFormat("Ban IP [{0}] and add ban history successfully.<br />", ipRequestRecord.IP);
-
-                    BanIpHistoryBusiness.Add(new BanIpHistory()
-                    {
-                        IP = ipRequestRecord.IP,
-                        ZoneId = zoneEntity.ZoneId,
-                        RuleId = 0,
-                        Remark = string.Format("IP [{0}] visited [{2}] [{3}] times, time range：[{1}].<br /> Exceeded host access threshold(Period=[{4}],Threshold=[{5}]).",
-                    ipRequestRecord.IP, timeStage, ipRequestRecord.RequestHost, ipRequestRecord.RequestCount,
-                    currentHostConfigList.Count > 0 ? currentHostConfigList[0].Period : zoneEntity.PeriodForHost, currentHostConfigList.Count > 0 ? currentHostConfigList[0].Threshold : zoneEntity.ThresholdForHost)
-                    });
-                
-                }
-                else
-                {
-                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", ipRequestRecord.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "Cloudflare does not return any error message");
-                }
-            }
-            return sbDetail.ToString();
-        }
-
-        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, DateTime dtNow, bool ifTestStage, CloundFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel)
+        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel)
         {
             var sbDetail = new StringBuilder();
             if (ifTestStage)
@@ -428,7 +397,7 @@ namespace AttackPrevent.WindowsService.Job
 
         private AuditLogEntity RemoveCloudflareRateLimitByLastTriggerTime(int zoneTableId, DateTime dtNow, bool ifTestStage, CloundFlareApiService cloudflare, RateLimitEntity rateLimit)
         {
-            AuditLogEntity log = null;
+            AuditLogEntity log;
             //没有触犯该条Rate Limit，检查是否需要关闭Rate Limit
             if (!((dtNow - rateLimit.LatestTriggerTime).TotalHours > rateLimit.RateLimitTriggerTime)) return null;
             var rule = cloudflare.GetRateLimitRule(rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
@@ -459,6 +428,7 @@ namespace AttackPrevent.WindowsService.Job
 
         private string RemoveIpFromBlacklistByLastTriggerTime(string zoneId, DateTime dtNow, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage)
         {
+            if (timeStage == null) throw new ArgumentNullException(nameof(timeStage));
             CloudflareAccessRuleResponse cloudflareAccessRuleResponse = null;
 
             //如果黑名单中的Ip在CancelBanIpTime时间内没有触发规则，则删除黑名单
@@ -527,18 +497,5 @@ namespace AttackPrevent.WindowsService.Job
             return false;
         }
 
-        private bool IfOverHostRequestLimit(string hostStr, int requestCount, int globalThreshold, int globalPeriod)
-        {
-            foreach (var hostConfig in _hostConfigList)
-            {
-                // code review by page 这个地方用==全字匹配是否合适
-                if (hostConfig.Host.Equals(hostStr))
-                {
-                    return requestCount / (float)(_timeSpan * _sample) >= ((float)hostConfig.Threshold / hostConfig.Period);
-                }
-            }
-            //这段代码意图是？
-            return requestCount / (float)(_timeSpan * _sample) >= ((float)globalThreshold / globalPeriod);
-        }
     }
 }

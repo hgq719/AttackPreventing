@@ -246,23 +246,25 @@
 
     $("#queryLog").click(function () {
         $("body").mLoading({ text: "Processing..." }, "show");
-        var para = oTable.queryParams({ limit: 10, offset: 0 });
-        $.ajax({
-            type: "GET",
-            url: "/AuditLog/GetAuditLog",
-            data: Object.assign(para, { ifUseCache: false, }),
-            dataType: "json",
-            async: true,
-            success: function (data) {
-                $("body").mLoading("hide");
-                $("#cacheKey").val(data.cacheKey);
-                $('#auditLogTable').bootstrapTable('refresh');
-            },
-            error: function (jqXHR) {
-                $("body").mLoading("hide");
-                //console.log("Error: " + jqXHR.status);
-            }
-        });
+        $('#auditLogTable').bootstrapTable('refresh');
+
+        //var para = oTable.queryParams({ limit: 10, offset: 0 });
+        //$.ajax({
+        //    type: "GET",
+        //    url: "/AuditLog/GetAuditLog",
+        //    data: Object.assign(para, { ifUseCache: false, }),
+        //    dataType: "json",
+        //    async: true,
+        //    success: function (data) {
+        //        //$("body").mLoading("hide");
+        //        $("#cacheKey").val(data.cacheKey);
+        //        $('#auditLogTable').bootstrapTable('refresh');
+        //    },
+        //    error: function (jqXHR) {
+        //        $("body").mLoading("hide");
+        //        //console.log("Error: " + jqXHR.status);
+        //    }
+        //});
         
     });
 

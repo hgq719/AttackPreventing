@@ -124,18 +124,40 @@ namespace AttackPrevent.Access
                 where.Append(" LogTime <= @endTime AND ");
             }
             where.Append(" ZoneTableId=@zoneTableId AND ");
-            if (!string.IsNullOrWhiteSpace(logType))
+
+            if (string.IsNullOrWhiteSpace(logType))
             {
-                where.Append(" LogLevel IN (");
-                logType = logType.Remove(logType.Length - 1);
-                string[] ar = logType.Split(',');
-                for (var i = 0; i < ar.Length; i++)
-                {
-                    where.Append("@logType" + i + ",");
-                }
-                where.Remove(where.Length - 1, 1);
-                where.Append(") AND ");
+                logType = "0,2,1,";
             }
+
+            where.Append(" LogLevel IN (");
+            logType = logType.Remove(logType.Length - 1);
+            string[] ar = logType.Split(',');
+            for (var i = 0; i < ar.Length; i++)
+            {
+                where.Append("@logType" + i + ",");
+            }
+            where.Remove(where.Length - 1, 1);
+            where.Append(") AND ");
+
+
+            //if (!string.IsNullOrWhiteSpace(logType))
+            //{
+            //    where.Append(" LogLevel IN (");
+            //    logType = logType.Remove(logType.Length - 1);
+            //    string[] ar = logType.Split(',');
+            //    for (var i = 0; i < ar.Length; i++)
+            //    {
+            //        where.Append("@logType" + i + ",");
+            //    }
+            //    where.Remove(where.Length - 1, 1);
+            //    where.Append(") AND ");
+            //}
+            //else
+            //{
+            //    where.Append(" LogLevel IN ('0', '2', '1') AND ");
+            //}
+
             if (!string.IsNullOrWhiteSpace(detail))
             {
                 where.Append(" Detail LIKE'%'+@detail+'%' AND ");
@@ -145,7 +167,7 @@ namespace AttackPrevent.Access
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY LogTime desc offset @offset rows fetch next @limit rows only");
+            query.Append("ORDER BY Id desc offset @offset rows fetch next @limit rows only");
             using (var conn = new SqlConnection(cons))
             {
 
@@ -162,7 +184,7 @@ namespace AttackPrevent.Access
                 }
                 if (!string.IsNullOrWhiteSpace(logType))
                 {
-                    var ar = logType.Split(',');
+                    //var ar = logType.Split(',');
                     for (var i = 0; i < ar.Length; i++)
                     {
                         cmd.Parameters.AddWithValue("@logType" + i, ar[i]);

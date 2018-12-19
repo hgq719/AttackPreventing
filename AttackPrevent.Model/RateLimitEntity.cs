@@ -8,6 +8,10 @@ namespace AttackPrevent.Model
 {
     public class RateLimitEntity
     {
+        public RateLimitEntity()
+        {
+            OrderNo = 0;
+        }
         public int ID { get; set; }
 
         public int TableID { get; set; }

@@ -72,7 +72,7 @@ namespace AttackPrevent.Controllers
         {
             var ZoneList = ZoneBusiness.GetZoneSelectList();
             ViewBag.ZoneList = ZoneList;
-            ViewBag.DefaultValue = string.IsNullOrWhiteSpace(zoneId)? ZoneList.FirstOrDefault().Value : zoneId;
+            ViewBag.DefaultValue = zoneId;
             ViewBag.IsAdmin = IsAdmin;
             return View();
         }

@@ -19,6 +19,8 @@ namespace AttackPrevent.WindowsService
         private static readonly ILogService LogService = new LogService();
         static void Main()
         {
+            Test();
+
             try
             {
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
@@ -164,10 +166,10 @@ namespace AttackPrevent.WindowsService
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
             SmtpQueueBusiness.Edit(smtpQueue);
-            SmtpQueueBusiness.Delete("06/12/2018");
+            //SmtpQueueBusiness.Delete("06/12/2018");
 
-            IActiveReportService activeReportService = ActiveReportService.GetInstance();
-            activeReportService.GeneratedActiveReport();
+            //IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            //activeReportService.GeneratedActiveReport();
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();

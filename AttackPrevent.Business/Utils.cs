@@ -116,7 +116,7 @@ namespace AttackPrevent.Business
             _smtpClient.Host = smtpserver;//指定SMTP服务器
             if (authentication)
             {
-                _smtpClient.Credentials = new System.Net.NetworkCredential("testaccount", pwd);//用户名和密码
+                _smtpClient.Credentials = new System.Net.NetworkCredential(userName, pwd);//用户名和密码
             }
             _smtpClient.Timeout = timeout;
             _smtpClient.Port = port;

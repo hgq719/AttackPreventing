@@ -22,6 +22,7 @@ namespace AttackPrevent.WindowsService
             try
             {
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
+                RunProgram().GetAwaiter().GetResult();
                 var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
                 Console.ReadLine();
             }
@@ -149,7 +150,7 @@ namespace AttackPrevent.WindowsService
             int? minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
             int? avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
-            //ActionReportBusiness.Delete("06/12/2018");
+            ActionReportBusiness.Delete("06/12/2018");
 
             Model.SmtpQueue smtpQueue = new Model.SmtpQueue
             {

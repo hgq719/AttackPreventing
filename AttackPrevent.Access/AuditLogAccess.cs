@@ -112,7 +112,7 @@ namespace AttackPrevent.Access
                                                    LogTime, 
                                                    LogOperator, 
                                                    Detail 
-                                            FROM t_Logs WITH(NOLOCK) ");
+                                            FROM t_Logs WITH(index=IX_T_Logs_LOGLEVEL) ");
             var where = new StringBuilder();
 
             if (startTime.HasValue)
@@ -127,18 +127,39 @@ namespace AttackPrevent.Access
 
             if (string.IsNullOrWhiteSpace(logType))
             {
-                logType = "0,2,1,";
+                logType = "0,2,1";
+            }
+            else
+            {
+                logType = logType.Remove(logType.Length - 1);
             }
 
-            where.Append(" LogLevel IN (");
-            logType = logType.Remove(logType.Length - 1);
-            string[] ar = logType.Split(',');
-            for (var i = 0; i < ar.Length; i++)
+            if (logType.Length == 1)
             {
-                where.Append("@logType" + i + ",");
+                where.Append(" LogLevel = @logType AND ");
             }
-            where.Remove(where.Length - 1, 1);
-            where.Append(") AND ");
+            else if (logType.Length > 1)
+            {
+                where.Append(" LogLevel IN (");
+
+                string[] ar = logType.Split(',');
+                for (var i = 0; i < ar.Length; i++)
+                {
+                    where.Append("@logType" + i + ",");
+                }
+                where.Remove(where.Length - 1, 1);
+                where.Append(") AND ");
+            }
+
+            //where.Append(" (");
+            //logType = logType.Remove(logType.Length - 1);
+            //string[] ar = logType.Split(',');
+            //for (var i = 0; i < ar.Length; i++)
+            //{
+            //    where.AppendFormat("LogLevel = @logType" + i + " OR ");
+            //}
+            //where.Remove(where.Length - 3, 3);
+            //where.Append(") AND ");
 
 
             //if (!string.IsNullOrWhiteSpace(logType))
@@ -167,7 +188,7 @@ namespace AttackPrevent.Access
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY Id desc offset @offset rows fetch next @limit rows only");
+            query.Append("ORDER BY LogTime desc offset @offset rows fetch next @limit rows only");
             using (var conn = new SqlConnection(cons))
             {
 
@@ -182,14 +203,29 @@ namespace AttackPrevent.Access
                 {
                     cmd.Parameters.AddWithValue("@endTime", endTime.Value.AddMinutes(1));
                 }
-                if (!string.IsNullOrWhiteSpace(logType))
+
+                if (logType.Length == 1)
                 {
-                    //var ar = logType.Split(',');
+                    cmd.Parameters.AddWithValue("@logType", Convert.ToInt32(logType));
+                }
+                else if (logType.Length > 1)
+                {
+                    var ar = logType.Split(',');
                     for (var i = 0; i < ar.Length; i++)
                     {
                         cmd.Parameters.AddWithValue("@logType" + i, ar[i]);
                     }
                 }
+
+                //if (!string.IsNullOrWhiteSpace(logType))
+                //{
+                //    var ar = logType.Split(',');
+                //    for (var i = 0; i < ar.Length; i++)
+                //    {
+                //        cmd.Parameters.AddWithValue("@logType" + i, Convert.ToInt32(ar[i]));
+                //    }
+                //}
+
                 if (!string.IsNullOrWhiteSpace(detail))
                 {
                     cmd.Parameters.AddWithValue("@detail", detail);

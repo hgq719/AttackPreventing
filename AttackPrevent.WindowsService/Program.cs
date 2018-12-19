@@ -19,25 +19,58 @@ namespace AttackPrevent.WindowsService
         private static readonly ILogService LogService = new LogService();
         static void Main()
         {
-            try
-            {
-                XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
-                var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
-                Console.ReadLine();
-            }
-            catch (Exception ex)
-            {
-                var msg = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
-                LogService.Error(msg);
-            }
-        }
+            //配置log4
+            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
+            //Test();
+            //RunProgram().GetAwaiter().GetResult();
+            //Console.ReadKey();
 
-        private static void timer_Elapsed(object sender)
-        {
-            try
+            while (true)
             {
-                var job = new LogAnalyzeJob();
-                job.Execute();
+                var sleepTime = 1000;
+                try
+                {
+                    var sw = new Stopwatch();
+                    sw.Start();
+
+                    Console.WriteLine(
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Start to get logs and analysis data.");
+
+                    new LogAnalyzeJob().Execute(null);
+                    sw.Stop();
+
+                    Console.WriteLine(
+                        $"[app] [{DateTime.UtcNow:yyyy-MM-dd hh:mm:ss}] Finished to get logs and analysis data, time elapsed：{sw.ElapsedMilliseconds/1000} seconds.");
+                    sleepTime = 2*60*1000 - (int)sw.ElapsedMilliseconds;
+                }
+                catch (Exception ex)
+                {
+                    //Code review by michael. 1. 只有错误信息，没有堆栈. 2. 报错信息记录在哪里? 又没有日志，以后线上报错怎么查? 
+                    Console.Write(ex.Message);
+                }
+                
+                Thread.Sleep(sleepTime > 0 ? sleepTime: 1000);
+            }
+            //new LogAnalyzeJob().Execute(null);
+            //return;
+            if (args.Length != 0)
+            {
+                WindowsServiceInstaller srv = new WindowsServiceInstaller();
+                switch (args[0].ToLower())
+                {
+                    case "/install":
+                        Install(srv);
+                        return;
+                    case "/uninstall":
+                        Uninstall(srv);
+                        return;
+                    case "/debug":
+                        Debug();
+                        return;
+                    default:
+                        Help();
+                        return;
+                }
             }
             catch (Exception ex)
             {
@@ -149,7 +182,7 @@ namespace AttackPrevent.WindowsService
             int? minAction = ActionReportBusiness.GetMinForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
             int? avgAction = ActionReportBusiness.GetAvgForAction("2068c8964a4dcef78ee5103471a8db03", "xx.xx.xx.xx", "comm100.com");
 
-            //ActionReportBusiness.Delete("06/12/2018");
+            ActionReportBusiness.Delete("06/12/2018");
 
             Model.SmtpQueue smtpQueue = new Model.SmtpQueue
             {
@@ -164,10 +197,10 @@ namespace AttackPrevent.WindowsService
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
             SmtpQueueBusiness.Edit(smtpQueue);
-            //SmtpQueueBusiness.Delete("06/12/2018");
+            SmtpQueueBusiness.Delete("06/12/2018");
 
-            //IActiveReportService activeReportService = ActiveReportService.GetInstance();
-            //activeReportService.GeneratedActiveReport();
+            IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            activeReportService.GeneratedActiveReport();
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();

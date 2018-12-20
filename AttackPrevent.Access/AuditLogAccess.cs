@@ -112,7 +112,7 @@ namespace AttackPrevent.Access
                                                    LogTime, 
                                                    LogOperator, 
                                                    Detail 
-                                            FROM t_Logs WITH(index=IX_T_Logs_LOGLEVEL) ");
+                                            FROM t_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();
 
             if (startTime.HasValue)

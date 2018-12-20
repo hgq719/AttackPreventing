@@ -11,7 +11,7 @@ function changeDateFormat(cellval) {
         var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
         var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
 
-        return month + "/" + currentDate + "/" + date.getFullYear()+ " " + hours + ":" + minutes + ":" + seconds;
+        return month + "/" + currentDate + "/" + date.getFullYear()+ " " + hours + ":" + minutes + ":" + seconds + "," + date.getMilliseconds();
     }
 }
 

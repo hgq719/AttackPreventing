@@ -231,14 +231,24 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("RateLimitingList", new { zoneId });
         }
 
-        public ActionResult AddWhiteList()
+        public ActionResult AddWhiteList(string zoneId, string ip)
         {
             ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
             if (!IsAdmin)
             {
                 return new HttpUnauthorizedResult();
             }
-            return View();
+            var model = new AttackPrevent.Models.WhiteListModel();
+            if (!string.IsNullOrEmpty(zoneId))
+            {
+                model.ZoneId = zoneId;
+            }
+            if (!string.IsNullOrEmpty(ip))
+            {
+                model.IP = ip;
+            }
+
+            return View(model);
         }
         [HttpPost]
         public ActionResult AddWhiteList(Models.WhiteListModel whiteListModel)
@@ -880,6 +890,16 @@ namespace AttackPrevent.Controllers
                 bResult = true;
             }
             return Json(bResult, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ActiveReport()
+        {
+            ViewBag.ZoneList = ZoneBusiness.GetZoneSelectList();
+            return View();
+        }
+        public JsonResult GetActiveReport(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime)
+        {
+            dynamic result = ActionReportBusiness.GetListByPage(limit, offset, zoneID, startTime, endTime);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
     }
     //只有实现IStaticDataSource接口才能实现流操作

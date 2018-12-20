@@ -65,6 +65,63 @@ namespace AttackPrevent.Access
 
             return result;
         }
+        public static List<ActionReport> GetListByZoneID(string zoneId)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            List<ActionReport> result = new List<ActionReport>();
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"SELECT Id,
+                                        Title,
+                                        ZoneId,
+                                        IP,
+                                        HostName,
+                                        Max,
+                                        Min,
+                                        Avg,
+                                        FullUrl,
+                                        CreatedTime,
+                                        Mode,
+                                        Count,
+                                        MaxDisplay,
+                                        MinDisplay,
+                                        AvgDisplay,
+                                        IfCreateWhiteLimit,
+                                        Remark FROM t_Action_Report WHERE ZoneId=@zoneId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        ActionReport item = new ActionReport();
+                        item.Id = Convert.ToInt32(reader["Id"]);
+                        item.Title = Convert.ToString(reader["Title"]);
+                        item.ZoneId = Convert.ToString(reader["ZoneId"]);
+                        item.IP = Convert.ToString(reader["IP"]);
+                        item.HostName = Convert.ToString(reader["HostName"]);
+                        item.Max = Convert.ToInt32(reader["Max"]);
+                        item.Min = Convert.ToInt32(reader["Min"]);
+                        item.Avg = Convert.ToInt32(reader["Avg"]);
+                        item.FullUrl = Convert.ToString(reader["FullUrl"]);
+                        item.CreatedTime = Convert.ToDateTime(reader["CreatedTime"]);
+                        item.Mode = Convert.ToString(reader["Mode"]);
+                        item.Count = Convert.ToInt32(reader["Count"]);
+                        item.Remark = Convert.ToString(reader["Remark"]);
+                        item.MaxDisplay = Convert.ToString(reader["MaxDisplay"]);
+                        item.MinDisplay = Convert.ToString(reader["MinDisplay"]);
+                        item.AvgDisplay = Convert.ToString(reader["AvgDisplay"]);
+                        item.IfCreateWhiteLimit = Convert.ToInt32(reader["IfCreateWhiteLimit"]) > 0;
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
+        }
 
         public static List<ActionReport> GetListByIp(string ip)
         {
@@ -87,6 +144,7 @@ namespace AttackPrevent.Access
                                         MaxDisplay,
                                         MinDisplay,
                                         AvgDisplay,
+                                        IfCreateWhiteLimit,
                                         Remark FROM t_Action_Report WHERE IP=@ip ";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -114,6 +172,7 @@ namespace AttackPrevent.Access
                         item.MaxDisplay = Convert.ToString(reader["MaxDisplay"]);
                         item.MinDisplay = Convert.ToString(reader["MinDisplay"]);
                         item.AvgDisplay = Convert.ToString(reader["AvgDisplay"]);
+                        item.IfCreateWhiteLimit = Convert.ToInt32(reader["IfCreateWhiteLimit"]) > 0;
                         result.Add(item);
                     }
                 }
@@ -170,6 +229,7 @@ namespace AttackPrevent.Access
                         item.MaxDisplay = Convert.ToString(reader["MaxDisplay"]);
                         item.MinDisplay = Convert.ToString(reader["MinDisplay"]);
                         item.AvgDisplay = Convert.ToString(reader["AvgDisplay"]);
+                        item.IfCreateWhiteLimit = Convert.ToInt32(reader["IfCreateWhiteLimit"]) > 0;
                         result.Add(item);
                     }
                 }
@@ -224,7 +284,8 @@ namespace AttackPrevent.Access
                                                           Remark,
                                                           MaxDisplay,
                                                           MinDisplay,
-                                                          AvgDisplay
+                                                          AvgDisplay,
+                                                          IfCreateWhiteLimit
                                                         )
                                                 VALUES  ( @title,
                                                           @zoneId,
@@ -240,7 +301,8 @@ namespace AttackPrevent.Access
                                                           @remark,
                                                           @maxDisplay,
                                                           @minDisplay,
-                                                          @avgDisplay
+                                                          @avgDisplay,
+                                                          @ifCreateWhiteLimit
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -262,6 +324,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@maxDisplay", item.MaxDisplay);
                 cmd.Parameters.AddWithValue("@minDisplay", item.MinDisplay);
                 cmd.Parameters.AddWithValue("@avgDisplay", item.AvgDisplay);
+                cmd.Parameters.AddWithValue("@ifCreateWhiteLimit", item.IfCreateWhiteLimit);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -287,7 +350,8 @@ namespace AttackPrevent.Access
                                                           MaxDisplay=@maxDisplay,
                                                           MinDisplay=@minDisplay,
                                                           AvgDisplay=@avgDisplay,
-                                                          Remark=@remark WHERE Id=@id");
+                                                          Remark=@remark,
+                                                          IfCreateWhiteLimit=@ifCreateWhiteLimit WHERE Id=@id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -308,6 +372,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@maxDisplay", item.MaxDisplay);
                 cmd.Parameters.AddWithValue("@minDisplay", item.MinDisplay);
                 cmd.Parameters.AddWithValue("@avgDisplay", item.AvgDisplay);
+                cmd.Parameters.AddWithValue("@ifCreateWhiteLimit", item.IfCreateWhiteLimit);
                 cmd.Parameters.AddWithValue("@id", item.Id);
                 conn.Open();
 

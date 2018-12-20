@@ -15,6 +15,11 @@ namespace AttackPrevent.Business
         {
             return ActionReportAccess.GetListByTitle(title);
         }
+        public static List<ActionReport> GetListByZoneID(string zoneId)
+        {
+            return ActionReportAccess.GetListByZoneID(zoneId);
+        }
+         
 
         public static List<ActionReport> GetListByIp(string ip)
         {
@@ -104,6 +109,21 @@ namespace AttackPrevent.Business
                 result = (int)Math.Ceiling(sum / (float)count);
             }
             return result;
+        }
+        public static dynamic GetListByPage(int limit, int offset, string zoneID, DateTime? startTime, DateTime? endTime)
+        {
+            var query = GetListByZoneID(zoneID).AsQueryable();
+            if (startTime.HasValue)
+            {
+                query = query.Where(a => a.CreatedTime >= startTime);
+            }
+            if (endTime.HasValue)
+            {
+                query = query.Where(a => a.CreatedTime <= endTime);
+            }
+            var total = query.Count();
+            var rows = query.Skip(offset).Take(limit);
+            return new { total, rows };
         }
     }
 }

@@ -24,5 +24,6 @@ namespace AttackPrevent.Model
         public string MaxDisplay { get; set; }
         public string MinDisplay { get; set; }
         public string AvgDisplay { get; set; }
+        public bool IfCreateWhiteLimit { get; set; }
     }
 }

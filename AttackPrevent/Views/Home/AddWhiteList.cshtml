@@ -41,7 +41,8 @@
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />
-                @Html.ActionLink("Cancel", "WhiteList", "Home", new { @class = "btn btn-default" })
+                <input id="btn-Cancel" type="button" value="Cancel" class="btn btn-default" />
+                @*@Html.ActionLink("Cancel", "WhiteList", "Home", new { @class = "btn btn-default" })*@
             </div>
         </div>
     }
@@ -62,9 +63,9 @@
 
             save(zoneID, ips, comment, vcode);
         });
-        //$('#btn-cancel').click(function () {
-        //    history.go(-1);
-        //});
+        $('#btn-Cancel').click(function () {
+            history.go(-1);
+        });
     });
     function save(zoneID, ips, comment, vcode) {
         $.ajax({

@@ -188,7 +188,7 @@ namespace AttackPrevent.Access
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY LogTime desc offset @offset rows fetch next @limit rows only");
+            query.Append("ORDER BY logtime desc offset @offset rows fetch next @limit rows only");
             using (var conn = new SqlConnection(cons))
             {
 

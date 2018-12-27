@@ -1,4 +1,1 @@
-﻿select count(*) from t_logs;
-
-delete from t_logs
-
+﻿select * from t_Logs where zonetableId = 17 order by LogTime desc

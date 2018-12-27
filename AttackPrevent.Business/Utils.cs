@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
 using System.Runtime.Caching;
@@ -152,5 +153,21 @@ namespace AttackPrevent.Business
             _smtpClient.Send(_mailMessage);
         }
         #endregion
+        public static List<string> ReadFileToList(string path)
+        {
+            List<string> list = new List<string>();
+
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (StreamReader sr = new StreamReader(fs, Encoding.Default))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string strLine = sr.ReadLine();
+                    list.Add(strLine);
+                }
+            }
+
+            return list;
+        }
     }
 }

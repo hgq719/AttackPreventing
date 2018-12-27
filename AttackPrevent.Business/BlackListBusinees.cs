@@ -21,32 +21,31 @@ namespace AttackPrevent.Business
 
         public bool CreateAccessRule(string zoneId, string authEmail, string authKey, string ip, string comment)
         {
-            var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
+            //var zoneList = ZoneBusiness.GetZoneList();
+            //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
             FirewallAccessRuleResponse response = new FirewallAccessRuleResponse
             {
                 success = true
             };
-            if (zone.IfEnable && zone.IfAttacking && !zone.IfTestStage)
-            {
-                //Code review by michael, 这里面是可能有异常的.
-                response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
-                {
-                    configuration = new Configuration
-                    {
-                        target = "ip",
-                        value = ip,
-                    },
-                    mode = EnumMode.challenge,
-                    notes = comment,
-                });
 
-                if (response.success)
+            //Code review by michael, 这里面是可能有异常的.
+            response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
+            {
+                configuration = new Configuration
                 {
-                    string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
-                    Utils.RemoveMemoryCache(key);
-                }
+                    target = "ip",
+                    value = ip,
+                },
+                mode = EnumMode.challenge,
+                notes = comment,
+            });
+
+            if (response.success)
+            {
+                string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                Utils.RemoveMemoryCache(key);
             }
+
             return response.success;
         }
 
@@ -60,17 +59,16 @@ namespace AttackPrevent.Business
             };
             if (rule != null)
             {
-                var zoneList = ZoneBusiness.GetZoneList();
-                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
-                if (zone.IfEnable && zone.IfAttacking && !zone.IfTestStage)
+                //var zoneList = ZoneBusiness.GetZoneList();
+                //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
+
+                response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
+                if (response.success)
                 {
-                    response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
-                    if (response.success)
-                    {
-                        string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
-                        Utils.RemoveMemoryCache(key);
-                    }
+                    string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                    Utils.RemoveMemoryCache(key);
                 }
+
                 return response.success;
             }
             return false;

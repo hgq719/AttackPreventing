@@ -58,7 +58,7 @@ namespace AttackPrevent.Business
         public static int? GetMaxForAction(string zoneId, string ip, string hostName)
         {
             List<ActionReport> actionReports = GetListByIp(ip);
-            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId &&  a.Mode == "Action"&& a.HostName==hostName)?.Max;
+            int? result = actionReports.OrderByDescending(a => a.Max).FirstOrDefault(a => a.ZoneId == zoneId &&  a.Mode == "Action" && a.HostName==hostName)?.Max;
             return result;
         }
         public static int? GetMaxForWhiteList(string zoneId, string ip, string hostName)

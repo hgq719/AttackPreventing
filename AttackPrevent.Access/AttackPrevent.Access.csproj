@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IISLogAccess.cs" />
     <Compile Include="SmtpQueueAccess.cs" />
     <Compile Include="AuditLogAccess.cs" />
     <Compile Include="BanIpHistoryAccess.cs" />

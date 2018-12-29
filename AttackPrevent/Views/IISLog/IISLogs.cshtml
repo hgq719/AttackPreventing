@@ -1,0 +1,280 @@
+﻿@{
+    //Layout = "~/";
+}
+
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+<div class="logContainer">
+    <div class="queryContainer">
+        <ol class="breadcrumb">
+            <li class="active">IIS Logs</li>
+        </ol>
+        <div class="col-md-4 form-group">
+            <div class="col-md-4 label-col">
+                <label for="select-zoneName">Zone Name</label>
+            </div>
+            <div class="col-md-8">
+                @Html.DropDownList("select-zoneName", new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4 label-col">
+                <label for="txt-StartTime">Start Time</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="startTime" id="txt-StartTime" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-EndTime">End Time</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="endTime" id="txt-EndTime" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-logType">Log Type</label>
+            </div>
+            <div class="col-md-8">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-app" value="0" /> App
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-audit" value="2" /> Audit
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="logtype" id="check-error" value="1" /> Error
+                </label>
+            </div>
+        </div>
+        <div class="col-md-4 form-group">
+            <div class="col-md-4  label-col">
+                <label for="txt-detail">Detail</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="" id="txt-detail" class="form-control" />
+            </div>
+        </div>
+
+
+        <div class="col-md-4 text-right">
+            <button id="queryLog" type="button" class="btn btn-primary">Query</button>
+            <a id="export" class="btn btn-default">Export</a>
+        </div>
+    </div>
+
+    <div class="resultContainer" style="margin-top: 20px; margin-left: 40px; margin-right: 60px;">
+        <table id="IISLogTable" class="table table-bordered"></table>
+    </div>
+    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    @*<h4 class="modal-title" id="myModalLabel">
+                        模态框（Modal）标题
+                    </h4>*@
+                </div>
+                <div class="modal-body">
+                    在这里添加一些文本
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        提交更改
+                    </button>
+                </div>*@
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    @Html.Hidden("cacheKey")
+</div>
+
+<script type="text/javascript">
+    window.detailClickEvent = {
+        'click .rowDetail': function (e, value, row, index) {
+            $('.modal-body').text(row.Detail);
+            $('#detailModal').modal('show');
+        }
+    }
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            $("body").mLoading({ text: "Processing..." }, "show");
+            $('#IISLogTable').bootstrapTable({
+                url: '/IISLog/GetIISLog',         //请求后台的URL（*）
+                method: 'get',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 100,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: false,
+                showColumns: false,                  //是否显示所有的列
+                showRefresh: false,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: false,                //是否启用点击选中行
+               // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                //showExport: true,
+                //exportDataType: 'all',
+                columns: [{
+                    field: 'ID',
+                    title: '#',
+                    //formatter: function (value, row, index) {
+                    //    return index + 1;
+                    //}
+                }, {
+                    field: 'LogType',
+                        title: 'Log Type',
+                        formatter: function (value, row, index) {
+                            var typeStr = "";
+                            switch (value) {
+                                case 0:
+                                    typeStr = "App";
+                                    break;
+                                case 1:
+                                    typeStr = "Error";
+                                    break;
+                                case 2:
+                                    typeStr = "Audit";
+                                    break;
+                                default:
+                            }
+
+                            return typeStr;
+                        }
+                }, {
+                    field: 'Detail',
+                        title: 'Detail',
+                        //formatter: function (value, row, index) {
+                        //    return '<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">' + value+ '</div>'
+                        //    //if (value.length > 50) {
+                        //    //    return value.substring(0, 50);
+                        //    //} else {
+                        //    //    value;
+                        //    //}
+                        //},
+                        //escape: true,
+                        cellStyle: function () {
+                            return {
+                                css: {
+                                    "word-break": "break-all"
+                                }
+                            };
+                        },
+                }, {
+                    field: 'LogTime',
+                    title: 'Log Time',
+                    formatter: function (value, row, index) {
+                       return changeDateFormat(value);
+                    },
+                }, {
+                    field: 'LogOperator',
+                    title: 'Log Operator'
+                    //}, {
+                    //    field: '',
+                    //    title: '',
+                    //    formatter: function (value, row, index) {
+                    //        var detail_btn = '<a href="javascript: viod(0)" class="rowDetail">detail</a>';
+                    //        return detail_btn;
+                    //    },
+                    //    events: detailClickEvent,
+                    },],
+                //formatLoadingMessage: function () {
+                //    $("body").mLoading({ text: "Processing..." }, "show");
+                //},
+                onLoadSuccess: function () {
+                    $("body").mLoading("hide");
+                },
+                onLoadError: function () {
+                    $("body").mLoading("hide");
+                },
+                onPageChange: function () {
+                    $("body").mLoading({ text: "Processing..." }, "show");
+                }
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            var logtypeStr = "";
+            $.each($('[name=logtype]:checked'), function () {
+                logtypeStr += $(this).val() + ","
+            });
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                limit: params.limit,   //页面大小
+                offset: params.offset,  //页码
+                zoneTableID: $("#select-zoneName").val(),
+                startTime: $("#txt-StartTime").val(),
+                endTime: $("#txt-EndTime").val(),
+                logType: logtypeStr,
+                detail: $("#txt-detail").val(),
+                ifUseCache: true,
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+    var oTable = new TableInit();
+    $(document).ready(function () {
+        var date = new Date();
+        $("#txt-EndTime").val(getFormatDate(date.getUTCMonth() + 1) + '/' + getFormatDate(date.getUTCDate()) + '/' + date.getUTCFullYear() + ' ' + getFormatDate(date.getUTCHours()) + ':' + getFormatDate(date.getUTCMinutes()));
+        $("#txt-StartTime").val(getFormatDate(date.getUTCMonth() + 1) + '/' + getFormatDate(date.getUTCDate()) + '/' + date.getUTCFullYear() + ' 00:00');
+        
+        oTable.Init();
+    });
+
+    $("#queryLog").click(function () {
+        $("body").mLoading({ text: "Processing..." }, "show");
+        $('#IISLogTable').bootstrapTable('refresh');
+
+        //var para = oTable.queryParams({ limit: 10, offset: 0 });
+        //$.ajax({
+        //    type: "GET",
+        //    url: "/AuditLog/GetAuditLog",
+        //    data: Object.assign(para, { ifUseCache: false, }),
+        //    dataType: "json",
+        //    async: true,
+        //    success: function (data) {
+        //        //$("body").mLoading("hide");
+        //        $("#cacheKey").val(data.cacheKey);
+        //        $('#auditLogTable').bootstrapTable('refresh');
+        //    },
+        //    error: function (jqXHR) {
+        //        $("body").mLoading("hide");
+        //        //console.log("Error: " + jqXHR.status);
+        //    }
+        //});
+        
+    });
+
+    $('#export').click(function () {
+        var para = oTable.queryParams({limit: 10,offset:0});
+        var uuu = "/IISLog/ExportIISLog?zoneTableID=" + para.zoneTableID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
+        $('#export').attr("href", uuu);
+        //$.get(uuu);
+    });
+</script>
+
+
+

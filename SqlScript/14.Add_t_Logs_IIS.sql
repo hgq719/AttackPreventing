@@ -1,5 +1,5 @@
 
-IF EXISTS
+IF NOT EXISTS
 (
     SELECT name 
     FROM SYSOBJECTS

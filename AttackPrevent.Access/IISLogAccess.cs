@@ -17,7 +17,6 @@ namespace AttackPrevent.Access
             var result = new List<AuditLogEntity>();
             var query = new StringBuilder(@"SELECT LogLevel, 
                                                    LogTime, 
-                                                   LogOperator, 
                                                    Detail 
                                             FROM T_IIS_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();
@@ -129,7 +128,6 @@ namespace AttackPrevent.Access
             var result = new List<AuditLogEntity>();
             var query = new StringBuilder(@"SELECT LogLevel, 
                                                    LogTime, 
-                                                   LogOperator, 
                                                    Detail 
                                             FROM T_IIS_Logs WITH(NOLOCK) ");
             var where = new StringBuilder();

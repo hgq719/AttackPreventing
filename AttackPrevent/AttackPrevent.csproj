@@ -261,10 +261,10 @@
     <Content Include="Views\Login\Index.cshtml" />
     <Content Include="Views\Home\WhiteListDetail.cshtml" />
     <Content Include="Views\Home\ActiveReport.cshtml" />
+    <Content Include="Views\IISLog\IISLogs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\IISLog\" />
     <Folder Include="Views\Image\" />
   </ItemGroup>
   <ItemGroup>

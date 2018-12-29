@@ -78,20 +78,20 @@
                         &times;
                     </button>
                     @*<h4 class="modal-title" id="myModalLabel">
-                        模态框（Modal）标题
-                    </h4>*@
+                            模态框（Modal）标题
+                        </h4>*@
                 </div>
                 <div class="modal-body">
                     在这里添加一些文本
                 </div>
                 @*<div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        关闭
-                    </button>
-                    <button type="button" class="btn btn-primary">
-                        提交更改
-                    </button>
-                </div>*@
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            关闭
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            提交更改
+                        </button>
+                    </div>*@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
@@ -130,7 +130,7 @@
                 showRefresh: false,                  //是否显示刷新按钮
                 minimumCountColumns: 2,             //最少允许的列数
                 clickToSelect: false,                //是否启用点击选中行
-               // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 // uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
                 showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
                 cardView: false,                    //是否显示详细视图
@@ -145,61 +145,50 @@
                     //}
                 }, {
                     field: 'LogType',
-                        title: 'Log Type',
-                        formatter: function (value, row, index) {
-                            var typeStr = "";
-                            switch (value) {
-                                case 0:
-                                    typeStr = "App";
-                                    break;
-                                case 1:
-                                    typeStr = "Error";
-                                    break;
-                                case 2:
-                                    typeStr = "Audit";
-                                    break;
-                                default:
-                            }
-
-                            return typeStr;
+                    title: 'Log Type',
+                    formatter: function (value, row, index) {
+                        var typeStr = "";
+                        switch (value) {
+                            case 0:
+                                typeStr = "App";
+                                break;
+                            case 1:
+                                typeStr = "Error";
+                                break;
+                            case 2:
+                                typeStr = "Audit";
+                                break;
+                            default:
                         }
+
+                        return typeStr;
+                    }
                 }, {
                     field: 'Detail',
-                        title: 'Detail',
-                        //formatter: function (value, row, index) {
-                        //    return '<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">' + value+ '</div>'
-                        //    //if (value.length > 50) {
-                        //    //    return value.substring(0, 50);
-                        //    //} else {
-                        //    //    value;
-                        //    //}
-                        //},
-                        //escape: true,
-                        cellStyle: function () {
-                            return {
-                                css: {
-                                    "word-break": "break-all"
-                                }
-                            };
-                        },
+                    title: 'Detail',
+                    //formatter: function (value, row, index) {
+                    //    return '<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">' + value+ '</div>'
+                    //    //if (value.length > 50) {
+                    //    //    return value.substring(0, 50);
+                    //    //} else {
+                    //    //    value;
+                    //    //}
+                    //},
+                    //escape: true,
+                    cellStyle: function () {
+                        return {
+                            css: {
+                                "word-break": "break-all"
+                            }
+                        };
+                    },
                 }, {
                     field: 'LogTime',
                     title: 'Log Time',
                     formatter: function (value, row, index) {
-                       return changeDateFormat(value);
+                        return changeDateFormat(value);
                     },
-                }, {
-                    field: 'LogOperator',
-                    title: 'Log Operator'
-                    //}, {
-                    //    field: '',
-                    //    title: '',
-                    //    formatter: function (value, row, index) {
-                    //        var detail_btn = '<a href="javascript: viod(0)" class="rowDetail">detail</a>';
-                    //        return detail_btn;
-                    //    },
-                    //    events: detailClickEvent,
-                    },],
+                },],
                 //formatLoadingMessage: function () {
                 //    $("body").mLoading({ text: "Processing..." }, "show");
                 //},
@@ -240,7 +229,7 @@
         var date = new Date();
         $("#txt-EndTime").val(getFormatDate(date.getUTCMonth() + 1) + '/' + getFormatDate(date.getUTCDate()) + '/' + date.getUTCFullYear() + ' ' + getFormatDate(date.getUTCHours()) + ':' + getFormatDate(date.getUTCMinutes()));
         $("#txt-StartTime").val(getFormatDate(date.getUTCMonth() + 1) + '/' + getFormatDate(date.getUTCDate()) + '/' + date.getUTCFullYear() + ' 00:00');
-        
+
         oTable.Init();
     });
 
@@ -265,11 +254,11 @@
         //        //console.log("Error: " + jqXHR.status);
         //    }
         //});
-        
+
     });
 
     $('#export').click(function () {
-        var para = oTable.queryParams({limit: 10,offset:0});
+        var para = oTable.queryParams({ limit: 10, offset: 0 });
         var uuu = "/IISLog/ExportIISLog?zoneTableID=" + para.zoneTableID + "&startTime=" + para.startTime + "&endTime=" + para.endTime + "&logType=" + para.logType + "&detail=" + para.detail;
         $('#export').attr("href", uuu);
         //$.get(uuu);

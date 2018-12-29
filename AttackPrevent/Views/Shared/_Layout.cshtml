@@ -77,12 +77,16 @@
                     </li>
                     <li>
                         <span class="icon_menu"></span>
+                        @Html.ActionLink("IIS Logs", "IISLogs", "IISLog")
+                    </li>
+                    <li>
+                        <span class="icon_menu"></span>
                         @Html.ActionLink("Zone Manage", "ZoneList", "Home")
                     </li>
                     @*<li>
-                        <span class="icon_menu"></span>
-                        @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
-                    </li>*@
+            <span class="icon_menu"></span>
+            @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
+        </li>*@
                     <li>
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Active Report", "ActiveReport", "Home")

@@ -69,7 +69,14 @@ namespace AttackPrevent.Controllers
         #endregion
 
         #region IIS API
-
+        [HttpPost]
+        [Route("IISLogs/EtwResult")]
+        public IHttpActionResult EtwResult([FromBody] List<byte[]> data)
+        {
+            IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
+            etwAnalyzeService.Add(data);
+            return Ok();
+        }
         #endregion
     }
 }

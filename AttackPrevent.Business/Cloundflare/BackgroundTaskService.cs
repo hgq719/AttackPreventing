@@ -35,7 +35,10 @@ namespace AttackPrevent.Business.Cloundflare
             {
                 lock(obj_Sync)
                 {
-                    backgroundTaskService = new BackgroundTaskService();
+                    if(backgroundTaskService == null)
+                    {
+                        backgroundTaskService = new BackgroundTaskService();
+                    }
                 }
             }
             return backgroundTaskService;

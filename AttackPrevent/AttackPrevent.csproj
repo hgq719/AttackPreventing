@@ -166,6 +166,7 @@
     <Compile Include="Controllers\HostConfigurationController.cs" />
     <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Core\ApiAuthorizeAttribute.cs" />
     <Compile Include="Core\CustomerAttributes.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

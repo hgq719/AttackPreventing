@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveReportService.cs" />
+    <Compile Include="AttackPreventService.cs" />
     <Compile Include="CookiesHelper.cs" />
     <Compile Include="SendMailService.cs" />
     <Compile Include="ConstValues.cs" />

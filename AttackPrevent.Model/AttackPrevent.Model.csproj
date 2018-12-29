@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalyzeResult.cs" />
     <Compile Include="SmtpQueue.cs" />
     <Compile Include="ActionReport.cs" />
     <Compile Include="AuditLogEntity.cs" />

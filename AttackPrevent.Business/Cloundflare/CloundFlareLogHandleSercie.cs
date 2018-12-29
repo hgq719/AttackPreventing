@@ -95,6 +95,7 @@ namespace AttackPrevent.Business
                         while (retry == true)
                         {
                             cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
+                            Thread.Sleep(1000 * 5); //如果是频率限制，休眠5S，再请求
                         }
 
                         string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);

@@ -100,6 +100,66 @@ namespace AttackPrevent.WindowsService
         #region Test
         public static void Test()
         {
+            //List<string> list = Utils.ReadFileToList(@"C:\Users\PC\Downloads\data-Dec 26, 2018\t_Action_Report-Dec 26, 2018(1).csv");
+            //foreach (string str in list)
+            //{
+            //    var arr = str.Split(',');
+
+            //    string ip = arr[3];
+            //    string hostName = arr[4];
+            //    int max = Convert.ToInt32(arr[5]);
+            //    int min = Convert.ToInt32(arr[6]);
+            //    int avg = Convert.ToInt32(arr[7]);
+            //    string title = arr[1];
+            //    string zoneId = arr[2];
+
+            //    List<string> urls = new List<string>();
+            //    int i = 8;
+            //    while (true)
+            //    {
+            //        string url = arr[i];
+            //        bool ifTime = false;
+            //        ifTime = DateTime.TryParse(url, out var time);
+            //        if (!ifTime)
+            //        {
+            //            urls.Add(url);
+            //            i++;
+            //        }
+            //        else
+            //        {
+            //            break;
+            //        }
+            //    }
+
+            //    DateTime createdTime = Convert.ToDateTime(arr[i]);
+            //    string mode = arr[i + 1];
+            //    int count = Convert.ToInt32(arr[i + 2]);
+            //    string maxDisplay = arr[i + 3];
+            //    string minDisplay = arr[i + 4];
+            //    string avgDisplay = arr[i + 5];
+
+            //    string json = string.Join(",", urls);
+            //    Model.ActionReport actionReport = new Model.ActionReport
+            //    {
+            //        IP = ip,
+            //        HostName = hostName,
+            //        Max = max,
+            //        Min = min,
+            //        Avg = avg,
+            //        Count = count,
+            //        Mode = mode,
+            //        MaxDisplay = maxDisplay,
+            //        MinDisplay = minDisplay,
+            //        AvgDisplay = avgDisplay,
+            //        CreatedTime = createdTime,
+            //        Title = title,
+            //        ZoneId = zoneId,
+            //        FullUrl = json,
+            //        Remark = "issue",
+            //        IfCreateWhiteLimit = false,
+            //    };
+            //    ActionReportBusiness.Add(actionReport);
+            //}
             // Test
             //DateTime startTime = new DateTime(2018, 12, 14, 0, 0, 0);
             //DateTime endTime = new DateTime(2018, 12, 14, 0, 1, 0);

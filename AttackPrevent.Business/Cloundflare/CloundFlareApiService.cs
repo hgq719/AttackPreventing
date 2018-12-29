@@ -93,7 +93,8 @@ namespace AttackPrevent.Business
             }
             else
             {
-                if(content.Contains("429 Too Many Requests"))
+                if(content.Contains("429 Too Many Requests") ||
+                    content.StartsWith("Rate limited.") )
                 {
                     retry = true;
                 }

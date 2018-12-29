@@ -103,7 +103,7 @@ namespace AttackPrevent.Business
                 List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable).ToList();
                 foreach (ZoneEntity zone in zoneEntities)
                 {
-                    List<ActionReport> subActionReports = actionReports.Where(a => a.ZoneId == zone.ZoneId).ToList();
+                    List<ActionReport> subActionReports = actionReports.Where(a => a.ZoneId == zone.ZoneId && a.Mode == "Action").ToList();
                     string body = CreateMainZone(zone.ZoneName, subActionReports);
                     mail.Append(body);
                 }

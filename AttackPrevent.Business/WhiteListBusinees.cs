@@ -25,30 +25,29 @@ namespace AttackPrevent.Business
 
         public bool CreateAccessRule(string zoneId, string authEmail, string authKey, string ip, string comment)
         {
-            var zoneList = ZoneBusiness.GetZoneList();
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
+            //var zoneList = ZoneBusiness.GetZoneList();
+            //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
             FirewallAccessRuleResponse response = new FirewallAccessRuleResponse
             {
                 success = true
             };
-            if (zone.IfEnable && zone.IfAttacking && !zone.IfTestStage)
+
+            response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
             {
-                response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
+                configuration = new Configuration
                 {
-                    configuration = new Configuration
-                    {
-                        target = "ip",
-                        value = ip,
-                    },
-                    mode = EnumMode.whitelist,
-                    notes = comment,
-                });
-                if (response.success)
-                {
-                    string key = $"GetWhiteListModelList:{zoneId}-{authEmail}-{authKey}";
-                    Utils.RemoveMemoryCache(key);
-                }
+                    target = "ip",
+                    value = ip,
+                },
+                mode = EnumMode.whitelist,
+                notes = comment,
+            });
+            if (response.success)
+            {
+                string key = $"GetWhiteListModelList:{zoneId}-{authEmail}-{authKey}";
+                Utils.RemoveMemoryCache(key);
             }
+
 
             return response.success;
         }
@@ -63,17 +62,16 @@ namespace AttackPrevent.Business
             };
             if (rule != null)
             {
-                var zoneList = ZoneBusiness.GetZoneList();
-                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
-                if (zone.IfEnable && zone.IfAttacking && !zone.IfTestStage)
-                {
+                //var zoneList = ZoneBusiness.GetZoneList();
+                //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
+             
                     response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
                     if (response.success)
                     {
                         string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
                         Utils.RemoveMemoryCache(key);
                     }
-                }
+                
                 return response.success;
             }
             return false;

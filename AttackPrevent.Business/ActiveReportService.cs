@@ -46,7 +46,10 @@ namespace AttackPrevent.Business
             {
                 lock (obj_Sync)
                 {
-                    activeReportService = new ActiveReportService();
+                    if (activeReportService == null)
+                    {
+                        activeReportService = new ActiveReportService();
+                    }
                 }
             }
 

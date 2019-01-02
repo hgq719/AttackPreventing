@@ -22,6 +22,8 @@ namespace AttackPrevent.Access
                                                              RateLimitTriggerIpCount, 
                                                              LatestTriggerTime,
                                                              ZoneId,
+                                                             Action,
+                                                             CreatedBy,
                                                              Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
@@ -76,7 +78,8 @@ namespace AttackPrevent.Access
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
                             TableID = Convert.ToInt32(reader["Id"]),
                             ZoneId = reader["ZoneId"].ToString(),
-                            
+                            Action = reader["Action"].ToString(),
+                            CreatedBy = reader["CreatedBy"].ToString(),
                         });
                     }
                 }

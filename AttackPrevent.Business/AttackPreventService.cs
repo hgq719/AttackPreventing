@@ -41,7 +41,15 @@ namespace AttackPrevent.Business
 
         public void Add(AnalyzeResult analyzeResult)
         {
-            analyzeResults.Enqueue(analyzeResult);
+            //analyzeResults.Enqueue(analyzeResult);
+            if ( analyzeResult != null)
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                Analyze(analyzeResult);
+                stopwatch.Stop();
+                logger.Debug(stopwatch.Elapsed.TotalMilliseconds);
+            }
         }
 
         public void doWork()

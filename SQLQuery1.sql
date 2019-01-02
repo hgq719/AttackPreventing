@@ -1,1 +1,5 @@
-﻿select * from t_Logs where zonetableId = 17 order by LogTime desc
+﻿sp_help  t_logs;
+
+drop index PK_t_Logs on t_logs;
+
+select count(*) from t_logs

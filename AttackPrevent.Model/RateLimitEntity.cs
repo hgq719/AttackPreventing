@@ -28,7 +28,7 @@ namespace AttackPrevent.Model
 
         public string Action { get; set; }
 
-        public int EnlargementFactor { get; set; }
+        public float EnlargementFactor { get; set; }
 
         public DateTime LatestTriggerTime { get; set; }
 

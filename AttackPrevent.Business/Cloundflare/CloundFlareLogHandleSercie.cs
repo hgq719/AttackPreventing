@@ -44,11 +44,11 @@ namespace AttackPrevent.Business
             this.startTime = start;
             this.endTime = end;
 
-            cloundFlareApiService = new CloundFlareApiService();
+            _cloudFlareApiService = new CloudFlareApiService();
             logService = new Business.LogService();
         }
 
-        private ICloundFlareApiService cloundFlareApiService;
+        private ICloudFlareApiService _cloudFlareApiService;
 
         //产生队列数据
         public void InitQueue(DateTime startTime, DateTime endTime)
@@ -91,10 +91,10 @@ namespace AttackPrevent.Business
 
                         string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
                         bool retry = false;
-                        List<CloudflareLog> cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
+                        List<CloudflareLog> cloudflareLogs = _cloudFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
                         while (retry == true)
                         {
-                            cloudflareLogs = cloundFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
+                            cloudflareLogs = _cloudFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
                             Thread.Sleep(1000 * 5); //如果是频率限制，休眠5S，再请求
                         }
 

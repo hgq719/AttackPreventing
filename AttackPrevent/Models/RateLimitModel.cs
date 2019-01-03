@@ -29,7 +29,7 @@ namespace AttackPrevent.Models
 
         [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
-        public int EnlargementFactor { get; set; }
+        public float EnlargementFactor { get; set; }
 
         [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]

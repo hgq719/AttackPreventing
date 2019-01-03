@@ -47,14 +47,7 @@ namespace AttackPrevent.Business
 
         public static List<ZoneEntity> GetZoneList()
         {
-            /*Code review by michael, 感觉这样就可以了.
             return Utils.GetMemoryCache("GetZoneList", () =>
-            {
-                return GetAllList();
-            }, 5);*/
-
-            string key = "GetZoneList";
-            return Utils.GetMemoryCache(key, () =>
             {
                 return GetAllList();
             }, 5);

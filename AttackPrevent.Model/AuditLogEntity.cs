@@ -24,10 +24,15 @@ namespace AttackPrevent.Model
         {
             ZoneTableID = zoneTableId;
             LogType = logType;
-            LogTime = Convert.ToDateTime(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            LogTime = DateTime.UtcNow;
             Detail = $"[{LogType}] {LogTime:MM/dd/yyyy HH:mm:ss fff} {detail}";
             IP = "127.0.0.1";
             LogOperator = "System";
+        }
+
+        public AuditLogEntity(int zoneTableId, LogLevel logType, string detail, DateTime logTime)
+        {
+            
         }
     }
 

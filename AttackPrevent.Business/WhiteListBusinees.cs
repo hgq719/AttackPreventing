@@ -16,11 +16,10 @@ namespace AttackPrevent.Business
     }
     public class WhiteListBusinees : IWhiteListBusinees
     {
-        //Code Review By Michael, 是cloudFlare, 单词错误，请把系统里面所有不对的都改掉,
-        ICloundFlareApiService cloundFlareApiService;
+        ICloudFlareApiService cloudFlareApiService;
         public WhiteListBusinees()
         {
-            cloundFlareApiService = new CloundFlareApiService();
+            cloudFlareApiService = new CloudFlareApiService();
         }
 
         public bool CreateAccessRule(string zoneId, string authEmail, string authKey, string ip, string comment)
@@ -32,7 +31,7 @@ namespace AttackPrevent.Business
                 success = true
             };
 
-            response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
+            response = cloudFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
             {
                 configuration = new Configuration
                 {
@@ -54,7 +53,7 @@ namespace AttackPrevent.Business
 
         public bool DeleteAccessRule(string zoneId, string authEmail, string authKey, string ip)
         {
-            var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, ip, "");
+            var list = cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, ip, "");
             var rule = list.FirstOrDefault();
             FirewallAccessRuleResponse response = new FirewallAccessRuleResponse
             {
@@ -65,7 +64,7 @@ namespace AttackPrevent.Business
                 //var zoneList = ZoneBusiness.GetZoneList();
                 //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
              
-                    response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
+                    response = cloudFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
                     if (response.success)
                     {
                         string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
@@ -82,7 +81,7 @@ namespace AttackPrevent.Business
             string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
             var query = Utils.GetMemoryCache<List<WhiteListModel>>(key, () =>
             {
-                var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
+                var list = cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
                 return list.Select(a => new WhiteListModel
                 {
                     IP = a.configurationValue,
@@ -91,7 +90,7 @@ namespace AttackPrevent.Business
                 }).ToList();
             }, 5).AsQueryable();
 
-            //var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
+            //var list = cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
             //var query = list.Select(a => new WhiteListModel
             //{
             //    IP = a.configurationValue,

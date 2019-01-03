@@ -49,21 +49,14 @@ namespace AttackPrevent.WindowsService
         
         private const string SrvName = "Comm100.AcctackLogAnalyzeService";
         private const string SrvDisplay = "Comm100.AcctackLogAnalyzeService";
-        //Code review by michael (string not String, s 是小写的）
-        private const String SrvDescription = "Acctack Log Analyze windodws Service for Comm100";
+        private const string SrvDescription = "Acctack Log Analyze windodws Service for Comm100";
        
 
       
 
         private static void Uninstall(WindowsServiceInstaller srv)
         {
-            var ok = srv.UnInstallService(SrvDisplay);
-
-            // Code review by michael Console.WriteLine(ok ? "Service uninstalled." : "There was a problem with uninstallation.");
-            if (ok)
-                Console.WriteLine("Service uninstalled.");
-            else
-                Console.WriteLine("There was a problem with uninstallation.");
+            Console.WriteLine(srv.UnInstallService(SrvDisplay) ? "Service uninstalled." : "There was a problem with uninstallation.");
         }
 
 

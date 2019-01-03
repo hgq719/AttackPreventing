@@ -1,11 +1,7 @@
 ﻿using AttackPrevent.Business;
 using AttackPrevent.Core;
 using AttackPrevent.Model;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -57,12 +53,13 @@ namespace AttackPrevent.Controllers
                 result = list
             });
         }
+
         [HttpPost]
         [Route("IISLogs/AnalyzeResult")]
         [ApiAuthorize]
         public IHttpActionResult AnalyzeResult(AnalyzeResult analyzeResult)
         {
-            IAttackPreventService attackPreventService = AttackPreventService.GetInstance();
+            var attackPreventService = AttackPreventService.GetInstance();
             attackPreventService.Add(analyzeResult);
             return Ok();
         }

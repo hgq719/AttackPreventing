@@ -107,7 +107,7 @@ namespace AttackPrevent.WindowsService.Job
                         break;
                     }
                 }
-                var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
+                var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
                 var ipWhiteList = cloudflare.GetIpWhitelist();
                 var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p => p.OrderNo).ToList();
 
@@ -190,7 +190,7 @@ namespace AttackPrevent.WindowsService.Job
             string banIpLog;
             try
             {
-                var cloudflare = new CloundFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
+                var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
                 //systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
                 //    $"Start analyzing logs, time range is [{timeStage}]."));
 
@@ -355,7 +355,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
                 else
                 {
-                    ZoneBusiness.UpdateAttackFlag(false, zoneEntity.ZoneId); //code review by michael. 记录日志的代码本身报错了怎么办?
+                    ZoneBusiness.UpdateAttackFlag(false, zoneEntity.ZoneId); 
 
                     systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
                         $"There's no attack ,cancel the alert call in ZoneName [{zoneEntity.ZoneName}]."));
@@ -364,7 +364,7 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
-        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloundFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel)
+        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloudFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel)
         {
             var sbDetail = new StringBuilder();
             if (ifTestStage)
@@ -395,7 +395,7 @@ namespace AttackPrevent.WindowsService.Job
             return sbDetail.ToString();
         }
 
-        private AuditLogEntity RemoveCloudflareRateLimitByLastTriggerTime(int zoneTableId, DateTime dtNow, bool ifTestStage, CloundFlareApiService cloudflare, RateLimitEntity rateLimit)
+        private AuditLogEntity RemoveCloudflareRateLimitByLastTriggerTime(int zoneTableId, DateTime dtNow, bool ifTestStage, CloudFlareApiService cloudflare, RateLimitEntity rateLimit)
         {
             AuditLogEntity log;
             //没有触犯该条Rate Limit，检查是否需要关闭Rate Limit
@@ -426,7 +426,7 @@ namespace AttackPrevent.WindowsService.Job
             return log;
         }
 
-        private string RemoveIpFromBlacklistByLastTriggerTime(string zoneId, DateTime dtNow, bool ifTestStage, CloundFlareApiService cloudflare, string timeStage)
+        private string RemoveIpFromBlacklistByLastTriggerTime(string zoneId, DateTime dtNow, bool ifTestStage, CloudFlareApiService cloudflare, string timeStage)
         {
             if (timeStage == null) throw new ArgumentNullException(nameof(timeStage));
             CloudflareAccessRuleResponse cloudflareAccessRuleResponse = null;

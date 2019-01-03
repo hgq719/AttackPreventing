@@ -54,7 +54,7 @@ namespace AttackPrevent
             bool isSuccessed = false;
             string errorMsg = "";
 
-            ICloundFlareApiService cloundFlareApiService = new CloundFlareApiService();
+            ICloudFlareApiService cloundFlareApiService = new CloudFlareApiService();
             string strResult = cloundFlareApiService.CheckAuth(zoneID, authEmail, authKey);
             if (!string.IsNullOrEmpty(strResult))
             {

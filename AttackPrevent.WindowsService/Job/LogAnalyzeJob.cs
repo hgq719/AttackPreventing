@@ -355,7 +355,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
                 else
                 {
-                    ZoneBusiness.UpdateAttackFlag(false, zoneEntity.ZoneId); //code review by michael. 记录日志的代码本身报错了怎么办?
+                    ZoneBusiness.UpdateAttackFlag(false, zoneEntity.ZoneId); 
 
                     systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
                         $"There's no attack ,cancel the alert call in ZoneName [{zoneEntity.ZoneName}]."));

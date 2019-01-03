@@ -316,7 +316,7 @@ namespace AttackPrevent.Business
         }
         private void GeneratedActiveReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
-            var cloundFlareApiService = new CloundFlareApiService();
+            var cloundFlareApiService = new CloudFlareApiService();
             var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.whitelist);
             var whiteListIps = whiteList.Select(a => a.configurationValue);
 
@@ -384,7 +384,7 @@ namespace AttackPrevent.Business
         }
         private void GeneratedWhiteListReport(string title, ZoneEntity zone, List<List<CloudflareLog>> cloudflareLogs)
         {
-            var cloundFlareApiService = new CloundFlareApiService();
+            var cloundFlareApiService = new CloudFlareApiService();
             var whiteList = cloundFlareApiService.GetAccessRuleList(zone.ZoneId, zone.AuthEmail, zone.AuthKey, EnumMode.whitelist);
             var subWhiteList = whiteList.Where(a => a.notes.Contains("WHITELIST CLEINT'S IP ADDRESS SITEID"))
                                         .Select(a => new WhiteListModel

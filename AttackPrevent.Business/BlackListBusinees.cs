@@ -13,10 +13,10 @@ namespace AttackPrevent.Business
     }
     public class BlackListBusinees : IBlackListBusinees
     {
-        ICloundFlareApiService cloundFlareApiService;
+        ICloudFlareApiService _cloudFlareApiService;
         public BlackListBusinees()
         {
-            cloundFlareApiService = new CloundFlareApiService();
+            _cloudFlareApiService = new CloudFlareApiService();
         }
 
         public bool CreateAccessRule(string zoneId, string authEmail, string authKey, string ip, string comment)
@@ -29,7 +29,7 @@ namespace AttackPrevent.Business
             };
 
             //Code review by michael, 这里面是可能有异常的.
-            response = cloundFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
+            response = _cloudFlareApiService.CreateAccessRule(zoneId, authEmail, authKey, new FirewallAccessRuleRequest
             {
                 configuration = new Configuration
                 {
@@ -51,7 +51,7 @@ namespace AttackPrevent.Business
 
         public bool DeleteAccessRule(string zoneId, string authEmail, string authKey, string ip)
         {
-            var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, ip, "");
+            var list = _cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, ip, "");
             var rule = list.FirstOrDefault();
             FirewallAccessRuleResponse response = new FirewallAccessRuleResponse
             {
@@ -62,7 +62,7 @@ namespace AttackPrevent.Business
                 //var zoneList = ZoneBusiness.GetZoneList();
                 //var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
 
-                response = cloundFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
+                response = _cloudFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
                 if (response.success)
                 {
                     string key = string.Format("GetBlackListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
@@ -79,7 +79,7 @@ namespace AttackPrevent.Business
             string key = $"GetBlackListModelList:{zoneId}-{authEmail}-{authKey}";
             var query = Utils.GetMemoryCache<List<BlackListModel>>(key, () =>
             {
-                var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
+                var list = _cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
                 return list.Select(a => new BlackListModel
                 {
                     IP = a.configurationValue,
@@ -88,7 +88,7 @@ namespace AttackPrevent.Business
                 }).ToList();
             }, 5).AsQueryable();
 
-            //var list = cloundFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
+            //var list = _cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.challenge);
             //var query = list.Select(a => new BlackListModel
             //{
             //    IP = a.configurationValue,

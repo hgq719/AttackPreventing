@@ -14,7 +14,7 @@ using System.Web;
 
 namespace AttackPrevent.Business
 {
-    public interface ICloundFlareApiService
+    public interface ICloudFlareApiService
     {
         Task<List<CloudflareLog>> GetCloudflareLogsAsync(DateTime start, DateTime end);
         List<CloudflareLog> GetCloudflareLogs(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end, out bool retry);
@@ -34,7 +34,7 @@ namespace AttackPrevent.Business
         DeleteRateLimitResponse DeleteRateLimit(string zoneId, string authEmail, string authKey, string id);
         string CheckAuth(string zoneId, string authEmail, string authKey);
     }
-    public class CloundFlareApiService : ICloundFlareApiService
+    public class CloudFlareApiService : ICloudFlareApiService
     {
         private string _zoneId = "xxx";
         private string _authEmail = "xx@xx.com";
@@ -46,11 +46,11 @@ namespace AttackPrevent.Business
 
         private ILogService logger = new LogService();
 
-        public CloundFlareApiService()
+        public CloudFlareApiService()
         {
         }
 
-        public CloundFlareApiService(string zoneId, string authEmail, string authKey, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
+        public CloudFlareApiService(string zoneId, string authEmail, string authKey, string apiUrlPrefix = @"https://api.cloudflare.com/client/v4")
         {
             _zoneId = zoneId;
             _authEmail = authEmail;

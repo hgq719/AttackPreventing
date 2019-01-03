@@ -73,7 +73,7 @@ namespace AttackPrevent.Access
                             Threshold = Convert.ToInt32(reader["Threshold"]),
                             Url = Convert.ToString(reader["Url"]).Replace("https://", "").Replace("http://", ""),
                             OrderNo = Convert.ToInt32(reader["OrderNo"]),
-                            EnlargementFactor = (float)reader["EnlargementFactor"],
+                            EnlargementFactor = (float)Convert.ToDouble(reader["EnlargementFactor"]),
                             RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),
                             LatestTriggerTime = Convert.ToDateTime(reader["LatestTriggerTime"]),
                             TableID = Convert.ToInt32(reader["Id"]),
@@ -257,7 +257,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.Threshold = Convert.ToInt32(reader["Threshold"]);
                         item.Url = Convert.ToString(reader["Url"]);
                         item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
-                        item.EnlargementFactor = (float)reader["EnlargementFactor"];
+                        item.EnlargementFactor = (float)Convert.ToDouble(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
                         item.ZoneId = Convert.ToString(reader["ZoneId"]);
@@ -297,7 +297,7 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.Threshold = Convert.ToInt32(reader["Threshold"]);
                         item.Url = Convert.ToString(reader["Url"]);
                         item.OrderNo = Convert.ToInt32(reader["OrderNo"]);
-                        item.EnlargementFactor = (float)reader["EnlargementFactor"];
+                        item.EnlargementFactor = (float)Convert.ToDouble(reader["EnlargementFactor"]);
                         item.RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
                         item.ZoneId = Convert.ToString(reader["ZoneId"]);

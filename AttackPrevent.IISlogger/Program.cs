@@ -17,9 +17,10 @@ namespace AttackPrevent.IISlogger
 {
     class Program
     {
-        const String SessionName = "iis-etw";
+        const string SessionName = "iis-etw";
         private static List<byte[]> etwDataList = new List<byte[]>();
         private static string apiUrl = string.Empty;
+
         static void Main(string[] args)
         {
             apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
@@ -28,12 +29,16 @@ namespace AttackPrevent.IISlogger
             Thread thread = new Thread(new ThreadStart(SendData));
             thread.Start();
 
+            CreateETWSession();
+          
+        }
+
+        private static void CreateETWSession()
+        {
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
             {
-                // enable IIS ETW provider and set up a new trace source on it
                 session.EnableProvider("Microsoft-Windows-IIS-Logging", TraceEventLevel.Verbose);
-
                 using (var traceSource = new ETWTraceEventSource(SessionName, TraceEventSourceType.Session))
                 {
                     Console.WriteLine("Session started, listening for events...");
@@ -46,6 +51,8 @@ namespace AttackPrevent.IISlogger
                 }
             }
         }
+
+        // ReSharper disable once InconsistentNaming
         private static void OnIISRequest(TraceEvent request)
         {
             etwDataList.Add(request.EventData());
@@ -55,13 +62,13 @@ namespace AttackPrevent.IISlogger
 
         private static void HttpPost(string Url, byte[] postData)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+            var request = (HttpWebRequest)WebRequest.Create(Url);
             request.Method = "POST";
             request.Accept = "*/*";
             request.ContentType = "application/octet-stream";
             request.ContentLength = postData.LongLength;
             //request.CookieContainer = cookie;
-            Stream myRequestStream = request.GetRequestStream();
+            var myRequestStream = request.GetRequestStream();
             myRequestStream.Write(postData, 0, postData.Length);
             myRequestStream.Close();
         }
@@ -91,10 +98,10 @@ namespace AttackPrevent.IISlogger
             }
         }
 
-        public static byte[] Serialize(List<byte[]> data)
+        private static byte[] Serialize(List<byte[]> data)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream rems = new MemoryStream();
+            var formatter = new BinaryFormatter();
+            var rems = new MemoryStream();
             formatter.Serialize(rems, data);
             return rems.GetBuffer();
         }

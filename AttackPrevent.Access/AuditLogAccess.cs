@@ -125,14 +125,7 @@ namespace AttackPrevent.Access
             }
             where.Append(" ZoneTableId=@zoneTableId AND ");
 
-            if (string.IsNullOrWhiteSpace(logType))
-            {
-                logType = "0,2,1";
-            }
-            else
-            {
-                logType = logType.Remove(logType.Length - 1);
-            }
+            logType = string.IsNullOrWhiteSpace(logType) ? "0,2,1" : logType.Remove(logType.Length - 1);
 
             if (logType.Length == 1)
             {
@@ -151,33 +144,6 @@ namespace AttackPrevent.Access
                 where.Append(") AND ");
             }
 
-            //where.Append(" (");
-            //logType = logType.Remove(logType.Length - 1);
-            //string[] ar = logType.Split(',');
-            //for (var i = 0; i < ar.Length; i++)
-            //{
-            //    where.AppendFormat("LogLevel = @logType" + i + " OR ");
-            //}
-            //where.Remove(where.Length - 3, 3);
-            //where.Append(") AND ");
-
-
-            //if (!string.IsNullOrWhiteSpace(logType))
-            //{
-            //    where.Append(" LogLevel IN (");
-            //    logType = logType.Remove(logType.Length - 1);
-            //    string[] ar = logType.Split(',');
-            //    for (var i = 0; i < ar.Length; i++)
-            //    {
-            //        where.Append("@logType" + i + ",");
-            //    }
-            //    where.Remove(where.Length - 1, 1);
-            //    where.Append(") AND ");
-            //}
-            //else
-            //{
-            //    where.Append(" LogLevel IN ('0', '2', '1') AND ");
-            //}
 
             if (!string.IsNullOrWhiteSpace(detail))
             {
@@ -341,7 +307,7 @@ namespace AttackPrevent.Access
                     const string query = @"INSERT INTO dbo.t_Logs
                                 ( ZoneTableId ,
                                   LogLevel ,
-                                  LogTime ,
+                                  /*LogTime ,*/
                                   LogOperator ,
                                   IP ,
                                   Detail ,
@@ -349,7 +315,7 @@ namespace AttackPrevent.Access
                                 )
                         VALUES  ( @zoneTableId , 
                                   @logLevel ,
-                                  @logTime ,
+                                  /*@logTime ,*/
                                   @operator , 
                                   @ip ,
                                   @detail , 
@@ -359,7 +325,7 @@ namespace AttackPrevent.Access
                     cmd.Parameters.AddWithValue("@zoneTableId", item.ZoneTableID);
                     cmd.Parameters.AddWithValue("@logLevel", item.LogType);
                     cmd.Parameters.AddWithValue("@operator", item.LogOperator);
-                    cmd.Parameters.AddWithValue("@logTime", item.LogTime);
+                    //cmd.Parameters.AddWithValue("@logTime", item.LogTime);
                     cmd.Parameters.AddWithValue("@ip", item.IP);
                     cmd.Parameters.AddWithValue("@detail", item.Detail);
                     conn.Open();
@@ -395,7 +361,7 @@ namespace AttackPrevent.Access
             const string insertSql = @"INSERT INTO dbo.t_Logs
                                 ( ZoneTableId ,
                                   LogLevel ,
-                                  LogTime ,
+                                  /*LogTime ,*/
                                   LogOperator ,
                                   IP ,
                                   Detail ,
@@ -403,7 +369,7 @@ namespace AttackPrevent.Access
                                 )
                         VALUES  ( @zoneTableId ,
                                   @logLevel ,
-                                  @logTime ,
+                                 /* @logTime ,*/
                                   @operator ,
                                   @ip , 
                                   @detail ,
@@ -413,7 +379,7 @@ namespace AttackPrevent.Access
             cmd.Parameters.AddWithValue("@zoneTableId", log.ZoneTableID);
             cmd.Parameters.AddWithValue("@logLevel", log.LogType);
             cmd.Parameters.AddWithValue("@operator", log.LogOperator);
-            cmd.Parameters.AddWithValue("@logTime", log.LogTime);
+            //cmd.Parameters.AddWithValue("@logTime", log.LogTime);
             cmd.Parameters.AddWithValue("@ip", log.IP);
             cmd.Parameters.AddWithValue("@detail", log.Detail);
 

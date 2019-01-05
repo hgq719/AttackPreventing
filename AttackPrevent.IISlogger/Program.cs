@@ -3,6 +3,7 @@ using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -18,15 +19,19 @@ namespace AttackPrevent.IISlogger
     class Program
     {
         const String SessionName = "iis-etw";
-        private static List<byte[]> etwDataList = new List<byte[]>();
+        private static ConcurrentBag<byte[]> etwDataList = new ConcurrentBag<byte[]>();
         private static string apiUrl = string.Empty;
         static void Main(string[] args)
         {
             apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
             LogManager.GetLogger("").Info(apiUrl);
+            ServicePointManager.DefaultConnectionLimit = 100;
 
-            Thread thread = new Thread(new ThreadStart(SendData));
-            thread.Start();
+            //Thread thread = new Thread(new ThreadStart(SendData));
+            //thread.Start();
+
+
+            Timer timer = new Timer(new TimerCallback(SendData2), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -49,25 +54,32 @@ namespace AttackPrevent.IISlogger
         private static void OnIISRequest(TraceEvent request)
         {
             etwDataList.Add(request.EventData());
-
-            Console.WriteLine(request.ToString());
+            //Console.WriteLine(request.ToString());
         }
 
-        private static void HttpPost(string Url, byte[] postData)
+        private static async void HttpPost(string Url, byte[] postData)
         {
+            System.GC.Collect();
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+            request.KeepAlive = false;
             request.Method = "POST";
             request.Accept = "*/*";
             request.ContentType = "application/octet-stream";
             request.ContentLength = postData.LongLength;
             //request.CookieContainer = cookie;
             Stream myRequestStream = request.GetRequestStream();
-            myRequestStream.Write(postData, 0, postData.Length);
+            await myRequestStream.WriteAsync(postData, 0, postData.Length);
             myRequestStream.Close();
+            if (request != null)
+            {
+                request.Abort();
+                //request = null;
+            }
         }
 
         private static void SendData()
         {
+            //ServicePointManager.DefaultConnectionLimit = 100;
             while (true)
             {
                 if (etwDataList.Count > 0)
@@ -75,23 +87,47 @@ namespace AttackPrevent.IISlogger
                     try
                     {
                         byte[] postData = Serialize(etwDataList);
+                        Console.WriteLine($"{DateTime.Now.ToString()} -  {etwDataList.Count}");
+                        var newBag = new ConcurrentBag<byte[]>();
+                        Interlocked.Exchange<ConcurrentBag<byte[]>>(ref etwDataList, newBag);
                         HttpPost(apiUrl, postData);
                     }
                     catch (Exception ex)
                     {
                         LogManager.GetLogger("").Error(ex);
                     }
-                    finally
-                    {
-                        etwDataList.Clear();
-                    }
+                    //finally
+                    //{
+                    //    etwDataList.Clear();
+                    //}
                 }
 
                 Thread.Sleep(1000);
             }
         }
 
-        public static byte[] Serialize(List<byte[]> data)
+        private static void SendData2(object obj)
+        {
+            if (etwDataList.Count > 0)
+            {
+                try
+                {
+                    byte[] postData = Serialize(etwDataList);
+                    int postCount = etwDataList.Count;
+                    var newBag = new ConcurrentBag<byte[]>();
+                    Interlocked.Exchange<ConcurrentBag<byte[]>>(ref etwDataList, newBag);
+                    HttpPost(apiUrl, postData);
+                    Console.WriteLine($"{DateTime.Now.ToString()} -  {postCount}");
+                }
+                catch (Exception ex)
+                {
+                    LogManager.GetLogger("").Error(ex);
+                }
+            }
+
+        }
+
+        public static byte[] Serialize(ConcurrentBag<byte[]> data)
         {
             BinaryFormatter formatter = new BinaryFormatter();
             MemoryStream rems = new MemoryStream();

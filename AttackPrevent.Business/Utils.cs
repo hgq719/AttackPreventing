@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
 using System.Runtime.Caching;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -168,6 +169,14 @@ namespace AttackPrevent.Business
             }
 
             return list;
+        }
+        public static List<byte[]> Deserialize(byte[] buff)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using(MemoryStream stream = new MemoryStream(buff))
+            {
+                return formatter.Deserialize(stream) as List<byte[]>;
+            }
         }
     }
 }

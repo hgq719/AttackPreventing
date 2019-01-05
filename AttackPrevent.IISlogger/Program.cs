@@ -3,30 +3,29 @@ using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AttackPrevent.IISlogger
 {
     class Program
     {
         const String SessionName = "iis-etw";
-        private static List<byte[]> etwDataList = new List<byte[]>();
-        private static string apiUrl = string.Empty;
-        static void Main(string[] args)
-        {
-            apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
-            LogManager.GetLogger("").Info(apiUrl);
+        private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
+        private static string _apiUrl = string.Empty;
 
-            Thread thread = new Thread(new ThreadStart(SendData));
-            thread.Start();
+        static void Main()
+        {
+            _apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
+            LogManager.GetLogger(string.Empty).Info(_apiUrl);
+            ServicePointManager.DefaultConnectionLimit = 100;
+
+            var timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -46,55 +45,90 @@ namespace AttackPrevent.IISlogger
                 }
             }
         }
+        // ReSharper disable once InconsistentNaming
         private static void OnIISRequest(TraceEvent request)
         {
-            etwDataList.Add(request.EventData());
-
-            Console.WriteLine(request.ToString());
+            _etwDataList.Add(request.EventData());
         }
 
-        private static void HttpPost(string Url, byte[] postData)
+        private static async void HttpPost(string url, byte[] postData)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+            GC.Collect();
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.KeepAlive = false;
             request.Method = "POST";
             request.Accept = "*/*";
             request.ContentType = "application/octet-stream";
             request.ContentLength = postData.LongLength;
             //request.CookieContainer = cookie;
-            Stream myRequestStream = request.GetRequestStream();
-            myRequestStream.Write(postData, 0, postData.Length);
+            var myRequestStream = request.GetRequestStream();
+            await myRequestStream.WriteAsync(postData, 0, postData.Length);
             myRequestStream.Close();
-        }
-
-        private static void SendData()
-        {
-            while (true)
+            if (request != null)
             {
-                if (etwDataList.Count > 0)
-                {
-                    try
-                    {
-                        byte[] postData = Serialize(etwDataList);
-                        HttpPost(apiUrl, postData);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogManager.GetLogger("").Error(ex);
-                    }
-                    finally
-                    {
-                        etwDataList.Clear();
-                    }
-                }
-
-                Thread.Sleep(1000);
+                request.Abort();
+                //request = null;
             }
         }
 
-        public static byte[] Serialize(List<byte[]> data)
+        #region Old Version
+
+        //private static void SendData()
+        //{
+        //    //ServicePointManager.DefaultConnectionLimit = 100;
+        //    while (true)
+        //    {
+        //        if (_etwDataList.Count > 0)
+        //        {
+        //            try
+        //            {
+        //                byte[] postData = Serialize(_etwDataList);
+        //                Console.WriteLine($"{DateTime.Now.ToString()} -  {_etwDataList.Count}");
+        //                var newBag = new ConcurrentBag<byte[]>();
+        //                Interlocked.Exchange<ConcurrentBag<byte[]>>(ref _etwDataList, newBag);
+        //                HttpPost(_apiUrl, postData);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                LogManager.GetLogger("").Error(ex);
+        //            }
+        //            //finally
+        //            //{
+        //            //    etwDataList.Clear();
+        //            //}
+        //        }
+
+        //        Thread.Sleep(1000);
+        //    }
+        //}
+
+        #endregion
+
+
+        private static void SendData(object obj)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream rems = new MemoryStream();
+            if (_etwDataList.Count <= 0) return;
+            try
+            {
+                var postCount = _etwDataList.Count;
+                var newBag = new ConcurrentBag<byte[]>();
+                var postData = Serialize(_etwDataList);
+
+                Interlocked.Exchange(ref _etwDataList, newBag);
+
+                HttpPost(_apiUrl, postData);
+                Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.InvariantCulture)} -  {postCount}");
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(string.Empty).Error(ex);
+            }
+        }
+
+        private static byte[] Serialize(ConcurrentBag<byte[]> data)
+        {
+            var formatter = new BinaryFormatter();
+            var rems = new MemoryStream();
             formatter.Serialize(rems, data);
             return rems.GetBuffer();
         }

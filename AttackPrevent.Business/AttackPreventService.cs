@@ -118,11 +118,28 @@ namespace AttackPrevent.Business
                 foreach (var broken in rst.BrokenIpList)
                 {
                     string ip = broken.IP;
-                    bool flag = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    bool flag = true;
+                    if(zone!=null&& zone.IfTestStage)
+                    {
+                        //测试
+                    }
+                    else
+                    {
+                        flag = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                    }
                     if (!flag)
                     {
                         logger.Error("Add BlackList by iis logs fail, ip=" + ip);
                     }
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = ip,
+                        LogType = LogLevel.App,
+                        ZoneID = zoneID,
+                        LogOperator = "SYS",
+                        LogTime = DateTime.UtcNow,
+                        Detail = string.Format("[App] {1} [{0}] Add Black List successfully.", ip, DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss")),
+                    });
                 }
             }
         }

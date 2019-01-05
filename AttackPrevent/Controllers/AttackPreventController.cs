@@ -2,6 +2,7 @@
 using AttackPrevent.Core;
 using AttackPrevent.Model;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -63,15 +64,49 @@ namespace AttackPrevent.Controllers
             attackPreventService.Add(analyzeResult);
             return Ok();
         }
+
+        [HttpGet]
+        [Route("GetWhiteList/{zoneId}/WhiteLists")]
+        [ApiAuthorize]
+        public IHttpActionResult GetWhiteList(string zoneId)
+        {
+            string authEmail = "";
+            string authKey = "";
+            //zoneID = "";
+
+            var zoneList = ZoneBusiness.GetZoneList();
+            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneId);
+            if (zone != null)
+            {
+                authEmail = zone.AuthEmail;
+                authKey = zone.AuthKey;
+            }
+
+            ICloudFlareApiService cloudFlareApiService = new CloudFlareApiService();
+            var list = cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
+            var whiteListModelList = new List<WhiteListModel>();
+            if(list!=null&& list.Count > 0)
+            {
+                whiteListModelList = list.Select(a => new WhiteListModel
+                {
+                    IP = a.configurationValue,
+                    CreateTime = a.createTime.ToString("MM/dd/yyyy HH:mm:ss"),
+                    Notes = a.notes,
+                }).ToList();
+            }
+            return Ok(whiteListModelList);
+        }
         #endregion
 
         #region IIS API
         [HttpPost]
         [Route("IISLogs/EtwResult")]
-        public IHttpActionResult EtwResult([FromBody] List<byte[]> data)
+        public async Task<IHttpActionResult> EtwResult()
         {
+            byte[] buff = await Request.Content.ReadAsByteArrayAsync();
+            List<byte[]> data = Utils.Deserialize(buff);
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
-            etwAnalyzeService.Add(data);
+            await etwAnalyzeService.Add(data);
             return Ok();
         }
         #endregion

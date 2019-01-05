@@ -9,6 +9,7 @@ namespace AttackPrevent.Model
     public class AnalyzeResult
     {
         public string ZoneId { get; set; }
+        public int timeStage { get; set; }
         public List<Result> result { get; set; }
     }
     public class Result
@@ -27,6 +28,7 @@ namespace AttackPrevent.Model
     }
     public class RequestRecord
     {
+        public string HostName { get; set; }
         public string FullUrl { get; set; }
         public int RequestCount { get; set; }
     }

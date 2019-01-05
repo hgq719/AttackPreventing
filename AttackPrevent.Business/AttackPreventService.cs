@@ -87,62 +87,137 @@ namespace AttackPrevent.Business
         {
             if (analyzeResult != null&& analyzeResult.result!=null)
             {
-                //记录日志
-                InsertLogs(analyzeResult);
+                List<AuditLogEntity> auditLogEntities = new List<AuditLogEntity>();
+                var zoneList = ZoneBusiness.GetZoneList();
+                string zoneID = analyzeResult.ZoneId;
+                var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
+                string authEmail = zone.AuthEmail;
+                string authKey = zone.AuthKey;
+
+                var cloudflare = new CloudFlareApiService(zone.ZoneId, zone.AuthEmail, zone.AuthKey);
+
+                //发送警报
+                Warn(analyzeResult);
+
                 //开启RateLimit
-                OpenRageLimit(analyzeResult);
+                var logs = OpenRageLimit(zone, cloudflare, analyzeResult);
+                auditLogEntities.AddRange(logs);
+
                 //Ban IP
-                BanIp(analyzeResult);
+                logs = BanIp(zone, cloudflare, analyzeResult);
+                auditLogEntities.AddRange(logs);
+
+                //记录日志
+                InsertLogs(logs);
             }
         }
-        private void InsertLogs(AnalyzeResult analyzeResult)
+        private void InsertLogs(List<AuditLogEntity> logs)
         {
-
+            if (logs != null)
+            {
+                IISLogBusiness.AddList(logs);
+            }
         }
-        private void OpenRageLimit(AnalyzeResult analyzeResult)
+        private List<AuditLogEntity> OpenRageLimit(ZoneEntity zone, CloudFlareApiService cloudflare, AnalyzeResult analyzeResult)
         {
+            List<AuditLogEntity> auditLogEntities = new List<AuditLogEntity>();
+            #region Open Rate Limiting Rule
+            
+            foreach (var rst in analyzeResult.result)
+            {
+                StringBuilder sbDetail = new StringBuilder();
+                //sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                if (zone != null && zone.IfAttacking)
+                {
+                    sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
+                }
+                else
+                {
+                    if (cloudflare.OpenRateLimit(rst.Url, rst.Threshold, rst.Period, out var errorLog))
+                    {
+                        sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
+                    }
+                    else
+                    {
+                        sbDetail.AppendFormat(errorLog.Detail);
+                    }
+                }
 
+                auditLogEntities.Add(new AuditLogEntity(zone.TableID, LogLevel.Audit, sbDetail.ToString()));
+            }
+
+            #endregion
+            return auditLogEntities;
         }
-        private void BanIp(AnalyzeResult analyzeResult)
+        private List<AuditLogEntity> BanIp(ZoneEntity zone, CloudFlareApiService cloudflare, AnalyzeResult analyzeResult)
         {
-            IBlackListBusinees blackListBusinees = new BlackListBusinees();
-            var zoneList = ZoneBusiness.GetZoneList();
-            string zoneID = analyzeResult.ZoneId;
-            var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-            string authEmail = zone.AuthEmail;
-            string authKey = zone.AuthKey;
-            string comment = "Add BlackList by iis logs";
+            List<AuditLogEntity> auditLogEntities = new List<AuditLogEntity>();
 
             foreach (var rst in analyzeResult.result)
             {
                 foreach (var broken in rst.BrokenIpList)
                 {
-                    string ip = broken.IP;
-                    bool flag = true;
-                    if(zone!=null&& zone.IfTestStage)
+                    StringBuilder sbDetail = new StringBuilder();
+                    if (rst.Url.EndsWith("*"))
                     {
-                        //测试
+                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{broken.RequestRecords.Count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}])，details(only list the top 10 records)：<br />");
+                        var top10 = broken.RequestRecords.OrderByDescending(a => a.RequestCount).Take(10);
+         
+                        foreach (var item in top10)
+                        {
+                            sbDetail.AppendFormat("[{0}] {1} times.<br />", item.FullUrl, item.RequestCount);
+                        }                       
                     }
                     else
                     {
-                        flag = blackListBusinees.CreateAccessRule(zoneID, authEmail, authKey, ip, comment);
+                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{broken.RequestRecords.Count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}]).<br />");
                     }
-                    if (!flag)
-                    {
-                        logger.Error("Add BlackList by iis logs fail, ip=" + ip);
-                    }
-                    AuditLogBusiness.Add(new AuditLogEntity
+                    string banIpLog = BanIpByRateLimitRule(zone, zone.IfTestStage, cloudflare, analyzeResult.timeStage ,broken.RequestRecords.FirstOrDefault().HostName, broken.IP,rst.Period,rst.Threshold,rst.BrokenIpList.Count);
+
+                    if (!string.IsNullOrEmpty(banIpLog)) sbDetail.Append(banIpLog);
+
+                    auditLogEntities.Add(new AuditLogEntity(zone.TableID, LogLevel.Audit, sbDetail.ToString()));
+
+                }
+
+            }
+
+            return auditLogEntities;
+        }
+        private void Warn(AnalyzeResult analyzeResult)
+        {
+            // 发送警报
+            ZoneBusiness.UpdateAttackFlag(true, analyzeResult.ZoneId);
+        }
+        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloudFlareApiService cloudflare, int timeStage, string requestHost, string ip, int period, int threshold, int requestCount)
+        {
+            var sbDetail = new StringBuilder();
+            if (ifTestStage)
+            {
+                sbDetail.AppendFormat("Ban IP [{0}] successfully.<br />", ip);
+            }
+            else
+            {
+                var cloudflareAccessRuleResponse = cloudflare.BanIp(ip, "Ban Ip By Attack Prevent Windows service!");
+                if (cloudflareAccessRuleResponse.Success)
+                {
+                    sbDetail.AppendFormat("Ban IP [{0}] and add ban history successfully.<br />", ip);
+
+                    BanIpHistoryBusiness.Add(new BanIpHistory()
                     {
                         IP = ip,
-                        LogType = LogLevel.App,
-                        ZoneID = zoneID,
-                        LogOperator = "SYS",
-                        LogTime = DateTime.UtcNow,
-                        Detail = string.Format("[App] {1} [{0}] Add Black List successfully.", ip, DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss")),
+                        ZoneId = zoneEntity.ZoneId,
+                        RuleId = 0,
+                        Remark = string.Format("IP [{0}] visited [{2}] [{3}] times, time range：[{1}].<br /> Exceeded rate limit threshold(Period=[{4}],Threshold=[{5}]).",
+                        ip, timeStage, requestHost, requestCount, period, threshold)
                     });
                 }
+                else
+                {
+                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", ip, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "No error message from Cloudflare.");
+                }
             }
+            return sbDetail.ToString();
         }
-
     }
 }

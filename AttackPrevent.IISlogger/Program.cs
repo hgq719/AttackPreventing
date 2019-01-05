@@ -110,10 +110,12 @@ namespace AttackPrevent.IISlogger
             if (_etwDataList.Count <= 0) return;
             try
             {
-                var postData = Serialize(_etwDataList);
                 var postCount = _etwDataList.Count;
                 var newBag = new ConcurrentBag<byte[]>();
+                var postData = Serialize(_etwDataList);
+
                 Interlocked.Exchange(ref _etwDataList, newBag);
+
                 HttpPost(_apiUrl, postData);
                 Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.InvariantCulture)} -  {postCount}");
             }

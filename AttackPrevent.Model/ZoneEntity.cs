@@ -27,5 +27,6 @@ namespace AttackPrevent.Model
         public int PeriodForHost { get; set; }
 
         public bool IfAnalyzeByHostRule { get; set; }
+        public string HostNames { get; set; }
     }
 }

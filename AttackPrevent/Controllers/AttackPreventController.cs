@@ -1,6 +1,7 @@
 ﻿using AttackPrevent.Business;
 using AttackPrevent.Core;
 using AttackPrevent.Model;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace AttackPrevent.Controllers
 {
     public class AttackPreventController : ApiController
     {
+        private ILogService logger = new LogService();
+
         #region Test
         // GET api/<controller>
         [ApiAuthorize]
@@ -49,20 +52,7 @@ namespace AttackPrevent.Controllers
         public IHttpActionResult GetRateLimits(string zoneId)
         {
             var list = RateLimitBusiness.GetList(zoneId);
-            return Ok(new
-            {
-                result = list
-            });
-        }
-
-        [HttpPost]
-        [Route("IISLogs/AnalyzeResult")]
-        [ApiAuthorize]
-        public IHttpActionResult AnalyzeResult(AnalyzeResult analyzeResult)
-        {
-            var attackPreventService = AttackPreventService.GetInstance();
-            attackPreventService.Add(analyzeResult);
-            return Ok();
+            return Ok(list);
         }
 
         [HttpGet]
@@ -85,17 +75,38 @@ namespace AttackPrevent.Controllers
             ICloudFlareApiService cloudFlareApiService = new CloudFlareApiService();
             var list = cloudFlareApiService.GetAccessRuleList(zoneId, authEmail, authKey, EnumMode.whitelist);
             var whiteListModelList = new List<WhiteListModel>();
-            if(list!=null&& list.Count > 0)
+            if (list != null && list.Count > 0)
             {
                 whiteListModelList = list.Select(a => new WhiteListModel
                 {
                     IP = a.configurationValue,
-                    CreateTime = a.createTime.ToString("MM/dd/yyyy HH:mm:ss"),
+                    //CreateTime = a.createTime.ToString("MM/dd/yyyy HH:mm:ss"),
                     Notes = a.notes,
                 }).ToList();
             }
             return Ok(whiteListModelList);
         }
+
+        [HttpGet]
+        [Route("GetZoneList/Zones")]
+        [ApiAuthorize]
+        public IHttpActionResult GetZoneList()
+        {
+            var zoneList = ZoneBusiness.GetZoneList();         
+            return Ok(zoneList);
+        }
+
+        [HttpPost]
+        [Route("IISLogs/AnalyzeResult")]
+        [ApiAuthorize]
+        public IHttpActionResult AnalyzeResult(AnalyzeResult analyzeResult)
+        {
+            var attackPreventService = AttackPreventService.GetInstance();
+            attackPreventService.Add(analyzeResult);
+            return Ok();
+        }
+
+
         #endregion
 
         #region IIS API
@@ -106,7 +117,9 @@ namespace AttackPrevent.Controllers
             byte[] buff = await Request.Content.ReadAsByteArrayAsync();
             List<byte[]> data = Utils.Deserialize(buff);
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
-            await etwAnalyzeService.Add(data);
+            string ip = Utils.GetIPAddress();
+            logger.Debug(ip);
+            await etwAnalyzeService.Add(ip,data);
             return Ok();
         }
         #endregion

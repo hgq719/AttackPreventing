@@ -164,6 +164,15 @@ namespace AttackPrevent.Business
                         break;
                 }
             }
+
+            if (!string.IsNullOrWhiteSpace( CustomFields))
+            {
+                var strList = CustomFields.Split(' ');
+                if (strList.Length == 2)
+                {
+                    this.CFConnectingIP = strList[1];
+                }
+            }
         }
         private string PraseUnicode(ref int offset, ref List<byte> buf, ref int fieldIndex)
         {
@@ -322,6 +331,8 @@ namespace AttackPrevent.Business
             //get { return GetUnicodeStringAt(GetOffsetForField(23)); }
             get; set;
         }
+
+        public string CFConnectingIP {get;set;}
 
         enum Types
         {

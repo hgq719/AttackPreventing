@@ -50,6 +50,7 @@ namespace AttackPrevent.IISlogger
         private static void OnIISRequest(TraceEvent request)
         {
             _etwDataList.Add(request.EventData());
+            Console.WriteLine(request.ToString());
         }
 
         private static async void HttpPost(string url, byte[] postData)

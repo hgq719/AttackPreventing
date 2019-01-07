@@ -40,6 +40,7 @@ namespace AttackPrevent.Model
         public EnumEtwStatus enumEtwStatus { get; set; }
         public long time { get; set; }
         public int retryCount { get; set; }
+        public string senderIp { get; set; }
 
         public override bool Equals(object obj)
         {

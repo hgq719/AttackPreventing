@@ -49,6 +49,8 @@ namespace AttackPrevent.Business
                 Random random = new Random(DateTime.Now.GetHashCode());
                 int index = random.Next(4);
 
+                index = 0;
+
                 this.Cs_host = hosts[index];
                 this.C_ip = ips[index];
                 this.Cs_uri_stem = urls[index];

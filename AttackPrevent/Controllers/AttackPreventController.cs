@@ -11,6 +11,8 @@ namespace AttackPrevent.Controllers
 {
     public class AttackPreventController : ApiController
     {
+        private ILogService logger = new LogService();
+
         #region Test
         // GET api/<controller>
         [ApiAuthorize]
@@ -115,7 +117,9 @@ namespace AttackPrevent.Controllers
             byte[] buff = await Request.Content.ReadAsByteArrayAsync();
             List<byte[]> data = Utils.Deserialize(buff);
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
-            await etwAnalyzeService.Add(data);
+            string ip = Utils.GetIPAddress();
+            logger.Debug(ip);
+            await etwAnalyzeService.Add(ip,data);
             return Ok();
         }
         #endregion

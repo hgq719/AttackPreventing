@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Shouldly;
 using log4net.Config;
 using System.Text;
+using AttackPrevent.Model;
 
 namespace AttackPrevent.WindowsService
 {
@@ -233,12 +234,42 @@ namespace AttackPrevent.WindowsService
         }
         public static void TestIIsLog()
         {
+
+            IAttackPreventService attackPreventService = AttackPreventService.GetInstance();
+            AnalyzeResult analyzeResult = new AnalyzeResult {
+               ZoneId= "2068c8964a4dcef78ee5103471a8db03",
+               timeStage=1,
+               result=new List<Result> {
+                 new Result{
+                     Url="test.comm100.com",
+                     Threshold=1,
+                     Period=1,
+                     EnlargementFactor=1,
+                     RuleId=1,
+                     BrokenIpList=new List<BrokenIp>{
+                        new BrokenIp{
+                            IP="0.0.0.0",
+                            RequestRecords=new List<RequestRecord>{
+                                new RequestRecord{
+                                    FullUrl="test.comm100.com?queryString=hello",
+                                    RequestCount=100,
+                                }
+                            }
+                        }
+                     }
+                 }
+               },
+            };
+            attackPreventService.Add(analyzeResult);
+
+
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
             byte[] buff = Encoding.UTF8.GetBytes("hello world");
             List<byte[]> data = new List<byte[]>() {
                 buff
             };
-            etwAnalyzeService.Add(data);
+            string ip = "0.0.0.0";
+            etwAnalyzeService.Add(ip,data);
             etwAnalyzeService.doWork();
 
             Console.ReadLine();

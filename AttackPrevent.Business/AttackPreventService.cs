@@ -85,30 +85,40 @@ namespace AttackPrevent.Business
         }
         private void Analyze(AnalyzeResult analyzeResult)
         {
-            if (analyzeResult != null&& analyzeResult.result!=null)
+            if (analyzeResult != null && analyzeResult.result != null)
             {
                 List<AuditLogEntity> auditLogEntities = new List<AuditLogEntity>();
-                var zoneList = ZoneBusiness.GetZoneList();
+                string key = "AnalyzeRatelimit_GetZoneList_Key";
+                List<ZoneEntity> zoneList = Utils.GetMemoryCache(key, () =>
+                {
+                    return ZoneBusiness.GetZoneList();
+                }, 1440);
+
                 string zoneID = analyzeResult.ZoneId;
                 var zone = zoneList.FirstOrDefault(a => a.ZoneId == zoneID);
-                string authEmail = zone.AuthEmail;
-                string authKey = zone.AuthKey;
 
-                var cloudflare = new CloudFlareApiService(zone.ZoneId, zone.AuthEmail, zone.AuthKey);
+                if (zone != null)
+                {
+                    string authEmail = zone.AuthEmail;
+                    string authKey = zone.AuthKey;
 
-                //发送警报
-                Warn(analyzeResult);
+                    var cloudflare = new CloudFlareApiService(zone.ZoneId, zone.AuthEmail, zone.AuthKey);
 
-                //开启RateLimit
-                var logs = OpenRageLimit(zone, cloudflare, analyzeResult);
-                auditLogEntities.AddRange(logs);
+                    //发送警报
+                    Warn(analyzeResult);
 
-                //Ban IP
-                logs = BanIp(zone, cloudflare, analyzeResult);
-                auditLogEntities.AddRange(logs);
+                    //开启RateLimit
+                    var logs = OpenRageLimit(zone, cloudflare, analyzeResult);
+                    auditLogEntities.AddRange(logs);
 
-                //记录日志
-                InsertLogs(logs);
+                    //Ban IP
+                    logs = BanIp(zone, cloudflare, analyzeResult);
+                    auditLogEntities.AddRange(logs);
+
+                    //记录日志
+                    InsertLogs(logs);
+                }
+
             }
         }
         private void InsertLogs(List<AuditLogEntity> logs)
@@ -127,7 +137,7 @@ namespace AttackPrevent.Business
             {
                 StringBuilder sbDetail = new StringBuilder();
                 //sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
-                if (zone != null && zone.IfAttacking)
+                if (zone != null && zone.IfTestStage)
                 {
                     sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
                 }

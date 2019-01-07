@@ -15,7 +15,7 @@ namespace AttackPrevent.Business
 {
     public interface IEtwAnalyzeService
     {
-        Task Add(List<byte[]> data);
+        Task Add(string ip, List<byte[]> data);
         void doWork();
     }
     public class EtwAnalyzeService : IEtwAnalyzeService
@@ -25,6 +25,7 @@ namespace AttackPrevent.Business
         private ConcurrentBag<EtwData> datas;
         private ILogService logger = new LogService();
         private readonly string authKey = "EEF1BFC8-177C-424E-8F05-AFC08DEFBAC3";
+        private readonly int ReceivingThreshold = 300;
         private string getRatelimitsApiUrl;
         private string analyzeResultApiUrl;
         private string awsGetWhiteListApiUrl;
@@ -56,19 +57,25 @@ namespace AttackPrevent.Business
             return etwAnalyzeService;
         }
 
-        public async Task Add(List<byte[]> data)
+        public async Task Add(string ip, List<byte[]> data)
         {
             await Task.Run(() =>
             {
-                EtwData etwData = new EtwData
+                //设置一个接收阀值
+                int queueCount = datas.Count(a=>a.enumEtwStatus == EnumEtwStatus.None);
+                if(queueCount < ReceivingThreshold)
                 {
-                    guid = Guid.NewGuid().ToString(),
-                    buffList = data,
-                    enumEtwStatus = EnumEtwStatus.None,
-                    time = DateTime.Now.Ticks,
-                    retryCount=0,
-                };
-                datas.Add(etwData);
+                    EtwData etwData = new EtwData
+                    {
+                        guid = Guid.NewGuid().ToString(),
+                        buffList = data,
+                        enumEtwStatus = EnumEtwStatus.None,
+                        time = DateTime.Now.Ticks,
+                        retryCount = 0,
+                        senderIp = ip,
+                    };
+                    datas.Add(etwData);
+                }                
             });
         }
 
@@ -124,23 +131,50 @@ namespace AttackPrevent.Business
                 {
                     try
                     {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
-                        if (list != null && list.Count == accumulationSecond)
+                        //Stopwatch stopwatch = new Stopwatch();
+                        //stopwatch.Start();
+                        //var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
+                        //if (list != null && list.Count == accumulationSecond)
+                        //{
+                        //    AnalyzeAccumulation(list);
+                        //    stopwatch.Stop();
+                        //    logger.Debug(JsonConvert.SerializeObject(new
+                        //    {
+                        //        time = stopwatch.Elapsed.TotalMilliseconds
+                        //    }));
+                        //    foreach (EtwData etwData in list)
+                        //    {
+                        //        var etw = etwData;
+                        //        datas.TryTake(out etw);
+                        //    }
+                        //}
+
+
+                        var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
+                                        .GroupBy(a => a.senderIp)
+                                        .Where(g => g.Count() >= accumulationSecond);
+
+                        if(list!=null&& list.Count() > 0)
                         {
-                            AnalyzeAccumulation(list);
-                            stopwatch.Stop();
-                            logger.Debug(JsonConvert.SerializeObject(new
+                            foreach(var gp in list)
                             {
-                                time = stopwatch.Elapsed.TotalMilliseconds
-                            }));
-                            foreach(EtwData etwData in list)
-                            {
-                                var etw = etwData;
-                                datas.TryTake(out etw);
+                                Stopwatch stopwatch = new Stopwatch();
+                                stopwatch.Start();
+                                var dataList = gp.Take(accumulationSecond).ToList();
+                                AnalyzeAccumulation(dataList);
+                                stopwatch.Stop();
+                                logger.Debug(JsonConvert.SerializeObject(new
+                                {
+                                    time = stopwatch.Elapsed.TotalMilliseconds
+                                }));
+                                foreach (EtwData etwData in list)
+                                {
+                                    var etw = etwData;
+                                    datas.TryTake(out etw);
+                                }
                             }
                         }
+                        
                     }
                     catch (Exception e)
                     {
@@ -247,9 +281,9 @@ namespace AttackPrevent.Business
                             {
                                 IP = x.ClientIP,
                                 RequestHost = x.ClientRequestHost,
-                                RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
+                                RequestFullUrl = $"{x.ClientRequestHost}/{x.ClientRequestURI}",
                                 RequestUrl =
-                                    $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
+                                    $"{x.ClientRequestHost}/{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
                             };
                             return model;
                         });
@@ -262,7 +296,7 @@ namespace AttackPrevent.Business
                                             RequestCount = g.Count() }).ToList();
 
                     var result =
-                        (from analyzeModel in logAnalyzeModelList
+                        (from analyzeModel in itemsGroup
                          from config in rateLimitEntitiesSub
                          where IfMatchCondition(config, analyzeModel)
                          select new LogAnalyzeModel
@@ -330,6 +364,7 @@ namespace AttackPrevent.Business
                         }
                     }
                     analyzeResult.ZoneId = zoneId;
+                    analyzeResult.timeStage = 1;
                     analyzeResult.result = results;
                 }
 
@@ -394,7 +429,7 @@ namespace AttackPrevent.Business
                                         }).ToList();
 
                     var result =
-                        (from analyzeModel in logAnalyzeModelList
+                        (from analyzeModel in itemsGroup
                          from config in rateLimitEntitiesSub
                          where IfMatchConditionAccumulation(config, analyzeModel)
                          select new LogAnalyzeModel
@@ -464,6 +499,7 @@ namespace AttackPrevent.Business
                         }
                     }
                     analyzeResult.ZoneId = zoneId;
+                    analyzeResult.timeStage = accumulationSecond;
                     analyzeResult.result = results;
                 }
 

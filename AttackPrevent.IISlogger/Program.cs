@@ -118,6 +118,7 @@ namespace AttackPrevent.IISlogger
                     Interlocked.Exchange<ConcurrentBag<byte[]>>(ref etwDataList, newBag);
                     HttpPost(apiUrl, postData);
                     Console.WriteLine($"{DateTime.Now.ToString()} -  {postCount}");
+                    LogManager.GetLogger("").Info(postCount);
                 }
                 catch (Exception ex)
                 {

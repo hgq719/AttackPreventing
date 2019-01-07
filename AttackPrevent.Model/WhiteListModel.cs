@@ -12,6 +12,7 @@ namespace AttackPrevent.Model
     {
         public string IP { get; set; }
         [JsonConverter(typeof(IsoDateTimeConverter))]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string CreateTime { get; set; }
         public string Notes { get; set; }
     }

@@ -12,6 +12,8 @@ using Quartz.Impl;
 using System.Threading.Tasks;
 using Shouldly;
 using log4net.Config;
+using System.Text;
+
 namespace AttackPrevent.WindowsService
 {
     public class Program
@@ -21,6 +23,7 @@ namespace AttackPrevent.WindowsService
         {
             try
             {
+                TestIIsLog();
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
                 RunProgram().GetAwaiter().GetResult();
                 var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
@@ -227,6 +230,18 @@ namespace AttackPrevent.WindowsService
             sendMailService.MainQueueDoWork();
 
             ConstValues.emailtimeout.ShouldBe(90000);
+        }
+        public static void TestIIsLog()
+        {
+            IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
+            byte[] buff = Encoding.UTF8.GetBytes("hello world");
+            List<byte[]> data = new List<byte[]>() {
+                buff
+            };
+            etwAnalyzeService.Add(data);
+            etwAnalyzeService.doWork();
+
+            Console.ReadLine();
         }
         #endregion
 

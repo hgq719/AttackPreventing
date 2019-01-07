@@ -39,6 +39,7 @@ namespace AttackPrevent.Model
         public List<byte[]> buffList { get; set; }
         public EnumEtwStatus enumEtwStatus { get; set; }
         public long time { get; set; }
+        public int retryCount { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -67,6 +68,7 @@ namespace AttackPrevent.Model
     {
         None,
         Processing,
-        Processed
+        Processed,
+        Failed
     }
 }

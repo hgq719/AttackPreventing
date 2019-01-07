@@ -28,14 +28,16 @@ namespace AttackPrevent.Business
         private string getRatelimitsApiUrl;
         private string analyzeResultApiUrl;
         private string awsGetWhiteListApiUrl;
+        private string awsGetZoneListApiUrl;
         private int accumulationSecond;
 
         private EtwAnalyzeService()
         {
-            getRatelimitsApiUrl = ConfigurationManager.AppSettings["AwsGetRatelimitsApiUrl"];
-            analyzeResultApiUrl = ConfigurationManager.AppSettings["AwsAnalyzeResultApiUrl"];
-            awsGetWhiteListApiUrl = ConfigurationManager.AppSettings["AwsGetWhiteListApiUrl"];
-            accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"]);//累计秒
+            getRatelimitsApiUrl = ConfigurationManager.AppSettings["AwsGetRatelimitsApiUrl"]?? "http://localhost:41967/GetZones/{zoneId}/Ratelimits";
+            analyzeResultApiUrl = ConfigurationManager.AppSettings["AwsAnalyzeResultApiUrl"]?? "http://localhost:41967/IISLogs/AnalyzeResult";
+            awsGetWhiteListApiUrl = ConfigurationManager.AppSettings["AwsGetWhiteListApiUrl"]?? "http://localhost:41967/GetWhiteList/{zoneId}/WhiteLists";
+            accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"]??"20");//累计秒
+            awsGetZoneListApiUrl = ConfigurationManager.AppSettings["AwsGetZoneListApiUrl"] ?? "http://localhost:41967/GetZoneList/Zones";
 
             datas = new ConcurrentBag<EtwData>();
         }
@@ -63,7 +65,8 @@ namespace AttackPrevent.Business
                     guid = Guid.NewGuid().ToString(),
                     buffList = data,
                     enumEtwStatus = EnumEtwStatus.None,
-                    time = DateTime.Now.Ticks
+                    time = DateTime.Now.Ticks,
+                    retryCount=0,
                 };
                 datas.Add(etwData);
             });
@@ -99,6 +102,19 @@ namespace AttackPrevent.Business
                     catch(Exception e)
                     {
                         logger.Error(e.StackTrace);
+                        if (data != null)
+                        {
+                            data.retryCount += 1;
+                            if (data.retryCount > 5)
+                            {
+                                data.enumEtwStatus = EnumEtwStatus.Failed;
+                                logger.Error(JsonConvert.SerializeObject(data));
+                            }
+                            else
+                            {
+                                data.enumEtwStatus = EnumEtwStatus.None;
+                            }
+                        }
                     }
                 }
             });
@@ -185,9 +201,19 @@ namespace AttackPrevent.Business
             AnalyzeResult analyzeResult = new AnalyzeResult();
             if (cloudflareLogs != null)
             {
-                //每5分钟去获取一次RateLimit规则
-                string zoneId = "";//?
-                string key = "AnalyzeRatelimit_GetRatelimits_Key_" + zoneId;
+                string key = "AnalyzeRatelimit_GetZoneList_Key";
+                List<ZoneEntity> zoneEntityList = Utils.GetMemoryCache(key, () =>
+                {
+                    string url = awsGetZoneListApiUrl;
+                    string content = HttpGet(url);
+                    return JsonConvert.DeserializeObject<List<ZoneEntity>>(content);
+                }, 1440);
+                
+                CloudflareLog cloudflare = cloudflareLogs.FirstOrDefault();
+                string zoneId = zoneEntityList.FirstOrDefault(a => (a.HostNames.Split(new string[] { Utils.Separator }, StringSplitOptions.RemoveEmptyEntries)).Contains(cloudflare.ClientRequestHost))?.ZoneId;//?
+
+                //每60分钟去获取一次RateLimit规则
+                key = "AnalyzeRatelimit_GetRatelimits_Key_" + zoneId;
                 List<RateLimitEntity> rateLimitEntities = Utils.GetMemoryCache(key, () =>
                 {
                     string url = getRatelimitsApiUrl;

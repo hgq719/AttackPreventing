@@ -178,5 +178,6 @@ namespace AttackPrevent.Business
                 return formatter.Deserialize(stream) as List<byte[]>;
             }
         }
+        public static readonly string Separator = ",";
     }
 }

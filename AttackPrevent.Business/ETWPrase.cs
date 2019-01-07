@@ -8,11 +8,57 @@ namespace AttackPrevent.Business
 {
     public class ETWPrase
     {
+        private bool debug = false;
         public byte[] PayLoad { get; }
         public ETWPrase(byte[] payload)
         {
+#if DEBUG
+            debug = true;
+#endif
             PayLoad = payload;
-            Prase();
+            if (debug)
+            {
+                string[] hosts = new string[] {
+                    "ent.comm100.com",
+                    "ent7.comm100.com",
+                    "hosted.comm100.com",
+                    "g2live.comm100.com",
+                };
+                string[] ips = new string[] {
+                    "192.168.0.1",
+                    "192.168.0.2",
+                    "192.168.0.3",
+                    "192.168.0.4",
+                    "192.168.0.5",
+                };
+                string[] urls = new string[] {
+                    "livechatdashboard/Dashboard.aspx",
+                    "adminmanage/login.aspx",
+                    "botadmin/Dashboard",
+                    "botadmin/bot/intents",
+                    "botadmin/bot/entities"
+                };
+                string[] querys = new string[] {
+                    "siteId=1000490&botId=177&selectCategory=632&searchValue=&active=",
+                    "siteId=1000490&botId=177&searchValue=&active=",
+                    "siteId=1000490&botId=177",
+                    "siteId=1000490",
+                    "IfEditPlan=true&codePlanId=4005&siteId=1000490"
+                };
+
+                Random random = new Random(DateTime.Now.GetHashCode());
+                int index = random.Next(4);
+
+                this.Cs_host = hosts[index];
+                this.C_ip = ips[index];
+                this.Cs_uri_stem = urls[index];
+                this.cs_uri_query = querys[index];
+
+            }
+            else
+            {
+                Prase();
+            }
         }
         private void Prase()
         {

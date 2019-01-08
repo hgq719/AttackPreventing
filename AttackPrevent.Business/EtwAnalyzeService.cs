@@ -301,14 +301,14 @@ namespace AttackPrevent.Business
                     {
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        var dataList = gp.Take(accumulationSecond).ToList();
+                        var dataList = gp.OrderBy(a=>a.time).Take(accumulationSecond).ToList();
                         AnalyzeAccumulation(dataList);
                         stopwatch.Stop();
                         logger.Debug(JsonConvert.SerializeObject(new
                         {
                             time = stopwatch.Elapsed.TotalMilliseconds
                         }));
-                        foreach (EtwData etwData in list)
+                        foreach (EtwData etwData in dataList)
                         {
                             var etw = etwData;
                             datas.TryTake(out etw);
@@ -359,9 +359,7 @@ namespace AttackPrevent.Business
                 foreach (var buff in data.buffList)
                 {
                     ETWPrase eTWPrase = new ETWPrase(buff);
-
                     logger.Debug(JsonConvert.SerializeObject(eTWPrase));
-
                     cloudflareLogs.Add(new CloudflareLog
                     {
                         ClientRequestHost = eTWPrase.Cs_host,

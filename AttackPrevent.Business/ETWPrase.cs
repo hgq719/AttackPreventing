@@ -168,7 +168,7 @@ namespace AttackPrevent.Business
             if (!string.IsNullOrWhiteSpace( CustomFields))
             {
                 var strList = CustomFields.Split(' ');
-                if (strList.Length == 2)
+                if (strList.Length >= 2)
                 {
                     this.CFConnectingIP = strList[1];
                 }

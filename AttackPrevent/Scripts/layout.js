@@ -29,6 +29,14 @@ function getFormatDate(arg) {
     return re;
 }
 
+function num(obj) {
+    obj.value = obj.value.replace(/[^\d.]/g, ""); //清除"数字"和"."以外的字符
+    obj.value = obj.value.replace(/^\./g, ""); //验证第一个字符是数字
+    obj.value = obj.value.replace(/\.{2,}/g, "."); //只保留第一个, 清除多余的
+    obj.value = obj.value.replace(".", "$#$").replace(/\./g, "").replace("$#$", ".");
+    //obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'); //只能输入两个小数
+}
+
 $(document).ready(function () {
     $(".headerRight-cm").hover(function () {
         
@@ -111,6 +119,12 @@ $(document).ready(function () {
         $(this).val($(this).val().replace(/\D|^0/g, ''));
     }).bind("paste", function () {  //CTR+V事件处理    
         $(this).val($(this).val().replace(/\D|^0/g, ''));
+        }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+
+    $('.onlyNumber').keyup(function () {
+        num(this);
+    }).bind("paste", function () {  //CTR+V事件处理    
+        num(this);
     }).css("ime-mode", "disabled"); //CSS设置输入法不可用
 });
 

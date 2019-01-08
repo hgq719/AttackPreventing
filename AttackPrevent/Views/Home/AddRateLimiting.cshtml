@@ -42,7 +42,7 @@
         <div class="row form-group">
             <label class="col-md-4 label-col">Enlargement Factor</label>
             <div class="col-md-8 ">
-                @Html.TextBoxFor(model => model.EnlargementFactor, new { @class = "form-control onlyInteger" })
+                @Html.TextBoxFor(model => model.EnlargementFactor, new { @class = "form-control onlyNumber" })
                 @Html.ValidationMessageFor(model => model.EnlargementFactor)
                
             </div>

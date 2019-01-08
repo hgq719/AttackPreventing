@@ -26,6 +26,7 @@ namespace AttackPrevent.Access
                                         [PeriodForHost],
                                         [IfAnalyzeByHostRule],
                                         [AuthKey],
+                                        [HostNames],
                                         [Id] FROM [t_Zone_Info] ";
                 var cmd = new SqlCommand(query, conn);
                 conn.Open();
@@ -46,7 +47,8 @@ namespace AttackPrevent.Access
                             ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]),
                             PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]),
                             IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0,
-                            TableID = Convert.ToInt32(reader["Id"])
+                            TableID = Convert.ToInt32(reader["Id"]),
+                            HostNames = Convert.ToString(reader["HostNames"]),
                         });
                     }
                 }
@@ -68,6 +70,7 @@ namespace AttackPrevent.Access
                                                              [ThresholdForHost],
                                                              [PeriodForHost],
                                                              [IfAnalyzeByHostRule],
+                                                             [HostNames],
                                                              [Id] FROM [t_Zone_Info] ");
             StringBuilder where = new StringBuilder();
             //if (!string.IsNullOrWhiteSpace(zoneID))
@@ -131,6 +134,7 @@ namespace AttackPrevent.Access
                         item.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
                         item.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                         item.IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0;
+                        item.HostNames = Convert.ToString(reader["HostNames"]);
                         result.Add(item);
                     }
                 }
@@ -153,7 +157,8 @@ namespace AttackPrevent.Access
                                                           IfAttacking ,
                                                           ThresholdForHost,
                                                           PeriodForHost,
-                                                          IfAnalyzeByHostRule
+                                                          IfAnalyzeByHostRule,
+                                                          HostNames
                                                         )
                                                 VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                                           @zoneName , -- ZoneName - nvarchar(256)
@@ -164,7 +169,8 @@ namespace AttackPrevent.Access
                                                           @ifAttacking ,  -- IfAttacking - int
                                                           @thresholdForHost ,  -- ThresholdForHost - int
                                                           @periodForHost ,  -- PeriodForHost - int                                                          
-                                                          @ifAnalyzeByHostRule   -- IfAnalyzeByHostRule - int
+                                                          @ifAnalyzeByHostRule,   -- IfAnalyzeByHostRule - int
+                                                          @hostNames   -- HostNames 
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -181,6 +187,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@thresholdForHost", item.ThresholdForHost);
                 cmd.Parameters.AddWithValue("@periodForHost", item.PeriodForHost);
                 cmd.Parameters.AddWithValue("@ifAnalyzeByHostRule", item.IfAnalyzeByHostRule);
+                cmd.Parameters.AddWithValue("@hostNames", item.HostNames);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -201,7 +208,8 @@ namespace AttackPrevent.Access
                                                             ThresholdForHost=@thresholdForHost,
                                                             PeriodForHost=@periodForHost,
                                                             IfAnalyzeByHostRule=@ifAnalyzeByHostRule,
-                                                            IfAttacking=@ifAttacking WHERE Id=@id");
+                                                            IfAttacking=@ifAttacking,
+                                                            HostNames=@hostNames WHERE Id=@id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -218,6 +226,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@thresholdForHost", item.ThresholdForHost);
                 cmd.Parameters.AddWithValue("@periodForHost", item.PeriodForHost);
                 cmd.Parameters.AddWithValue("@ifAnalyzeByHostRule", item.IfAnalyzeByHostRule);
+                cmd.Parameters.AddWithValue("@hostNames", item.HostNames);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -238,6 +247,7 @@ namespace AttackPrevent.Access
                                                              [PeriodForHost],
                                                              [IfAnalyzeByHostRule],
                                                              [Id], 
+                                                             [HostNames],
                                                              [AuthKey] from [t_Zone_Info] WHERE [Id] = @id");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -263,6 +273,7 @@ namespace AttackPrevent.Access
                         result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
                         result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                         result.IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0;
+                        result.HostNames = Convert.ToString(reader["HostNames"]);
                     }
                 }
             }
@@ -284,6 +295,7 @@ namespace AttackPrevent.Access
                                                              [ThresholdForHost],
                                                              [PeriodForHost],
                                                              [IfAnalyzeByHostRule],
+                                                             [HostNames],
                                                              [AuthKey] from [t_Zone_Info] WHERE [ZoneId] LIKE'%'+@zoneID+'%' or [ZoneName] LIKE'%'+@zoneName+'%'");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -310,6 +322,7 @@ namespace AttackPrevent.Access
                         result.ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]);
                         result.PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]);
                         result.IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0;
+                        result.HostNames = Convert.ToString(reader["HostNames"]);
                     }
                 }
             }
@@ -331,6 +344,7 @@ namespace AttackPrevent.Access
                                                              [ThresholdForHost],
                                                              [PeriodForHost],
                                                              [IfAnalyzeByHostRule],
+                                                             [HostNames],
                                                              [AuthKey] from [t_Zone_Info] WHERE [ZoneId] = @zoneID ");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -356,8 +370,9 @@ namespace AttackPrevent.Access
                             AuthKey = Convert.ToString(reader["AuthKey"]),
                             ThresholdForHost = Convert.ToInt32(reader["ThresholdForHost"]),
                             PeriodForHost = Convert.ToInt32(reader["PeriodForHost"]),
-                            IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0
-                        };
+                            IfAnalyzeByHostRule = Convert.ToInt32(reader["IfAnalyzeByHostRule"]) > 0,
+                            HostNames = Convert.ToString(reader["HostNames"]),
+                    };
                     }
                 }
             }

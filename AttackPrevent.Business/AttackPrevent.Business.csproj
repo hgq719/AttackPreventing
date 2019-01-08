@@ -62,6 +62,7 @@
     <Compile Include="ActiveReportService.cs" />
     <Compile Include="EtwAnalyzeService.cs" />
     <Compile Include="AttackPreventService.cs" />
+    <Compile Include="ETWPrase.cs" />
     <Compile Include="IISLogBusiness.cs" />
     <Compile Include="CookiesHelper.cs" />
     <Compile Include="SendMailService.cs" />

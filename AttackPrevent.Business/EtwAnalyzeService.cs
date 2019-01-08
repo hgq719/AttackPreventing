@@ -346,7 +346,7 @@ namespace AttackPrevent.Business
                     cloudflareLogs.AddRange(ParseEtwData(etwData));
                 }
                 //分析
-                AnalyzeResult analyzeResult = AnalyzeRatelimitAccumulation(cloudflareLogs);
+                AnalyzeResult analyzeResult = AnalyzeRatelimit(cloudflareLogs, accumulationSecond);
                 //发送结果
                 SendResult(analyzeResult);
             }
@@ -359,9 +359,13 @@ namespace AttackPrevent.Business
                 foreach (var buff in data.buffList)
                 {
                     ETWPrase eTWPrase = new ETWPrase(buff);
-                    cloudflareLogs.Add(new CloudflareLog {
+
+                    logger.Debug(JsonConvert.SerializeObject(eTWPrase));
+
+                    cloudflareLogs.Add(new CloudflareLog
+                    {
                         ClientRequestHost = eTWPrase.Cs_host,
-                        ClientIP = eTWPrase.C_ip,
+                        ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
                         ClientRequestURI = string.Format("{0}/{1}", eTWPrase.Cs_uri_stem, eTWPrase.cs_uri_query),
                         ClientRequestMethod = eTWPrase.Cs_method,
                     });
@@ -370,7 +374,7 @@ namespace AttackPrevent.Business
             }
             return cloudflareLogs;
         }
-        private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs)
+        private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs,int accumulation=1)
         {
             AnalyzeResult analyzeResult = new AnalyzeResult();
             if (cloudflareLogs != null)
@@ -397,290 +401,173 @@ namespace AttackPrevent.Business
                 CloudflareLog cloudflare = cloudflareLogs.FirstOrDefault();
                 string zoneId = zoneEntityList.FirstOrDefault(a => (a.HostNames.Split(new string[] { Utils.Separator }, StringSplitOptions.RemoveEmptyEntries)).Contains(cloudflare.ClientRequestHost))?.ZoneId;//?
 
-                //每60分钟去获取一次RateLimit规则
-                key = "AnalyzeRatelimit_GetRatelimits_Key_" + zoneId;
-                List<RateLimitEntity> rateLimitEntities = Utils.GetMemoryCache(key, () =>
+                logger.Debug(JsonConvert.SerializeObject(new
                 {
-                    string url = getRatelimitsApiUrl;
-                    url = url.Replace("{zoneId}", zoneId);
-                    string content = HttpGet(url);
-                    logger.Debug(JsonConvert.SerializeObject(new
-                    {
-                        DataType = "GetRatelimits",
-                        ZoneId= zoneId,
-                        Value = content,
-                    }));
-                    return JsonConvert.DeserializeObject<List<RateLimitEntity>>(content);
-                }, 60);
+                    FirstOrDefault = cloudflare,
+                    ZoneId = zoneId,
+                }));
 
-                key = "AnalyzeRatelimit_GetWhiteList_Key_" + zoneId;
-                List<WhiteListModel> whiteListModels = Utils.GetMemoryCache(key, () =>
+                if (!string.IsNullOrEmpty(zoneId))
                 {
-                    string url = awsGetWhiteListApiUrl;
-                    url = url.Replace("{zoneId}", zoneId);
-                    string content = HttpGet(url);
-                    logger.Debug(JsonConvert.SerializeObject(new
+                    //每60分钟去获取一次RateLimit规则
+                    key = "AnalyzeRatelimit_GetRatelimits_Key_" + zoneId;
+                    List<RateLimitEntity> rateLimitEntities = Utils.GetMemoryCache(key, () =>
                     {
-                        DataType = "GetWhiteList",
-                        ZoneId = zoneId,
-                        Value = content,
-                    }));
-                    return JsonConvert.DeserializeObject<List<WhiteListModel>>(content);
-                }, 1440);
+                        string url = getRatelimitsApiUrl;
+                        url = url.Replace("{zoneId}", zoneId);
+                        string content = HttpGet(url);
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            DataType = "GetRatelimits",
+                            ZoneId = zoneId,
+                            Value = content,
+                        }));
+                        return JsonConvert.DeserializeObject<List<RateLimitEntity>>(content);
+                    }, 60);
 
-                //获取1S规则
-                List<RateLimitEntity> rateLimitEntitiesSub = rateLimitEntities.Where(a => a.ZoneId == zoneId && a.Period == 1).ToList();
-
-                if (rateLimitEntitiesSub != null && rateLimitEntitiesSub.Count > 0)
-                {
-                    List<string> ipWhiteList = new List<string>();
-                    if (whiteListModels != null)
+                    key = "AnalyzeRatelimit_GetWhiteList_Key_" + zoneId;
+                    List<WhiteListModel> whiteListModels = Utils.GetMemoryCache(key, () =>
                     {
-                        ipWhiteList = whiteListModels.Select(a => a.IP).ToList();
+                        string url = awsGetWhiteListApiUrl;
+                        url = url.Replace("{zoneId}", zoneId);
+                        string content = HttpGet(url);
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            DataType = "GetWhiteList",
+                            ZoneId = zoneId,
+                            Value = content,
+                        }));
+                        return JsonConvert.DeserializeObject<List<WhiteListModel>>(content);
+                    }, 1440);
+
+                    //获取1S规则
+                    List<RateLimitEntity> rateLimitEntitiesSub = rateLimitEntities.Where(a => a.ZoneId == zoneId && a.Period == 1).ToList();
+                    if (accumulation > 1)
+                    {
+                        rateLimitEntitiesSub = rateLimitEntities.Where(a => a.ZoneId == zoneId && a.Period > 1).ToList();
                     }
 
-                    logger.Debug(JsonConvert.SerializeObject(new
+                    if (rateLimitEntitiesSub != null && rateLimitEntitiesSub.Count > 0)
                     {
-                        DataType = "1-CloudflareLogs",
-                        Value = cloudflareLogs,
-                    }));
-
-                    var logAnalyzeModelList = cloudflareLogs.Where(a => !ipWhiteList.Contains(a.ClientIP))
-                        .Select(x =>
+                        List<string> ipWhiteList = new List<string>();
+                        if (whiteListModels != null)
                         {
-                            var model = new LogAnalyzeModel
-                            {
-                                IP = x.ClientIP,
-                                RequestHost = x.ClientRequestHost,
-                                RequestFullUrl = $"{x.ClientRequestHost}/{x.ClientRequestURI}",
-                                RequestUrl =
-                                    $"{x.ClientRequestHost}/{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
-                            };
-                            return model;
-                        });
-
-                    logger.Debug(JsonConvert.SerializeObject(new
-                    {
-                        DataType = "2-CloudflareLogs-!whitelist",
-                        Value = logAnalyzeModelList,
-                    }));
-
-                    var itemsGroup = logAnalyzeModelList.GroupBy(a => new { a.IP, a.RequestHost, a.RequestUrl })
-                                        .Select(g => new LogAnalyzeModel {
-                                            RequestHost = g.Key.RequestHost,
-                                            IP = g.Key.IP,
-                                            RequestUrl = g.Key.RequestUrl,
-                                            RequestCount = g.Count() }).ToList();
-
-                    var result =
-                        (from analyzeModel in itemsGroup
-                         from config in rateLimitEntitiesSub
-                         where IfMatchCondition(config, analyzeModel)
-                         select new LogAnalyzeModel
-                         {
-                             RequestHost = analyzeModel.RequestHost,
-                             IP = analyzeModel.IP,
-                             RequestUrl = analyzeModel.RequestUrl,
-                             RequestCount = analyzeModel.RequestCount,
-                             RateLimitId = config.ID,
-                             
-                         });
-
-                    List<Result> results = new List<Result>();
-                    if (result != null && result.Count() > 0)
-                    {
-                        foreach (var item in result)
-                        {
-                            RateLimitEntity rateLimit = rateLimitEntitiesSub.FirstOrDefault(a => a.ID == item.RateLimitId);
-
-                            int ruleId = rateLimit.ID;
-                            int period = rateLimit.Period;
-                            int threshold = rateLimit.Threshold;
-                            string url = rateLimit.Url;
-
-                            //触发规则的 IP+Host 数据
-                            List<LogAnalyzeModel> logAnalyzesList = logAnalyzeModelList.Where(a => a.RequestHost == item.RequestHost && a.IP == item.IP)
-                                .GroupBy(a => a.RequestFullUrl)
-                                .Select(g => new LogAnalyzeModel {
-                                    RequestFullUrl = g.Key,
-                                    RequestCount = g.Count(),
-                                }).ToList();
-
-                            Result rst = results.FirstOrDefault(a=>a.RuleId == ruleId);
-                            if(rst == null)
-                            {
-                                List<BrokenIp> brokenIpList = new List<BrokenIp>();
-                                rst = new Result
-                                {
-                                    RuleId = ruleId,
-                                    Period = period,
-                                    Threshold = threshold,
-                                    EnlargementFactor = 1,
-                                    Url = url,
-                                    BrokenIpList = brokenIpList,
-                                };
-                                results.Add(rst);
-                            }
-                            BrokenIp brokenIp = new BrokenIp
-                            {
-                                IP = item.IP,
-                                RequestRecords = new List<RequestRecord>(),
-                            };
-                            rst.BrokenIpList.Add(brokenIp);
-                            if (logAnalyzesList != null)
-                            {
-                                foreach(var logAnalyze in logAnalyzesList)
-                                {
-                                    brokenIp.RequestRecords.Add(new RequestRecord {
-                                        FullUrl= logAnalyze.RequestFullUrl,
-                                        RequestCount= logAnalyze.RequestCount,
-                                    });
-                                }
-                            }
+                            ipWhiteList = whiteListModels.Select(a => a.IP).ToList();
                         }
-                    }
-                    analyzeResult.ZoneId = zoneId;
-                    analyzeResult.timeStage = 1;
-                    analyzeResult.result = results;
-                }
 
-            }
-            return analyzeResult;
-        }
-        private AnalyzeResult AnalyzeRatelimitAccumulation(List<CloudflareLog> cloudflareLogs)
-        {
-            AnalyzeResult analyzeResult = new AnalyzeResult();
-            if (cloudflareLogs != null)
-            {
-                //每5分钟去获取一次RateLimit规则
-                string zoneId = "";//?
-                string key = "AnalyzeRatelimit_GetRatelimits_Key_" + zoneId;
-                List<RateLimitEntity> rateLimitEntities = Utils.GetMemoryCache(key, () =>
-                {
-                    string url = getRatelimitsApiUrl;
-                    url = url.Replace("{zoneId}", zoneId);
-                    string content = HttpGet(url);
-                    return JsonConvert.DeserializeObject<List<RateLimitEntity>>(content);
-                }, 60);
-
-                key = "AnalyzeRatelimit_GetWhiteList_Key_" + zoneId;
-                List<WhiteListModel> whiteListModels = Utils.GetMemoryCache(key, () =>
-                {
-                    string url = awsGetWhiteListApiUrl;
-                    url = url.Replace("{zoneId}", zoneId);
-                    string content = HttpGet(url);
-                    return JsonConvert.DeserializeObject<List<WhiteListModel>>(content);
-                }, 1440);
-
-                //获取非1S规则
-                List<RateLimitEntity> rateLimitEntitiesSub = rateLimitEntities.Where(a => a.ZoneId == zoneId && a.Period > 1).ToList();
-                if (rateLimitEntitiesSub != null && rateLimitEntitiesSub.Count > 0)
-                {
-                    List<string> ipWhiteList = new List<string>();
-                    if (whiteListModels != null)
-                    {
-                        ipWhiteList = whiteListModels.Select(a => a.IP).ToList();
-                    }
-                    var logAnalyzeModelList = cloudflareLogs.Where(a => !ipWhiteList.Contains(a.ClientIP))
-                        .Select(x =>
+                        logger.Debug(JsonConvert.SerializeObject(new
                         {
-                            var model = new LogAnalyzeModel
+                            DataType = "1-CloudflareLogs",
+                            Value = cloudflareLogs,
+                        }));
+
+                        var logAnalyzeModelList = cloudflareLogs.Where(a => !ipWhiteList.Contains(a.ClientIP))
+                            .Select(x =>
                             {
-                                IP = x.ClientIP,
-                                RequestHost = x.ClientRequestHost,
-                                RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
-                                RequestUrl =
-                                    $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
-                            };
-                            return model;
-                        });
-
-                    var itemsGroup = logAnalyzeModelList.GroupBy(a => new { a.IP, a.RequestHost, a.RequestUrl })
-                                        .Select(g => new LogAnalyzeModel
-                                        {
-                                            RequestHost = g.Key.RequestHost,
-                                            IP = g.Key.IP,
-                                            RequestUrl = g.Key.RequestUrl,
-                                            RequestCount = g.Count()
-                                        }).ToList();
-
-                    var result =
-                        (from analyzeModel in itemsGroup
-                         from config in rateLimitEntitiesSub
-                         where IfMatchConditionAccumulation(config, analyzeModel)
-                         select new LogAnalyzeModel
-                         {
-                             RequestHost = analyzeModel.RequestHost,
-                             IP = analyzeModel.IP,
-                             RequestUrl = analyzeModel.RequestUrl,
-                             RequestCount = analyzeModel.RequestCount,
-                             RateLimitId = config.ID,
-
-                         });
-
-                    List<Result> results = new List<Result>();
-                    if (result != null && result.Count() > 0)
-                    {
-                        foreach (var item in result)
-                        {
-                            RateLimitEntity rateLimit = rateLimitEntitiesSub.FirstOrDefault(a => a.ID == item.RateLimitId);
-
-                            int ruleId = rateLimit.ID;
-                            int period = rateLimit.Period;
-                            int threshold = rateLimit.Threshold;
-                            string url = rateLimit.Url;
-
-                            //触发规则的 IP+Host 数据
-                            List<LogAnalyzeModel> logAnalyzesList = logAnalyzeModelList.Where(a => a.RequestHost == item.RequestHost && a.IP == item.IP)
-                                .GroupBy(a => a.RequestFullUrl)
-                                .Select(g => new LogAnalyzeModel
+                                var model = new LogAnalyzeModel
                                 {
-                                    RequestFullUrl = g.Key,
-                                    RequestCount = g.Count(),
-                                }).ToList();
-
-                            Result rst = results.FirstOrDefault(a => a.RuleId == ruleId);
-                            if (rst == null)
-                            {
-                                List<BrokenIp> brokenIpList = new List<BrokenIp>();
-                                rst = new Result
-                                {
-                                    RuleId = ruleId,
-                                    Period = period,
-                                    Threshold = threshold,
-                                    EnlargementFactor = 1,
-                                    Url = url,
-                                    BrokenIpList = brokenIpList,
+                                    IP = x.ClientIP,
+                                    RequestHost = x.ClientRequestHost,
+                                    RequestFullUrl = $"{x.ClientRequestHost}/{x.ClientRequestURI}",
+                                    RequestUrl =
+                                        $"{x.ClientRequestHost}/{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
                                 };
-                                results.Add(rst);
-                            }
-                            BrokenIp brokenIp = new BrokenIp
+                                return model;
+                            });
+
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            DataType = "2-CloudflareLogs-!whitelist",
+                            Value = logAnalyzeModelList,
+                        }));
+
+                        var itemsGroup = logAnalyzeModelList.GroupBy(a => new { a.IP, a.RequestHost, a.RequestUrl })
+                                            .Select(g => new LogAnalyzeModel
+                                            {
+                                                RequestHost = g.Key.RequestHost,
+                                                IP = g.Key.IP,
+                                                RequestUrl = g.Key.RequestUrl,
+                                                RequestCount = g.Count()
+                                            }).ToList();
+
+                        var result =
+                            (from analyzeModel in itemsGroup
+                             from config in rateLimitEntitiesSub
+                             where IfMatchCondition(config, analyzeModel)
+                             select new LogAnalyzeModel
+                             {
+                                 RequestHost = analyzeModel.RequestHost,
+                                 IP = analyzeModel.IP,
+                                 RequestUrl = analyzeModel.RequestUrl,
+                                 RequestCount = analyzeModel.RequestCount,
+                                 RateLimitId = config.ID,
+
+                             });
+
+                        List<Result> results = new List<Result>();
+                        if (result != null && result.Count() > 0)
+                        {
+                            foreach (var item in result)
                             {
-                                IP = item.IP,
-                                RequestRecords = new List<RequestRecord>(),
-                            };
-                            rst.BrokenIpList.Add(brokenIp);
-                            if (logAnalyzesList != null)
-                            {
-                                foreach (var logAnalyze in logAnalyzesList)
-                                {
-                                    brokenIp.RequestRecords.Add(new RequestRecord
+                                RateLimitEntity rateLimit = rateLimitEntitiesSub.FirstOrDefault(a => a.ID == item.RateLimitId);
+
+                                int ruleId = rateLimit.ID;
+                                int period = rateLimit.Period;
+                                int threshold = rateLimit.Threshold;
+                                string url = rateLimit.Url;
+
+                                //触发规则的 IP+Host 数据
+                                List<LogAnalyzeModel> logAnalyzesList = logAnalyzeModelList.Where(a => a.RequestHost == item.RequestHost && a.IP == item.IP)
+                                    .GroupBy(a => a.RequestFullUrl)
+                                    .Select(g => new LogAnalyzeModel
                                     {
-                                        FullUrl = logAnalyze.RequestFullUrl,
-                                        RequestCount = logAnalyze.RequestCount,
-                                    });
+                                        RequestFullUrl = g.Key,
+                                        RequestCount = g.Count(),
+                                    }).ToList();
+
+                                Result rst = results.FirstOrDefault(a => a.RuleId == ruleId);
+                                if (rst == null)
+                                {
+                                    List<BrokenIp> brokenIpList = new List<BrokenIp>();
+                                    rst = new Result
+                                    {
+                                        RuleId = ruleId,
+                                        Period = period,
+                                        Threshold = threshold,
+                                        EnlargementFactor = accumulation/(double)period,
+                                        Url = url,
+                                        BrokenIpList = brokenIpList,
+                                    };
+                                    results.Add(rst);
+                                }
+                                BrokenIp brokenIp = new BrokenIp
+                                {
+                                    IP = item.IP,
+                                    RequestRecords = new List<RequestRecord>(),
+                                };
+                                rst.BrokenIpList.Add(brokenIp);
+                                if (logAnalyzesList != null)
+                                {
+                                    foreach (var logAnalyze in logAnalyzesList)
+                                    {
+                                        brokenIp.RequestRecords.Add(new RequestRecord
+                                        {
+                                            FullUrl = logAnalyze.RequestFullUrl,
+                                            RequestCount = logAnalyze.RequestCount,
+                                        });
+                                    }
                                 }
                             }
                         }
+                        analyzeResult.ZoneId = zoneId;
+                        analyzeResult.timeStage = accumulation;
+                        analyzeResult.result = results;
                     }
-                    analyzeResult.ZoneId = zoneId;
-                    analyzeResult.timeStage = accumulationSecond;
-                    analyzeResult.result = results;
                 }
-
             }
             return analyzeResult;
         }
+
         private void SendResult(AnalyzeResult analyzeResult)
         {
             string url = analyzeResultApiUrl;

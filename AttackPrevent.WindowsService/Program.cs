@@ -14,6 +14,7 @@ using Shouldly;
 using log4net.Config;
 using System.Text;
 using AttackPrevent.Model;
+using System.Collections.Concurrent;
 
 namespace AttackPrevent.WindowsService
 {
@@ -25,6 +26,7 @@ namespace AttackPrevent.WindowsService
             try
             {
                 TestIIsLog();
+
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
                 RunProgram().GetAwaiter().GetResult();
                 var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
@@ -260,12 +262,14 @@ namespace AttackPrevent.WindowsService
                  }
                },
             };
-            attackPreventService.Add(analyzeResult);
-
+            Parallel.For(0, 3, index =>
+            {
+                attackPreventService.Add(analyzeResult);
+            });
 
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
             byte[] buff = Encoding.UTF8.GetBytes("hello world");
-            List<byte[]> data = new List<byte[]>() {
+            ConcurrentBag<byte[]> data = new ConcurrentBag<byte[]>() {
                 buff
             };
             string ip = "0.0.0.0";

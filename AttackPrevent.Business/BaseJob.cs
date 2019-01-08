@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AttackPrevent.WindowsService.Job
+namespace AttackPrevent.Business
 {
     public class BaseJob : IJob
     {

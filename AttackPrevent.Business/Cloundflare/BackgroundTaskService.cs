@@ -25,6 +25,8 @@ namespace AttackPrevent.Business.Cloundflare
         private static object obj_Sync = new object();
         private static BackgroundTaskService backgroundTaskService;
         private ILogService logger = new LogService();
+        private bool ifBusy = false;
+
         private BackgroundTaskService()
         {
             backgroundInfos = new ConcurrentQueue<GetCloundflareLogsBackgroundInfo>();
@@ -79,10 +81,11 @@ namespace AttackPrevent.Business.Cloundflare
 
         public void doWork()
         {
-            while (true)
+            if (!ifBusy)
             {
                 try
                 {
+                    ifBusy = true;
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
                     GetCloundflareLogsBackgroundInfo backgroundInfo;
@@ -106,10 +109,12 @@ namespace AttackPrevent.Business.Cloundflare
                         stopwatch.Stop();
 
                     }
+                    ifBusy = false;
                 }
                 catch(Exception e)
                 {
                     logger.Error(e);
+                    ifBusy = false;
                 }                
             }
         }

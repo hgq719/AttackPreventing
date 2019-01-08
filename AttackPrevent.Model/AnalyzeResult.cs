@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,7 @@ namespace AttackPrevent.Model
     public class EtwData
     {
         public string guid { get; set; }
-        public List<byte[]> buffList { get; set; }
+        public ConcurrentBag<byte[]> buffList { get; set; }
         public EnumEtwStatus enumEtwStatus { get; set; }
         public long time { get; set; }
         public int retryCount { get; set; }

@@ -9,13 +9,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
 {
     public interface IEtwAnalyzeService
     {
-        Task Add(string ip, List<byte[]> data);
+        Task Add(string ip, ConcurrentBag<byte[]> data);
         void doWork();
     }
     public class EtwAnalyzeService : IEtwAnalyzeService
@@ -31,13 +32,14 @@ namespace AttackPrevent.Business
         private string awsGetWhiteListApiUrl;
         private string awsGetZoneListApiUrl;
         private int accumulationSecond;
+        private bool ifBusy = false;
 
         private EtwAnalyzeService()
         {
-            getRatelimitsApiUrl = ConfigurationManager.AppSettings["AwsGetRatelimitsApiUrl"]?? "http://localhost:41967/GetZones/{zoneId}/Ratelimits";
-            analyzeResultApiUrl = ConfigurationManager.AppSettings["AwsAnalyzeResultApiUrl"]?? "http://localhost:41967/IISLogs/AnalyzeResult";
-            awsGetWhiteListApiUrl = ConfigurationManager.AppSettings["AwsGetWhiteListApiUrl"]?? "http://localhost:41967/GetWhiteList/{zoneId}/WhiteLists";
-            accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"]??"20");//累计秒
+            getRatelimitsApiUrl = ConfigurationManager.AppSettings["AwsGetRatelimitsApiUrl"] ?? "http://localhost:41967/GetZones/{zoneId}/Ratelimits";
+            analyzeResultApiUrl = ConfigurationManager.AppSettings["AwsAnalyzeResultApiUrl"] ?? "http://localhost:41967/IISLogs/AnalyzeResult";
+            awsGetWhiteListApiUrl = ConfigurationManager.AppSettings["AwsGetWhiteListApiUrl"] ?? "http://localhost:41967/GetWhiteList/{zoneId}/WhiteLists";
+            accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"] ?? "20");//累计秒
             awsGetZoneListApiUrl = ConfigurationManager.AppSettings["AwsGetZoneListApiUrl"] ?? "http://localhost:41967/GetZoneList/Zones";
 
             datas = new ConcurrentBag<EtwData>();
@@ -57,13 +59,13 @@ namespace AttackPrevent.Business
             return etwAnalyzeService;
         }
 
-        public async Task Add(string ip, List<byte[]> data)
+        public async Task Add(string ip, ConcurrentBag<byte[]> data)
         {
             await Task.Run(() =>
             {
                 //设置一个接收阀值
-                int queueCount = datas.Count(a=>a.enumEtwStatus == EnumEtwStatus.None);
-                if(queueCount < ReceivingThreshold)
+                int queueCount = datas.Count(a => a.enumEtwStatus == EnumEtwStatus.None);
+                if (queueCount < ReceivingThreshold)
                 {
                     EtwData etwData = new EtwData
                     {
@@ -75,114 +77,252 @@ namespace AttackPrevent.Business
                         senderIp = ip,
                     };
                     datas.Add(etwData);
-                }                
+                }
             });
         }
 
         public void doWork()
         {
-            //开启两个线程
-            Task.Run(() =>
+            try
             {
-                EtwData data = null;
-                while (true)
+                if (!ifBusy)
                 {
-                    try
+                    ifBusy = true;
+                    doWorkOne();
+                    doWorkAccumulation();
+                    ifBusy = false;
+                }
+            }
+            catch(Exception e)
+            {
+                logger.Error(e.StackTrace);
+                ifBusy = false;
+            }
+            finally
+            {
+
+            }
+
+           
+
+
+            //List<Task> taskList = new List<Task>(2);
+            //var task = Task.Factory.StartNew(() =>
+            //{
+            //    doWorkOne();
+            //});
+            //taskList.Add(task);
+            //Thread.Sleep(500);
+
+            //task = Task.Factory.StartNew(() =>
+            //{
+            //    doWorkAccumulation();
+            //});
+            //taskList.Add(task);
+
+            //Task.WaitAll(taskList.ToArray());//等待所有线程只都行完毕
+
+            ////开启两个线程
+            //Task.Run(() =>
+            //{
+            //    EtwData data = null;
+            //    while (true)
+            //    {
+            //        try
+            //        {
+            //            Stopwatch stopwatch = new Stopwatch();
+            //            stopwatch.Start();
+            //            data = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.None)
+            //                .OrderByDescending(a => a.time).FirstOrDefault();
+            //            if (data != null)
+            //            {
+            //                data.enumEtwStatus = EnumEtwStatus.Processing;
+            //                Analyze(data);
+            //                data.enumEtwStatus = EnumEtwStatus.Processed;
+            //                stopwatch.Stop();
+            //                logger.Debug(JsonConvert.SerializeObject(new
+            //                {
+            //                    index = data.time,
+            //                    time = stopwatch.Elapsed.TotalMilliseconds
+            //                }));
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            logger.Error(e.StackTrace);
+            //            if (data != null)
+            //            {
+            //                data.retryCount += 1;
+            //                if (data.retryCount > 5)
+            //                {
+            //                    data.enumEtwStatus = EnumEtwStatus.Failed;
+            //                    logger.Error(JsonConvert.SerializeObject(data));
+            //                }
+            //                else
+            //                {
+            //                    data.enumEtwStatus = EnumEtwStatus.None;
+            //                }
+            //            }
+            //        }
+            //    }
+            //});
+            //Task.Run(() =>
+            //{
+            //    while (true)
+            //    {
+            //        try
+            //        {
+            //            //Stopwatch stopwatch = new Stopwatch();
+            //            //stopwatch.Start();
+            //            //var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
+            //            //if (list != null && list.Count == accumulationSecond)
+            //            //{
+            //            //    AnalyzeAccumulation(list);
+            //            //    stopwatch.Stop();
+            //            //    logger.Debug(JsonConvert.SerializeObject(new
+            //            //    {
+            //            //        time = stopwatch.Elapsed.TotalMilliseconds
+            //            //    }));
+            //            //    foreach (EtwData etwData in list)
+            //            //    {
+            //            //        var etw = etwData;
+            //            //        datas.TryTake(out etw);
+            //            //    }
+            //            //}
+
+
+            //            var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
+            //                            .GroupBy(a => a.senderIp)
+            //                            .Where(g => g.Count() >= accumulationSecond);
+
+            //            if (list != null && list.Count() > 0)
+            //            {
+            //                foreach (var gp in list)
+            //                {
+            //                    Stopwatch stopwatch = new Stopwatch();
+            //                    stopwatch.Start();
+            //                    var dataList = gp.Take(accumulationSecond).ToList();
+            //                    AnalyzeAccumulation(dataList);
+            //                    stopwatch.Stop();
+            //                    logger.Debug(JsonConvert.SerializeObject(new
+            //                    {
+            //                        time = stopwatch.Elapsed.TotalMilliseconds
+            //                    }));
+            //                    foreach (EtwData etwData in list)
+            //                    {
+            //                        var etw = etwData;
+            //                        datas.TryTake(out etw);
+            //                    }
+            //                }
+            //            }
+
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            logger.Error(e.StackTrace);
+            //        }
+            //    }
+            //});
+        }
+
+        private void doWorkOne()
+        {
+
+            EtwData data = null;
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                data = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.None)
+                    .OrderByDescending(a => a.time).FirstOrDefault();
+                if (data != null)
+                {
+                    data.enumEtwStatus = EnumEtwStatus.Processing;
+                    Analyze(data);
+                    data.enumEtwStatus = EnumEtwStatus.Processed;
+                    stopwatch.Stop();
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        index = data.time,
+                        time = stopwatch.Elapsed.TotalMilliseconds
+                    }));
+                }
+            }
+            catch (Exception e)
+            {
+                logger.Error(e.StackTrace);
+                if (data != null)
+                {
+                    data.retryCount += 1;
+                    if (data.retryCount > 5)
+                    {
+                        data.enumEtwStatus = EnumEtwStatus.Failed;
+                        logger.Error(JsonConvert.SerializeObject(data));
+                    }
+                    else
+                    {
+                        data.enumEtwStatus = EnumEtwStatus.None;
+                    }
+                }
+            }
+
+        }
+        private void doWorkAccumulation()
+        {
+
+            try
+            {
+                //Stopwatch stopwatch = new Stopwatch();
+                //stopwatch.Start();
+                //var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
+                //if (list != null && list.Count == accumulationSecond)
+                //{
+                //    AnalyzeAccumulation(list);
+                //    stopwatch.Stop();
+                //    logger.Debug(JsonConvert.SerializeObject(new
+                //    {
+                //        time = stopwatch.Elapsed.TotalMilliseconds
+                //    }));
+                //    foreach (EtwData etwData in list)
+                //    {
+                //        var etw = etwData;
+                //        datas.TryTake(out etw);
+                //    }
+                //}
+
+
+                var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
+                                .GroupBy(a => a.senderIp)
+                                .Where(g => g.Count() >= accumulationSecond);
+
+                if (list != null && list.Count() > 0)
+                {
+                    foreach (var gp in list)
                     {
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        data = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.None)
-                            .OrderByDescending(a => a.time).FirstOrDefault();
-                        if (data != null)
+                        var dataList = gp.Take(accumulationSecond).ToList();
+                        AnalyzeAccumulation(dataList);
+                        stopwatch.Stop();
+                        logger.Debug(JsonConvert.SerializeObject(new
                         {
-                            data.enumEtwStatus = EnumEtwStatus.Processing;
-                            Analyze(data);
-                            data.enumEtwStatus = EnumEtwStatus.Processed;
-                            stopwatch.Stop();
-                            logger.Debug(JsonConvert.SerializeObject(new
-                            {
-                                index = data.time,
-                                time = stopwatch.Elapsed.TotalMilliseconds
-                            }));
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        logger.Error(e.StackTrace);
-                        if (data != null)
+                            time = stopwatch.Elapsed.TotalMilliseconds
+                        }));
+                        foreach (EtwData etwData in list)
                         {
-                            data.retryCount += 1;
-                            if (data.retryCount > 5)
-                            {
-                                data.enumEtwStatus = EnumEtwStatus.Failed;
-                                logger.Error(JsonConvert.SerializeObject(data));
-                            }
-                            else
-                            {
-                                data.enumEtwStatus = EnumEtwStatus.None;
-                            }
+                            var etw = etwData;
+                            datas.TryTake(out etw);
                         }
                     }
                 }
-            });
-            Task.Run(() =>
+
+            }
+            catch (Exception e)
             {
-                while (true)
-                {
-                    try
-                    {
-                        //Stopwatch stopwatch = new Stopwatch();
-                        //stopwatch.Start();
-                        //var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
-                        //if (list != null && list.Count == accumulationSecond)
-                        //{
-                        //    AnalyzeAccumulation(list);
-                        //    stopwatch.Stop();
-                        //    logger.Debug(JsonConvert.SerializeObject(new
-                        //    {
-                        //        time = stopwatch.Elapsed.TotalMilliseconds
-                        //    }));
-                        //    foreach (EtwData etwData in list)
-                        //    {
-                        //        var etw = etwData;
-                        //        datas.TryTake(out etw);
-                        //    }
-                        //}
-
-
-                        var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
-                                        .GroupBy(a => a.senderIp)
-                                        .Where(g => g.Count() >= accumulationSecond);
-
-                        if(list!=null&& list.Count() > 0)
-                        {
-                            foreach(var gp in list)
-                            {
-                                Stopwatch stopwatch = new Stopwatch();
-                                stopwatch.Start();
-                                var dataList = gp.Take(accumulationSecond).ToList();
-                                AnalyzeAccumulation(dataList);
-                                stopwatch.Stop();
-                                logger.Debug(JsonConvert.SerializeObject(new
-                                {
-                                    time = stopwatch.Elapsed.TotalMilliseconds
-                                }));
-                                foreach (EtwData etwData in list)
-                                {
-                                    var etw = etwData;
-                                    datas.TryTake(out etw);
-                                }
-                            }
-                        }
-                        
-                    }
-                    catch (Exception e)
-                    {
-                        logger.Error(e.StackTrace);
-                    }
-                }
-            });
+                logger.Error(e.StackTrace);
+            }
         }
+
         private void Analyze(EtwData data)
         {
             if (data != null)
@@ -235,11 +375,22 @@ namespace AttackPrevent.Business
             AnalyzeResult analyzeResult = new AnalyzeResult();
             if (cloudflareLogs != null)
             {
+                logger.Debug(JsonConvert.SerializeObject(new
+                {
+                    DataType = "0-CloudflareLogs",
+                    Value = cloudflareLogs,
+                }));
+
                 string key = "AnalyzeRatelimit_GetZoneList_Key";
                 List<ZoneEntity> zoneEntityList = Utils.GetMemoryCache(key, () =>
                 {
                     string url = awsGetZoneListApiUrl;
                     string content = HttpGet(url);
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        DataType = "GetZoneList",
+                        Value = content,
+                    }));
                     return JsonConvert.DeserializeObject<List<ZoneEntity>>(content);
                 }, 1440);
                 
@@ -253,6 +404,12 @@ namespace AttackPrevent.Business
                     string url = getRatelimitsApiUrl;
                     url = url.Replace("{zoneId}", zoneId);
                     string content = HttpGet(url);
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        DataType = "GetRatelimits",
+                        ZoneId= zoneId,
+                        Value = content,
+                    }));
                     return JsonConvert.DeserializeObject<List<RateLimitEntity>>(content);
                 }, 60);
 
@@ -262,11 +419,18 @@ namespace AttackPrevent.Business
                     string url = awsGetWhiteListApiUrl;
                     url = url.Replace("{zoneId}", zoneId);
                     string content = HttpGet(url);
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        DataType = "GetWhiteList",
+                        ZoneId = zoneId,
+                        Value = content,
+                    }));
                     return JsonConvert.DeserializeObject<List<WhiteListModel>>(content);
                 }, 1440);
 
                 //获取1S规则
                 List<RateLimitEntity> rateLimitEntitiesSub = rateLimitEntities.Where(a => a.ZoneId == zoneId && a.Period == 1).ToList();
+
                 if (rateLimitEntitiesSub != null && rateLimitEntitiesSub.Count > 0)
                 {
                     List<string> ipWhiteList = new List<string>();
@@ -274,6 +438,13 @@ namespace AttackPrevent.Business
                     {
                         ipWhiteList = whiteListModels.Select(a => a.IP).ToList();
                     }
+
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        DataType = "1-CloudflareLogs",
+                        Value = cloudflareLogs,
+                    }));
+
                     var logAnalyzeModelList = cloudflareLogs.Where(a => !ipWhiteList.Contains(a.ClientIP))
                         .Select(x =>
                         {
@@ -287,6 +458,12 @@ namespace AttackPrevent.Business
                             };
                             return model;
                         });
+
+                    logger.Debug(JsonConvert.SerializeObject(new
+                    {
+                        DataType = "2-CloudflareLogs-!whitelist",
+                        Value = logAnalyzeModelList,
+                    }));
 
                     var itemsGroup = logAnalyzeModelList.GroupBy(a => new { a.IP, a.RequestHost, a.RequestUrl })
                                         .Select(g => new LogAnalyzeModel {

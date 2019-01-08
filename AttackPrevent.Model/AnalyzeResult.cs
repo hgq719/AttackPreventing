@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace AttackPrevent.Model
     {
         public string ZoneId { get; set; }
         public List<Result> result { get; set; }
+        public int timeStage { get; set; }
     }
     public class Result
     {
@@ -29,12 +31,13 @@ namespace AttackPrevent.Model
     {
         public string FullUrl { get; set; }
         public int RequestCount { get; set; }
+        public string HostName { get; set; }
     }
 
     public class EtwData
     {
         public string guid { get; set; }
-        public List<byte[]> buffList { get; set; }
+        public ConcurrentBag<byte[]> buffList { get; set; }
         public EnumEtwStatus enumEtwStatus { get; set; }
         public long time { get; set; }
         public int retryCount { get; set; }

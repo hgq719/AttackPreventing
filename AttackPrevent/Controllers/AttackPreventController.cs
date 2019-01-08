@@ -2,6 +2,7 @@
 using AttackPrevent.Core;
 using AttackPrevent.Model;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -115,7 +116,7 @@ namespace AttackPrevent.Controllers
         public async Task<IHttpActionResult> EtwResult()
         {
             byte[] buff = await Request.Content.ReadAsByteArrayAsync();
-            List<byte[]> data = Utils.Deserialize(buff);
+            ConcurrentBag<byte[]> data = Utils.Deserialize(buff);
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
             string ip = Utils.GetIPAddress();
             logger.Debug(ip);

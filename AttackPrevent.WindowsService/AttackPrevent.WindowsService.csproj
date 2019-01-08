@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>AttackPrevent.WindowsService</RootNamespace>
     <AssemblyName>AttackPrevent.WindowsService</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -95,7 +95,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Job\BaseJob.cs" />
     <Compile Include="Job\GeneratedActiveReportJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
@@ -171,12 +172,12 @@ namespace AttackPrevent.Business
 
             return list;
         }
-        public static List<byte[]> Deserialize(byte[] buff)
+        public static ConcurrentBag<byte[]> Deserialize(byte[] buff)
         {
             BinaryFormatter formatter = new BinaryFormatter();
             using(MemoryStream stream = new MemoryStream(buff))
             {
-                return formatter.Deserialize(stream) as List<byte[]>;
+                return formatter.Deserialize(stream) as ConcurrentBag<byte[]>;
             }
         }
         public static readonly string Separator = ",";

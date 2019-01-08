@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<job-scheduling-data xmlns="http://quartznet.sourceforge.net/JobSchedulingData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0">
+  <processing-directives>
+    <overwrite-existing-data>true</overwrite-existing-data>
+  </processing-directives>
+  <schedule>
+    <job>
+      <name>EtwAnalyzeJob</name>
+      <group>Group1</group>
+      <description>处理IIS日志</description><!--实现IJob的程序集和具体类-->
+      <job-type>AttackPrevent.Business.EtwAnalyzeJob, AttackPrevent.Business</job-type>
+      <durable>true</durable>
+      <recover>false</recover>
+    </job>
+    <trigger>
+      <cron>
+        <name>EtwAnalyzeTrigger</name>
+        <group>Group1</group>
+        <job-name>EtwAnalyzeJob</job-name>
+        <job-group>Group1</job-group><!--0 0/5 8-16 * * ?|*/5 * * * * ?-->
+        <cron-expression>*/1 * * * * ?</cron-expression>
+      </cron>
+    </trigger>
+    <job>
+      <name>CloudflareLogHandleJob</name>
+      <group>Group1</group>
+      <description>获取Cloundflare日志</description>
+      <!--实现IJob的程序集和具体类-->
+      <job-type>AttackPrevent.Business.CloudflareLogHandleJob, AttackPrevent.Business</job-type>
+      <durable>true</durable>
+      <recover>false</recover>
+    </job>
+    <trigger>
+      <cron>
+        <name>CloudflareLogHandleTrigger</name>
+        <group>Group1</group>
+        <job-name>CloudflareLogHandleJob</job-name>
+        <job-group>Group1</job-group>
+        <!--0 0/5 8-16 * * ?|*/5 * * * * ?-->
+        <cron-expression>*/1 * * * * ?</cron-expression>
+      </cron>
+    </trigger>
+  </schedule>
+</job-scheduling-data>

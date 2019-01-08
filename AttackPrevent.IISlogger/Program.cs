@@ -5,6 +5,7 @@ using Microsoft.Diagnostics.Tracing.Session;
 using System;
 using System.Collections.Concurrent;
 using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -49,6 +50,9 @@ namespace AttackPrevent.IISlogger
         private static void OnIISRequest(TraceEvent request)
         {
             _etwDataList.Add(request.EventData());
+#if DEBUG
+            Console.WriteLine(request.ToString());
+#endif
         }
 
         private static async void HttpPost(string url, byte[] postData)
@@ -107,9 +111,15 @@ namespace AttackPrevent.IISlogger
 
         private static void SendData(object obj)
         {
-            if (_etwDataList.Count <= 0) return;
+            if (_etwDataList.Count <= 0)
+            {
+                LogManager.GetLogger(string.Empty).Info(0);
+                return;
+            } 
             try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 var postCount = _etwDataList.Count;
                 var newBag = new ConcurrentBag<byte[]>();
                 var postData = Serialize(_etwDataList);
@@ -117,6 +127,8 @@ namespace AttackPrevent.IISlogger
                 Interlocked.Exchange(ref _etwDataList, newBag);
 
                 HttpPost(_apiUrl, postData);
+                stopwatch.Stop();
+                LogManager.GetLogger(string.Empty).Info($"time cost: {stopwatch.Elapsed}, post count: {postCount}, etwData now count: {_etwDataList.Count}");
                 Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.InvariantCulture)} -  {postCount}");
             }
             catch (Exception ex)

@@ -532,8 +532,7 @@ namespace AttackPrevent.Business
                                 foreach(var logAnalyze in logAnalyzesList)
                                 {
                                     brokenIp.RequestRecords.Add(new RequestRecord {
-                                        HostName= logAnalyze.RequestHost,
-                                        FullUrl = logAnalyze.RequestFullUrl,
+                                        FullUrl= logAnalyze.RequestFullUrl,
                                         RequestCount= logAnalyze.RequestCount,
                                     });
                                 }
@@ -667,7 +666,6 @@ namespace AttackPrevent.Business
                                 {
                                     brokenIp.RequestRecords.Add(new RequestRecord
                                     {
-                                        HostName= logAnalyze.RequestHost,
                                         FullUrl = logAnalyze.RequestFullUrl,
                                         RequestCount = logAnalyze.RequestCount,
                                     });

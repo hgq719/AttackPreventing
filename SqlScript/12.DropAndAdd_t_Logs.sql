@@ -25,11 +25,8 @@ CREATE TABLE [dbo].[t_Logs] (
 IF NOT EXISTS
 (    SELECT *
 	 FROM SYS.indexes
-	 WHERE NAME = 'IX_T_Logs'
+	 WHERE NAME = 'IX_T_Logs_LOGTIME'
 )
-
-
-
 CREATE NONCLUSTERED INDEX [IX_T_Logs_LOGTIME] ON [dbo].[t_Logs]
 (
 	[LogTime] desc, [ZoneTableId] DESC, [LogLevel] ASC

@@ -13,7 +13,7 @@ namespace AttackPrevent.Business
         public ETWPrase(byte[] payload)
         {
 #if DEBUG
-            debug = true;
+            //debug = true;
 #endif
             PayLoad = payload;
             if (debug)

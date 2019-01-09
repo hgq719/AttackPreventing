@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AttackPrevent.Model.Cloudflare;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace AttackPrevent.Model
         public long time { get; set; }
         public int retryCount { get; set; }
         public string senderIp { get; set; }
+        public List<CloudflareLog> parsedData { get; set; }
 
         public override bool Equals(object obj)
         {

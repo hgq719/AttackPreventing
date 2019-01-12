@@ -59,7 +59,16 @@ namespace AttackPrevent.Business
 
         public static void Update(RateLimitEntity item)
         {
-            RateLimitAccess.Edit(item);
+            RateLimitEntity rateLimitOld = RateLimitAccess.GetRateLimitByID(item.TableID);
+            if (item.ZoneId == rateLimitOld.ZoneId)
+            {
+                RateLimitAccess.Edit(item);
+            }
+            else
+            {
+                Delete(rateLimitOld.TableID, rateLimitOld.OrderNo, rateLimitOld.ZoneId);
+                RateLimitBusiness.Add(item);
+            }
         }
 
         public static void TriggerRateLimit(RateLimitEntity rateLimit)
@@ -67,9 +76,9 @@ namespace AttackPrevent.Business
             RateLimitAccess.TriggerRateLimit(rateLimit);
         }
 
-        public static void Delete(int id, int order)
+        public static void Delete(int id, int order, string zoneId)
         {
-            RateLimitAccess.Delete(id, order);
+            RateLimitAccess.Delete(id, order, zoneId);
         }
 
         public static void UpdateOrder(int action, int id, int order, string zoneId)

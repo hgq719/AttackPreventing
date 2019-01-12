@@ -19,14 +19,17 @@ namespace AttackPrevent.IISlogger
         const String SessionName = "iis-etw";
         private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
         private static string _apiUrl = string.Empty;
+        private static string _apiKey = string.Empty;
+        private static Timer timer;
 
         static void Main()
         {
             _apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
+            _apiKey = ConfigurationManager.AppSettings["iisLogApiKey"];
             LogManager.GetLogger(string.Empty).Info(_apiUrl);
             ServicePointManager.DefaultConnectionLimit = 100;
 
-            var timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
+            timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -63,6 +66,7 @@ namespace AttackPrevent.IISlogger
             request.Method = "POST";
             request.Accept = "*/*";
             request.ContentType = "application/octet-stream";
+            request.Headers.Add("Authorization", _apiKey);
             request.ContentLength = postData.LongLength;
             //request.CookieContainer = cookie;
             var myRequestStream = request.GetRequestStream();

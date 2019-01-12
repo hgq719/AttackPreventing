@@ -5,10 +5,10 @@
 @Styles.Render("~/Content/home.css")
 <div style="width: 500px; margin-top: 20px; margin-left: 40px;" class="form-horizontal">
     <ol class="breadcrumb">
-        <li><a href="~/Home/ZoneList">Zone Manage</a></li>
+        <li><a href="~/Zone/ZoneIndex">Zone Manage</a></li>
         <li class="active">Edit</li>
     </ol>
-    @using (Html.BeginForm("EditZone", "home", FormMethod.Post))
+    @using (Html.BeginForm("EditZone", "Zone", FormMethod.Post))
     {
         <div class="row form-group">
             <label class="col-md-4 label-col">Zone ID</label>
@@ -83,7 +83,7 @@
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />
-                @Html.ActionLink("Cancel", "ZoneList", "Home", new { @class = "btn btn-default" })
+                @Html.ActionLink("Cancel", "ZoneIndex", "Zone", new { @class = "btn btn-default" })
             </div>
         </div>
     }

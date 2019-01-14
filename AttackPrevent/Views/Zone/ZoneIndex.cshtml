@@ -48,7 +48,7 @@
             @{
                 if (ViewBag.IsAdmin)
                 {
-                    <a href="~/Home/AddZone" class="btn btn-default">Add New</a>
+                    <a href="~/Zone/AddZone" class="btn btn-default">Add New</a>
                 }
             }
         </div>
@@ -67,7 +67,7 @@
         //初始化Table
         oTableInit.Init = function () {
             $('#zoneTable').bootstrapTable({
-                url: '/Home/GetZoneList',         //请求后台的URL（*）
+                url: '/Zone/GetZoneList',         //请求后台的URL（*）
                 method: 'get',                      //请求方式（*）
                 toolbar: '#toolbar',                //工具按钮用哪个容器
                 striped: true,                      //是否显示行间隔色
@@ -118,7 +118,7 @@
                     field: '',
                         title: 'Operation',
                         formatter: function (value, row, index) {
-                            var btnEdit = '<a href="/home/EditZone?id=' + row.TableID + '" class="rate-edit " ><span class="glyphicon glyphicon-edit btn-in-table" aria-hidden="true" title="Edit"></span></a>';
+                            var btnEdit = '<a href="/Zone/EditZone?id=' + row.TableID + '" class="rate-edit " ><span class="glyphicon glyphicon-edit btn-in-table" aria-hidden="true" title="Edit"></span></a>';
                            
                             return btnEdit;
                         },

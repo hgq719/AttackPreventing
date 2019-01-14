@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using AttackPrevent.Business;
+using log4net;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
@@ -54,29 +55,40 @@ namespace AttackPrevent.IISlogger
         {
             _etwDataList.Add(request.EventData());
 #if DEBUG
-            Console.WriteLine(request.ToString());
+            //Console.WriteLine(request.ToString());
+            //ETWPrase eTWPrase = new ETWPrase(request.EventData());
+            //Console.WriteLine(eTWPrase.Cs_uri_stem);
 #endif
         }
 
         private static async void HttpPost(string url, byte[] postData)
         {
-            GC.Collect();
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.KeepAlive = false;
-            request.Method = "POST";
-            request.Accept = "*/*";
-            request.ContentType = "application/octet-stream";
-            request.Headers.Add("Authorization", _apiKey);
-            request.ContentLength = postData.LongLength;
-            //request.CookieContainer = cookie;
-            var myRequestStream = request.GetRequestStream();
-            await myRequestStream.WriteAsync(postData, 0, postData.Length);
-            myRequestStream.Close();
-            if (request != null)
+            try
             {
-                request.Abort();
-                //request = null;
+                GC.Collect();
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.KeepAlive = false;
+                request.Method = "POST";
+                request.Accept = "*/*";
+                request.ContentType = "application/octet-stream";
+                request.Headers.Add("Authorization", _apiKey);
+                request.ContentLength = postData.LongLength;
+                request.Timeout = 500;
+                //request.CookieContainer = cookie;
+                var myRequestStream = request.GetRequestStream();
+                await myRequestStream.WriteAsync(postData, 0, postData.Length);
+                myRequestStream.Close();
+                if (request != null)
+                {
+                    request.Abort();
+                    //request = null;
+                }
             }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(string.Empty).Error(ex);
+            }
+            
         }
 
         #region Old Version

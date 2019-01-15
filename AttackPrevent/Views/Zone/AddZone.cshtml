@@ -56,6 +56,13 @@
             </div>
         </div>
         <div class="row form-group">
+            <label class="col-md-4 label-col">Host Names</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.HostNames, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.HostNames)
+            </div>
+        </div>
+        <div class="row form-group">
             <div class="checkbox col-md-4 col-md-offset-4">
                 <label>
                     @Html.CheckBoxFor(model => model.IfTestStage, new { @checked = true }) If Test

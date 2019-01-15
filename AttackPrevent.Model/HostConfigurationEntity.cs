@@ -13,5 +13,6 @@ namespace AttackPrevent.Model
         public int Threshold { get; set; }
         public int Period { get; set; }
         public int TableID { get; set; }
+        public int ZoneTableId { get; set; }
     }
 }

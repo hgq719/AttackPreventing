@@ -50,7 +50,8 @@ namespace AttackPrevent.Controllers
                     IfTestStage = zoneModel.IfTestStage,
                     PeriodForHost = zoneModel.PeriodForHost,
                     ThresholdForHost = zoneModel.ThresholdForHost,
-                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule
+                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule,
+                    HostNames = zoneModel.HostNames
                 };
 
                 if (ZoneBusiness.Equals(item.ZoneId, 0))
@@ -101,7 +102,8 @@ namespace AttackPrevent.Controllers
                 IfAttacking = entity.IfAttacking,
                 PeriodForHost = entity.PeriodForHost,
                 ThresholdForHost = entity.ThresholdForHost,
-                IfAnalyzeByHostRule = entity.IfAnalyzeByHostRule
+                IfAnalyzeByHostRule = entity.IfAnalyzeByHostRule,
+                HostNames = entity.HostNames
             };
 
             return View(model);
@@ -124,7 +126,8 @@ namespace AttackPrevent.Controllers
                     TableID = zoneModel.TableID,
                     PeriodForHost = zoneModel.PeriodForHost,
                     ThresholdForHost = zoneModel.ThresholdForHost,
-                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule
+                    IfAnalyzeByHostRule = zoneModel.IfAnalyzeByHostRule,
+                    HostNames = zoneModel.HostNames
                 };
                 if (ZoneBusiness.Equals(item.ZoneId, item.TableID))
                 {

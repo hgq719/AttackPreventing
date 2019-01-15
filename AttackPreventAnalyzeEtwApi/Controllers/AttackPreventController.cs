@@ -46,7 +46,7 @@ namespace AttackPreventAnalyzeEtwApi.Controllers
         #region IIS API
         [HttpPost]
         [Route("IISLogs/EtwResult")]
-        [ApiAuthorize]
+        //[ApiAuthorize]
         public async Task<IHttpActionResult> EtwResult()
         {
             byte[] buff = await Request.Content.ReadAsByteArrayAsync();

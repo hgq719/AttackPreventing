@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPrevent.Model", "Atta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPrevent.IISlogger", "AttackPrevent.IISlogger\AttackPrevent.IISlogger.csproj", "{2DF4BA24-8855-4DFD-B57F-4170367C20DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPreventAnalyzeEtwApi", "AttackPreventAnalyzeEtwApi\AttackPreventAnalyzeEtwApi.csproj", "{CE6FAFB2-AB09-45F6-9BFF-F9F75999CC78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPreventAwsApi", "AttackPreventAwsApi\AttackPreventAwsApi.csproj", "{DB6CD5FB-60D2-45B8-82DA-5347394C4A07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{2DF4BA24-8855-4DFD-B57F-4170367C20DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DF4BA24-8855-4DFD-B57F-4170367C20DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DF4BA24-8855-4DFD-B57F-4170367C20DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE6FAFB2-AB09-45F6-9BFF-F9F75999CC78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE6FAFB2-AB09-45F6-9BFF-F9F75999CC78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE6FAFB2-AB09-45F6-9BFF-F9F75999CC78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE6FAFB2-AB09-45F6-9BFF-F9F75999CC78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB6CD5FB-60D2-45B8-82DA-5347394C4A07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB6CD5FB-60D2-45B8-82DA-5347394C4A07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB6CD5FB-60D2-45B8-82DA-5347394C4A07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB6CD5FB-60D2-45B8-82DA-5347394C4A07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

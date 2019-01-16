@@ -28,7 +28,7 @@ namespace AttackPrevent
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             // 使api返回为json 
             GlobalConfiguration.Configuration.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
-
+            //MapperInitialize.Initialize();
             RunProgram().GetAwaiter();
 
             //Task task = new Task(() =>

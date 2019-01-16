@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using AttackPrevent.Business;
+using log4net;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
@@ -19,14 +20,17 @@ namespace AttackPrevent.IISlogger
         const String SessionName = "iis-etw";
         private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
         private static string _apiUrl = string.Empty;
+        private static string _apiKey = string.Empty;
+        private static Timer timer;
 
         static void Main()
         {
             _apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
+            _apiKey = ConfigurationManager.AppSettings["iisLogApiKey"];
             LogManager.GetLogger(string.Empty).Info(_apiUrl);
             ServicePointManager.DefaultConnectionLimit = 100;
 
-            var timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
+            timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -51,28 +55,40 @@ namespace AttackPrevent.IISlogger
         {
             _etwDataList.Add(request.EventData());
 #if DEBUG
-            Console.WriteLine(request.ToString());
+            //Console.WriteLine(request.ToString());
+            //ETWPrase eTWPrase = new ETWPrase(request.EventData());
+            //Console.WriteLine(eTWPrase.Cs_uri_stem);
 #endif
         }
 
         private static async void HttpPost(string url, byte[] postData)
         {
-            GC.Collect();
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.KeepAlive = false;
-            request.Method = "POST";
-            request.Accept = "*/*";
-            request.ContentType = "application/octet-stream";
-            request.ContentLength = postData.LongLength;
-            //request.CookieContainer = cookie;
-            var myRequestStream = request.GetRequestStream();
-            await myRequestStream.WriteAsync(postData, 0, postData.Length);
-            myRequestStream.Close();
-            if (request != null)
+            try
             {
-                request.Abort();
-                //request = null;
+                GC.Collect();
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.KeepAlive = false;
+                request.Method = "POST";
+                request.Accept = "*/*";
+                request.ContentType = "application/octet-stream";
+                request.Headers.Add("Authorization", _apiKey);
+                request.ContentLength = postData.LongLength;
+                request.Timeout = 500;
+                //request.CookieContainer = cookie;
+                var myRequestStream = request.GetRequestStream();
+                await myRequestStream.WriteAsync(postData, 0, postData.Length);
+                myRequestStream.Close();
+                if (request != null)
+                {
+                    request.Abort();
+                    //request = null;
+                }
             }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(string.Empty).Error(ex);
+            }
+            
         }
 
         #region Old Version

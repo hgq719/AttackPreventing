@@ -1,0 +1,81 @@
+﻿@{
+
+}
+@model AttackPrevent.Models.RateLimitModel
+@Styles.Render("~/Content/home.css?v=" + Guid.NewGuid())
+<div style="width: 600px; margin-top: 20px; margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="~/RateLimit/RateLimitIndex">Rate Limiting Rule Manage</a></li>
+        <li class="active">Edit</li>
+    </ol>
+    @using (Html.BeginForm("EditRateLimiting", "RateLimit", FormMethod.Post))
+    {
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Zone Name</label>
+            <div class="col-md-8 ">
+                @Html.DropDownListFor(model => model.ZoneId, new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Period (second)</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Period, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.Period)
+                @*<input class="form-control" id="period-value" type="text" />*@
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Threshold</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Threshold, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.Threshold)
+                @*<input class="form-control" id="threshold-value" type="text" />*@
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">URL</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.Url, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Url)
+                @*<input class="form-control" id="url-value" type="text" />*@
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Enlargement Factor</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.EnlargementFactor, new { @class = "form-control onlyNumber" })
+                @Html.ValidationMessageFor(model => model.EnlargementFactor)
+                @*<input class="form-control" id="enlargement-value" type="text" />*@
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Rate Limiting Trigger Ip Count</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.RateLimitTriggerIpCount, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.RateLimitTriggerIpCount)
+                @*<input class="form-control" id="triggerIpCount-value" type="text" />*@
+            </div>
+        </div>
+        <div class="row form-group">
+            <label class="col-md-4 label-col">Trigger Time (hour)</label>
+            <div class="col-md-8 ">
+                @Html.TextBoxFor(model => model.RateLimitTriggerTime, new { @class = "form-control onlyInteger" })
+                @Html.ValidationMessageFor(model => model.RateLimitTriggerTime)
+                @*<input class="form-control" id="triggerTime-value" type="text" />*@
+            </div>
+        </div>
+        <div>
+            @Html.HiddenFor(model => model.TableID)
+        </div>
+        <div class="form-group">
+            <div class="col-md-8 col-md-offset-4 text-right">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                @Html.ActionLink("Cancel", "RateLimitIndex", "RateLimit", new { @class = "btn btn-default" })
+            </div>
+        </div>
+    }
+
+</div>
+
+
+

@@ -1,4 +1,5 @@
 ﻿using AttackPrevent.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -170,7 +171,12 @@ namespace AttackPrevent.Business
                     StringBuilder sbDetail = new StringBuilder();
                     if (rst.Url.EndsWith("*"))
                     {
-                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{broken.RequestRecords.Count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}])，details(only list the top 10 records)：<br />");
+                        var count = broken.RequestRecords.Sum(a => a.RequestCount);
+                        logger.Debug(JsonConvert.SerializeObject(new {
+                            count= count,
+                            RequestRecords = broken.RequestRecords
+                        }));
+                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}])，details(only list the top 10 records)：<br />");
                         var top10 = broken.RequestRecords.OrderByDescending(a => a.RequestCount).Take(10);
          
                         foreach (var item in top10)
@@ -180,7 +186,13 @@ namespace AttackPrevent.Business
                     }
                     else
                     {
-                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{broken.RequestRecords.Count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}]).<br />");
+                        var count = broken.RequestRecords.Sum(a => a.RequestCount);
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            count = count,
+                            RequestRecords = broken.RequestRecords
+                        }));
+                        sbDetail.Append($"IP [{broken.IP}] visited [{rst.Url}] [{count}] times, time range：[{analyzeResult.timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rst.Url}],Period=[{rst.Period}],Threshold=[{rst.Threshold}],EnlargementFactor=[{rst.EnlargementFactor}]).<br />");
                     }
                     string banIpLog = BanIpByRateLimitRule(zone, zone.IfTestStage, cloudflare, analyzeResult.timeStage ,broken.RequestRecords.FirstOrDefault().HostName, broken.IP,rst.Period,rst.Threshold,rst.BrokenIpList.Count);
 

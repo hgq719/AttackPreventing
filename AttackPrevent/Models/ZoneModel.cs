@@ -42,5 +42,9 @@ namespace AttackPrevent.Models
         public bool IfAttacking { get; set; }
         public bool IfAnalyzeByHostRule { get; set; }
 
+        [Required(ErrorMessage = "The {0} is required.")]
+        [StringLength(1000)]
+        public string HostNames { get; set; }
+
     }
 }

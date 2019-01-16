@@ -28,15 +28,15 @@
             </div>
             <div class="headerRight-cm">
                 @*<a href="javascript:void(0);" class="avatars-cm">
-                </a>*@
+                    </a>*@
                 <a href="javascript:void(0);" class="avatars-cm">
                     <img src="~/Images/101.png" alt="" class="imgAvatars">
                 </a>
                 @if (Session["UserName"] != null)
                 {
-                <span id="accountName" class="accountName" style="color: white;margin-left: 10px;">
-                    @Session["UserName"].ToString()
-                </span>
+                    <span id="accountName" class="accountName" style="color: white;margin-left: 10px;">
+                        @Session["UserName"].ToString()
+                    </span>
                 }
 
                 <div class="divAvatarsHasTop" style="display:none;">
@@ -69,7 +69,7 @@
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Rate Limiting Rule Manage", "RateLimitingList", "Home")
+                        @Html.ActionLink("Rate Limiting Rule Manage", "RateLimitIndex", "RateLimit")
                     </li>
                     <li>
                         <span class="icon_menu"></span>
@@ -81,12 +81,12 @@
                     </li>
                     <li>
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Zone Manage", "ZoneList", "Home")
+                        @Html.ActionLink("Zone Manage", "ZoneIndex", "Zone")
                     </li>
                     @*<li>
-            <span class="icon_menu"></span>
-            @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
-        </li>*@
+                        <span class="icon_menu"></span>
+                        @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
+                    </li>*@
                     <li>
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Active Report", "ActiveReport", "Home")

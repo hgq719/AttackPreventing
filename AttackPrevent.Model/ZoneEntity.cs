@@ -8,6 +8,14 @@ namespace AttackPrevent.Model
 {
     public class ZoneEntity
     {
+        public ZoneEntity()
+        {
+            ZoneId = string.Empty;
+            ZoneName = string.Empty;
+            AuthEmail = string.Empty;
+            AuthKey = string.Empty;
+            HostNames = string.Empty;
+        }
         public int ID { get; set; }
         public int TableID { get; set; }
         public string ZoneId { get; set; }

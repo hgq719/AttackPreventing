@@ -23,7 +23,8 @@ namespace AttackPrevent.Business
     {
         private static IEtwAnalyzeService etwAnalyzeService;
         private static object obj_Sync = new object();
-        private ConcurrentBag<EtwData> datas;
+        private ConcurrentQueue<EtwData> datas;
+        private List<EtwData> handledDatas;
         private ILogService logger = new LogService();
         private readonly string authKey = "EEF1BFC8-177C-424E-8F05-AFC08DEFBAC3";
         private readonly int ReceivingThreshold = 300;
@@ -42,7 +43,8 @@ namespace AttackPrevent.Business
             accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"] ?? "20");//累计秒
             awsGetZoneListApiUrl = ConfigurationManager.AppSettings["AwsGetZoneListApiUrl"] ?? "http://localhost:41967/GetZoneList/Zones";
 
-            datas = new ConcurrentBag<EtwData>();
+            datas = new ConcurrentQueue<EtwData>();
+            handledDatas = new List<EtwData>();
         }
         public static IEtwAnalyzeService GetInstance()
         {
@@ -59,12 +61,12 @@ namespace AttackPrevent.Business
             return etwAnalyzeService;
         }
 
-        public async Task Add(string ip, ConcurrentBag<byte[]> data)
+        public Task Add(string ip, ConcurrentBag<byte[]> data)
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 //设置一个接收阀值
-                int queueCount = datas.Count(a => a.enumEtwStatus == EnumEtwStatus.None);
+                int queueCount = datas.Count();
                 if (queueCount < ReceivingThreshold)
                 {
                     EtwData etwData = new EtwData
@@ -76,7 +78,13 @@ namespace AttackPrevent.Business
                         retryCount = 0,
                         senderIp = ip,
                     };
-                    datas.Add(etwData);
+                    datas.Enqueue(etwData);
+                }
+                else
+                {
+                    logger.Debug(JsonConvert.SerializeObject(
+                        string.Format("EtwData Add more than max=[{0}]", ReceivingThreshold)
+                    ));
                 }
             });
         }
@@ -233,15 +241,16 @@ namespace AttackPrevent.Business
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                data = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.None)
-                    .OrderByDescending(a => a.time).FirstOrDefault();
+                //data = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.None)
+                //    .OrderByDescending(a => a.time).FirstOrDefault();
+                datas.TryDequeue(out data);
                 if (data != null)
                 {
                     data.enumEtwStatus = EnumEtwStatus.Processing;
                     Analyze(data);
                     data.enumEtwStatus = EnumEtwStatus.Processed;
                     stopwatch.Stop();
-                    logger.Debug(JsonConvert.SerializeObject(new
+                    logger.Info(JsonConvert.SerializeObject(new
                     {
                         index = data.time,
                         time = stopwatch.Elapsed.TotalMilliseconds
@@ -262,6 +271,7 @@ namespace AttackPrevent.Business
                     else
                     {
                         data.enumEtwStatus = EnumEtwStatus.None;
+                        datas.Enqueue(data);
                     }
                 }
             }
@@ -291,7 +301,7 @@ namespace AttackPrevent.Business
                 //}
 
 
-                var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
+                var list = handledDatas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
                                 .GroupBy(a => a.senderIp)
                                 .Where(g => g.Count() >= accumulationSecond);
 
@@ -310,8 +320,7 @@ namespace AttackPrevent.Business
                         }));
                         foreach (EtwData etwData in dataList)
                         {
-                            var etw = etwData;
-                            datas.TryTake(out etw);
+                            handledDatas.Remove(etwData);
                         }
                     }
                 }
@@ -325,14 +334,39 @@ namespace AttackPrevent.Business
 
         private void Analyze(EtwData data)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (data != null)
             {
                 //数据解析
                 List<CloudflareLog> cloudflareLogs = ParseEtwData(data);
+                stopwatch.Stop();
+                logger.Info(JsonConvert.SerializeObject(new
+                {
+                    timeType = "ParseEtwData",
+                    time = stopwatch.Elapsed.TotalMilliseconds
+                }));
+                stopwatch.Restart();
                 //分析
                 AnalyzeResult analyzeResult = AnalyzeRatelimit(cloudflareLogs);
+                stopwatch.Stop();
+                logger.Info(JsonConvert.SerializeObject(new
+                {
+                    timeType = "AnalyzeRatelimit",
+                    time = stopwatch.Elapsed.TotalMilliseconds
+                }));
+                stopwatch.Restart();
                 //发送结果
                 SendResult(analyzeResult);
+                stopwatch.Stop();
+                logger.Info(JsonConvert.SerializeObject(new
+                {
+                    timeType = "SendResult",
+                    time = stopwatch.Elapsed.TotalMilliseconds
+                }));
+
+                handledDatas.Add(data);
             }
         }
         private void AnalyzeAccumulation(List<EtwData> dataList)
@@ -343,7 +377,8 @@ namespace AttackPrevent.Business
                 foreach (EtwData etwData in dataList)
                 {
                     //数据解析
-                    cloudflareLogs.AddRange(ParseEtwData(etwData));
+                    //cloudflareLogs.AddRange(ParseEtwData(etwData));
+                    cloudflareLogs.AddRange(etwData.parsedData);
                 }
                 //分析
                 AnalyzeResult analyzeResult = AnalyzeRatelimit(cloudflareLogs, accumulationSecond);
@@ -354,22 +389,38 @@ namespace AttackPrevent.Business
         private List<CloudflareLog> ParseEtwData(EtwData data)
         {
             List<CloudflareLog> cloudflareLogs = new List<CloudflareLog>();
+            //ConcurrentBag<CloudflareLog> cloudflareLogsBag = new ConcurrentBag<CloudflareLog>();
             if (data != null)
             {
                 foreach (var buff in data.buffList)
                 {
                     ETWPrase eTWPrase = new ETWPrase(buff);
+
                     logger.Debug(JsonConvert.SerializeObject(eTWPrase));
                     cloudflareLogs.Add(new CloudflareLog
                     {
                         ClientRequestHost = eTWPrase.Cs_host,
                         ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
-                        ClientRequestURI = string.Format("{0}/{1}", eTWPrase.Cs_uri_stem, eTWPrase.cs_uri_query),
+                        ClientRequestURI = string.Format("{0}?{1}", eTWPrase.Cs_uri_stem, eTWPrase.cs_uri_query),
                         ClientRequestMethod = eTWPrase.Cs_method,
                     });
                 }
-
+                //var list = data.buffList.ToList();
+                //Parallel.For(0, list.Count(), index =>
+                //{
+                //    var buff = list[index];
+                //    ETWPrase eTWPrase = new ETWPrase(buff);
+                //    cloudflareLogsBag.Add(new CloudflareLog
+                //    {
+                //        ClientRequestHost = eTWPrase.Cs_host,
+                //        ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
+                //        ClientRequestURI = string.Format("{0}?{1}", eTWPrase.Cs_uri_stem, eTWPrase.cs_uri_query),
+                //        ClientRequestMethod = eTWPrase.Cs_method,
+                //    });
+                //});
             }
+            //cloudflareLogs = cloudflareLogsBag.ToList();
+            data.parsedData = cloudflareLogs;
             return cloudflareLogs;
         }
         private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs,int accumulation=1)
@@ -466,9 +517,9 @@ namespace AttackPrevent.Business
                                 {
                                     IP = x.ClientIP,
                                     RequestHost = x.ClientRequestHost,
-                                    RequestFullUrl = $"{x.ClientRequestHost}/{x.ClientRequestURI}",
+                                    RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
                                     RequestUrl =
-                                        $"{x.ClientRequestHost}/{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
+                                        $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
                                 };
                                 return model;
                             });
@@ -502,6 +553,12 @@ namespace AttackPrevent.Business
 
                              });
 
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            DataType = "3-CloudflareLogs-IfMatchCondition",
+                            Value = result,
+                        }));
+
                         List<Result> results = new List<Result>();
                         if (result != null && result.Count() > 0)
                         {
@@ -513,6 +570,7 @@ namespace AttackPrevent.Business
                                 int period = rateLimit.Period;
                                 int threshold = rateLimit.Threshold;
                                 string url = rateLimit.Url;
+                                var enlargementFactor = rateLimit.EnlargementFactor;
 
                                 //触发规则的 IP+Host 数据
                                 List<LogAnalyzeModel> logAnalyzesList = logAnalyzeModelList.Where(a => a.RequestHost == item.RequestHost && a.IP == item.IP)
@@ -532,7 +590,7 @@ namespace AttackPrevent.Business
                                         RuleId = ruleId,
                                         Period = period,
                                         Threshold = threshold,
-                                        EnlargementFactor = accumulation/(double)period,
+                                        EnlargementFactor = enlargementFactor,
                                         Url = url,
                                         BrokenIpList = brokenIpList,
                                     };
@@ -560,6 +618,12 @@ namespace AttackPrevent.Business
                         analyzeResult.ZoneId = zoneId;
                         analyzeResult.timeStage = accumulation;
                         analyzeResult.result = results;
+
+                        logger.Debug(JsonConvert.SerializeObject(new
+                        {
+                            DataType = "4-CloudflareLogs-analyzeResult",
+                            Value = analyzeResult,
+                        }));
                     }
                 }
             }
@@ -568,9 +632,14 @@ namespace AttackPrevent.Business
 
         private void SendResult(AnalyzeResult analyzeResult)
         {
-            string url = analyzeResultApiUrl;
-            string json = JsonConvert.SerializeObject(analyzeResult);
-            HttpPost(url, json);
+            if(analyzeResult!=null&& analyzeResult.result!=null&& analyzeResult.result.Count > 0)
+            {
+                Task.Run(() => {
+                    string url = analyzeResultApiUrl;
+                    string json = JsonConvert.SerializeObject(analyzeResult);
+                    HttpPost(url, json);
+                });
+            }
         }
         private string HttpGet(string url, int timeout = 90)
         {
@@ -586,10 +655,11 @@ namespace AttackPrevent.Business
         {
             using (var client = new HttpClient())
             {
+                string strResult = "";
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 client.Timeout = TimeSpan.FromSeconds(timeout);
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authKey);
-                string strResult = client.PostAsync(url, content).Result.Content.ReadAsStringAsync().Result;
+                strResult = client.PostAsync(url, content).Result.Content.ReadAsStringAsync().Result;
                 return strResult;
             }
         }

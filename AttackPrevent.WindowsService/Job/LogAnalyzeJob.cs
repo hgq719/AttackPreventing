@@ -56,12 +56,15 @@ namespace AttackPrevent.WindowsService.Job
             {
                 try
                 {
-                    var rateLimitingCount = RateLimitBusiness.GetList(zoneEntity.ZoneId).Count();
-                    if (rateLimitingCount > 0)
+                    if (zoneEntity.IfEnable)
                     {
-                        zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
-                        var task = new Task(()=> { StartAnalyze(zoneEntity); });
-                        task.Start();
+                        var rateLimitingCount = RateLimitBusiness.GetList(zoneEntity.ZoneId).Count();
+                        if (rateLimitingCount > 0)
+                        {
+                            zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
+                            var task = new Task(() => { StartAnalyze(zoneEntity); });
+                            task.Start();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -70,7 +73,6 @@ namespace AttackPrevent.WindowsService.Job
                     _logService.Error($" error message = {ex.Message}. \n stack trace = {ex.StackTrace}");
                 }
             }
-
         }
         
         private void StartAnalyze(ZoneEntity zoneEntity)

@@ -20,7 +20,8 @@ namespace AttackPrevent.Access
                 string query = @"SELECT [Id], 
                                         [Host], 
                                         [Threshold], 
-                                        [Period] FROM [t_Host_Configuration]";
+                                        [Period],
+                                        [ZoneTableId] FROM [t_Host_Configuration]";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
 
@@ -33,7 +34,8 @@ namespace AttackPrevent.Access
                             ID = Convert.ToInt32(reader["Id"]),
                             Host = Convert.ToString(reader["Host"]),
                             Threshold = Convert.ToInt32(reader["Threshold"]),
-                            Period = Convert.ToInt32(reader["Period"])
+                            Period = Convert.ToInt32(reader["Period"]),
+                            ZoneTableId = Convert.ToInt32(reader["ZoneTableId"])
                         });
                     }
                 }
@@ -49,7 +51,8 @@ namespace AttackPrevent.Access
             StringBuilder query = new StringBuilder(@"SELECT [Host],
                                                              [Threshold],
                                                              [Period],
-                                                             [Id] FROM [t_Host_Configuration] ");
+                                                             [Id],
+                                                             [ZoneTableId] FROM [t_Host_Configuration] ");
             StringBuilder where = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(host))
             {
@@ -81,6 +84,7 @@ namespace AttackPrevent.Access
                         item.Period = Convert.ToInt32(reader["Period"]);
                         item.Threshold = Convert.ToInt32(reader["Threshold"]);
                         item.TableID = Convert.ToInt32(reader["Id"]);
+                        item.ZoneTableId = Convert.ToInt32(reader["ZoneTableId"]);
                         result.Add(item);
                     }
                 }
@@ -96,11 +100,13 @@ namespace AttackPrevent.Access
             StringBuilder query = new StringBuilder(@"INSERT INTO dbo.t_Host_Configuration
                                                         ( Host ,
                                                           Threshold ,
-                                                          Period 
+                                                          Period,
+                                                          [ZoneTableId]
                                                         )
                                                 VALUES  ( @host , 
                                                           @threshold ,
-                                                          @period 
+                                                          @period,
+                                                          @zoneTableId
                                                         )");
 
             using (SqlConnection conn = new SqlConnection(cons))
@@ -110,6 +116,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@host", item.Host);
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
+                cmd.Parameters.AddWithValue("@zoneTableId", item.ZoneTableId);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -123,7 +130,8 @@ namespace AttackPrevent.Access
             StringBuilder query = new StringBuilder(@"UPDATE dbo.t_Host_Configuration 
                                                         SET Host=@host,
                                                             Threshold=@threshold,
-                                                            Period=@period WHERE Id=@id");
+                                                            Period=@period,
+                                                            [ZoneTableId]=@zoneTableId WHERE Id=@id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -133,6 +141,7 @@ namespace AttackPrevent.Access
                 cmd.Parameters.AddWithValue("@threshold", item.Threshold);
                 cmd.Parameters.AddWithValue("@period", item.Period);
                 cmd.Parameters.AddWithValue("@id", item.TableID);
+                cmd.Parameters.AddWithValue("@zoneTableId", item.TableID);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -146,7 +155,8 @@ namespace AttackPrevent.Access
             StringBuilder query = new StringBuilder(@"SELECT [Host],
                                                              [Threshold],
                                                              [Period],
-                                                             [Id] from [t_Host_Configuration] WHERE [Id] = @id");
+                                                             [Id],
+                                                             [ZoneTableId] from [t_Host_Configuration] WHERE [Id] = @id");
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
@@ -164,6 +174,7 @@ namespace AttackPrevent.Access
                         result.Period = Convert.ToInt32(reader["Period"]);
                         result.Threshold = Convert.ToInt32(reader["Threshold"]);
                         result.TableID = Convert.ToInt32(reader["Id"]);
+                        result.ZoneTableId = Convert.ToInt32(reader["ZoneTableId"]);
                     }
                 }
             }

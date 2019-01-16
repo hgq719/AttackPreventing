@@ -211,17 +211,18 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
             }
         }
 
-        public static void Delete(int id, int order)
+        public static void Delete(int id, int order, string zoneId)
         {
             string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"DELETE dbo.t_RateLimiting_Rules WHERE Id=@id;
-                                 UPDATE dbo.t_RateLimiting_Rules SET OrderNo= OrderNo - 1 WHERE OrderNo > @order;";
+                                 UPDATE dbo.t_RateLimiting_Rules SET OrderNo= OrderNo - 1 WHERE OrderNo > @order AND ZoneId = @zoneId;";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
                 cmd.Parameters.AddWithValue("@order", order);
+                cmd.Parameters.AddWithValue("@zoneId", zoneId);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();

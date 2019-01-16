@@ -1,7 +1,4 @@
-﻿using log4net;
-using Microsoft.Diagnostics.Tracing;
-using Microsoft.Diagnostics.Tracing.Parsers;
-using Microsoft.Diagnostics.Tracing.Session;
+﻿
 using System;
 using System.Collections.Concurrent;
 using System.Configuration;
@@ -9,16 +6,25 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+
+using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Diagnostics.Tracing.Session;
+
+using log4net;
+using log4net.Core;
 
 namespace AttackPrevent.IISlogger
 {
     class Program
     {
-        const String SessionName = "iis-etw";
+        private const string SessionName = "iis-etw";
         private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
         private static string _apiUrl = string.Empty;
+        private static readonly ILog Loger = LogManager.GetLogger("Program");
 
         static void Main()
         {
@@ -71,54 +77,19 @@ namespace AttackPrevent.IISlogger
             if (request != null)
             {
                 request.Abort();
-                //request = null;
             }
         }
-
-        #region Old Version
-
-        //private static void SendData()
-        //{
-        //    //ServicePointManager.DefaultConnectionLimit = 100;
-        //    while (true)
-        //    {
-        //        if (_etwDataList.Count > 0)
-        //        {
-        //            try
-        //            {
-        //                byte[] postData = Serialize(_etwDataList);
-        //                Console.WriteLine($"{DateTime.Now.ToString()} -  {_etwDataList.Count}");
-        //                var newBag = new ConcurrentBag<byte[]>();
-        //                Interlocked.Exchange<ConcurrentBag<byte[]>>(ref _etwDataList, newBag);
-        //                HttpPost(_apiUrl, postData);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                LogManager.GetLogger("").Error(ex);
-        //            }
-        //            //finally
-        //            //{
-        //            //    etwDataList.Clear();
-        //            //}
-        //        }
-
-        //        Thread.Sleep(1000);
-        //    }
-        //}
-
-        #endregion
-
 
         private static void SendData(object obj)
         {
             if (_etwDataList.Count <= 0)
             {
-                LogManager.GetLogger(string.Empty).Info(0);
+                Loger.Info("No need to send data. there are no data in etwDataList.");
                 return;
             } 
             try
             {
-                Stopwatch stopwatch = new Stopwatch();
+                var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 var postCount = _etwDataList.Count;
                 var newBag = new ConcurrentBag<byte[]>();
@@ -133,7 +104,7 @@ namespace AttackPrevent.IISlogger
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger(string.Empty).Error(ex);
+                Loger.Error($"Error when sending data, error message = {ex.Message} \n stacktrace = {ex.StackTrace}.");
             }
         }
 

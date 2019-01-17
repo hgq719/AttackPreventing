@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AttackPrevent.Business
@@ -17,16 +16,16 @@ namespace AttackPrevent.Business
     public interface IEtwAnalyzeService
     {
         Task Add(string ip, ConcurrentBag<byte[]> data);
-        void doWork();
+        void DoWork();
     }
     public class EtwAnalyzeService : IEtwAnalyzeService
     {
-        private static IEtwAnalyzeService etwAnalyzeService;
+        private static IEtwAnalyzeService _etwAnalyzeService;
         private static object obj_Sync = new object();
         private ConcurrentQueue<EtwData> datas;
         private List<EtwData> handledDatas;
         private ILogService logger = new LogService();
-        private readonly string authKey = "EEF1BFC8-177C-424E-8F05-AFC08DEFBAC3";
+        private readonly string _authKey = "EEF1BFC8-177C-424E-8F05-AFC08DEFBAC3";
         private readonly int ReceivingThreshold = 300;
         private string getRatelimitsApiUrl;
         private string analyzeResultApiUrl;
@@ -46,19 +45,20 @@ namespace AttackPrevent.Business
             datas = new ConcurrentQueue<EtwData>();
             handledDatas = new List<EtwData>();
         }
+
         public static IEtwAnalyzeService GetInstance()
         {
-            if (etwAnalyzeService == null)
+            if (_etwAnalyzeService == null)
             {
                 lock (obj_Sync)
                 {
-                    if (etwAnalyzeService == null)
+                    if (_etwAnalyzeService == null)
                     {
-                        etwAnalyzeService = new EtwAnalyzeService();
+                        _etwAnalyzeService = new EtwAnalyzeService();
                     }
                 }
             }
-            return etwAnalyzeService;
+            return _etwAnalyzeService;
         }
 
         public Task Add(string ip, ConcurrentBag<byte[]> data)
@@ -83,36 +83,33 @@ namespace AttackPrevent.Business
                 else
                 {
                     logger.Debug(JsonConvert.SerializeObject(
-                        string.Format("EtwData Add more than max=[{0}]", ReceivingThreshold)
+                        $"EtwData Add more than max=[{ReceivingThreshold}]"
                     ));
                 }
             });
         }
 
-        public void doWork()
+        public void DoWork()
         {
             try
             {
-                if (!ifBusy)
+                if (!ifBusy) //code review by michael, 这里会有多线程的问题吗? 如果有的话，要加locker.
                 {
                     ifBusy = true;
-                    doWorkOne();
-                    doWorkAccumulation();
+                    DoWorkOne();
+                    DoWorkAccumulation();
                     ifBusy = false;
                 }
             }
             catch(Exception e)
             {
-                logger.Error(e.StackTrace);
+                logger.Error(e.StackTrace); //Code review by michael. 只打印堆栈，没有打印message.
                 ifBusy = false;
             }
             finally
             {
 
             }
-
-           
-
 
             //List<Task> taskList = new List<Task>(2);
             //var task = Task.Factory.StartNew(() =>
@@ -233,7 +230,7 @@ namespace AttackPrevent.Business
             //});
         }
 
-        private void doWorkOne()
+        private void DoWorkOne()
         {
 
             EtwData data = null;
@@ -259,7 +256,7 @@ namespace AttackPrevent.Business
             }
             catch (Exception e)
             {
-                logger.Error(e.StackTrace);
+                logger.Error(e.StackTrace); //Code review by michael, 为什么只打印堆栈不打印Message
                 if (data != null)
                 {
                     data.retryCount += 1;
@@ -277,7 +274,8 @@ namespace AttackPrevent.Business
             }
 
         }
-        private void doWorkAccumulation()
+
+        private void DoWorkAccumulation()
         {
 
             try
@@ -305,11 +303,12 @@ namespace AttackPrevent.Business
                                 .GroupBy(a => a.senderIp)
                                 .Where(g => g.Count() >= accumulationSecond);
 
-                if (list != null && list.Count() > 0)
+                var enumerable = list as IGrouping<string, EtwData>[] ?? list.ToArray();
+                if (enumerable.Any())
                 {
-                    foreach (var gp in list)
+                    foreach (var gp in enumerable)
                     {
-                        Stopwatch stopwatch = new Stopwatch();
+                        var stopwatch = new Stopwatch();
                         stopwatch.Start();
                         var dataList = gp.OrderBy(a=>a.time).Take(accumulationSecond).ToList();
                         AnalyzeAccumulation(dataList);
@@ -369,6 +368,7 @@ namespace AttackPrevent.Business
                 handledDatas.Add(data);
             }
         }
+
         private void AnalyzeAccumulation(List<EtwData> dataList)
         {
             if (dataList != null)
@@ -386,6 +386,7 @@ namespace AttackPrevent.Business
                 SendResult(analyzeResult);
             }
         }
+
         private List<CloudflareLog> ParseEtwData(EtwData data)
         {
             List<CloudflareLog> cloudflareLogs = new List<CloudflareLog>();
@@ -401,7 +402,7 @@ namespace AttackPrevent.Business
                     {
                         ClientRequestHost = eTWPrase.Cs_host,
                         ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
-                        ClientRequestURI = string.Format("{0}?{1}", eTWPrase.Cs_uri_stem, eTWPrase.cs_uri_query),
+                        ClientRequestURI = $"{eTWPrase.Cs_uri_stem}?{eTWPrase.cs_uri_query}",
                         ClientRequestMethod = eTWPrase.Cs_method,
                     });
                 }
@@ -420,9 +421,10 @@ namespace AttackPrevent.Business
                 //});
             }
             //cloudflareLogs = cloudflareLogsBag.ToList();
-            data.parsedData = cloudflareLogs;
+            if (data != null) data.parsedData = cloudflareLogs;
             return cloudflareLogs;
         }
+
         private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs,int accumulation=1)
         {
             AnalyzeResult analyzeResult = new AnalyzeResult();
@@ -434,7 +436,7 @@ namespace AttackPrevent.Business
                     Value = cloudflareLogs,
                 }));
 
-                string key = "AnalyzeRatelimit_GetZoneList_Key";
+                var key = "AnalyzeRatelimit_GetZoneList_Key";
                 List<ZoneEntity> zoneEntityList = Utils.GetMemoryCache(key, () =>
                 {
                     string url = awsGetZoneListApiUrl;
@@ -641,16 +643,18 @@ namespace AttackPrevent.Business
                 });
             }
         }
+
         private string HttpGet(string url, int timeout = 90)
         {
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(timeout);
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authKey);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", _authKey);
                 string strResult = client.GetAsync(url).Result.Content.ReadAsStringAsync().Result;
                 return strResult;
             }
         }
+
         private string HttpPost(string url, string json, int timeout = 90)
         {
             using (var client = new HttpClient())
@@ -658,11 +662,12 @@ namespace AttackPrevent.Business
                 string strResult = "";
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 client.Timeout = TimeSpan.FromSeconds(timeout);
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authKey);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", _authKey);
                 strResult = client.PostAsync(url, content).Result.Content.ReadAsStringAsync().Result;
                 return strResult;
             }
         }
+
         private bool IfMatchCondition(RateLimitEntity rateLimit, LogAnalyzeModel analyzeModel)
         {
             bool bResult = false;
@@ -670,6 +675,7 @@ namespace AttackPrevent.Business
                 : ((analyzeModel.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())) && (analyzeModel.RequestCount >= rateLimit.Threshold));
             return bResult;
         }
+
         private bool IfMatchConditionAccumulation(RateLimitEntity rateLimit, LogAnalyzeModel analyzeModel)
         {
             bool bResult = false;

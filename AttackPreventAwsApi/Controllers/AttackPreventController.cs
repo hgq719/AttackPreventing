@@ -1,7 +1,6 @@
 ﻿using AttackPrevent.Business;
 using AttackPrevent.Model;
 using AttackPreventAwsApi.Core;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,14 +10,14 @@ namespace AttackPreventAwsApi.Controllers
 {
     public class AttackPreventController : ApiController
     {
-        private ILogService logger = new LogService();
+        private ILogService _logger = new LogService();
 
         #region Test
         // GET api/<controller>
         [ApiAuthorize]
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new[] { "value1", "value2" };
         }
 
         // GET api/<controller>/5
@@ -53,6 +52,7 @@ namespace AttackPreventAwsApi.Controllers
         {
             var list = RateLimitBusiness.GetList(zoneId);
             return Ok(list);
+            //Code review by michael. 如果方法内部报错怎么办? 1.没有log error. 2. 这个时候还应该返回Ok 吗？ 3.我觉得这里要做try catch 处理.
         }
 
         [HttpGet]
@@ -60,8 +60,8 @@ namespace AttackPreventAwsApi.Controllers
         [ApiAuthorize]
         public IHttpActionResult GetWhiteList(string zoneId)
         {
-            string authEmail = "";
-            string authKey = "";
+            var authEmail = string.Empty;
+            var authKey = string.Empty;
             //zoneID = "";
 
             var zoneList = ZoneBusiness.GetZoneList();
@@ -80,7 +80,6 @@ namespace AttackPreventAwsApi.Controllers
                 whiteListModelList = list.Select(a => new WhiteListModel
                 {
                     IP = a.configurationValue,
-                    //CreateTime = a.createTime.ToString("MM/dd/yyyy HH:mm:ss"),
                     Notes = a.notes,
                 }).ToList();
             }

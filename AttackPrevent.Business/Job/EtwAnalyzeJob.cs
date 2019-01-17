@@ -17,7 +17,7 @@ namespace AttackPrevent.Business
         {
             logService.Debug(DateTime.Now);
             IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
-            etwAnalyzeService.doWork();
+            etwAnalyzeService.DoWork();
             logService.Debug("etwAnalyzeService start.");
         }
     }

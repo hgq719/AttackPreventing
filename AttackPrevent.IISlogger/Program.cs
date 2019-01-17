@@ -1,8 +1,4 @@
-﻿using AttackPrevent.Business;
-using log4net;
-using Microsoft.Diagnostics.Tracing;
-using Microsoft.Diagnostics.Tracing.Parsers;
-using Microsoft.Diagnostics.Tracing.Session;
+﻿
 using System;
 using System.Collections.Concurrent;
 using System.Configuration;
@@ -13,15 +9,25 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 
+using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Diagnostics.Tracing.Session;
+
+using AttackPrevent.Business;
+
+using log4net;
+
+
 namespace AttackPrevent.IISlogger
 {
     class Program
     {
-        const String SessionName = "iis-etw";
+        const string SessionName = "iis-etw";
         private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
         private static string _apiUrl = string.Empty;
         private static string _apiKey = string.Empty;
-        private static Timer timer;
+        private static Timer _timer;
+        private static readonly ILog Loger = LogManager.GetLogger("Program");
 
         static void Main()
         {
@@ -30,7 +36,7 @@ namespace AttackPrevent.IISlogger
             LogManager.GetLogger(string.Empty).Info(_apiUrl);
             ServicePointManager.DefaultConnectionLimit = 100;
 
-            timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
+            _timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -86,50 +92,16 @@ namespace AttackPrevent.IISlogger
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger(string.Empty).Error(ex);
+                Loger.Error($"Error when post data to remote server. error message: {ex.Message}.\n stack trace: {ex.StackTrace}.");
             }
             
         }
-
-        #region Old Version
-
-        //private static void SendData()
-        //{
-        //    //ServicePointManager.DefaultConnectionLimit = 100;
-        //    while (true)
-        //    {
-        //        if (_etwDataList.Count > 0)
-        //        {
-        //            try
-        //            {
-        //                byte[] postData = Serialize(_etwDataList);
-        //                Console.WriteLine($"{DateTime.Now.ToString()} -  {_etwDataList.Count}");
-        //                var newBag = new ConcurrentBag<byte[]>();
-        //                Interlocked.Exchange<ConcurrentBag<byte[]>>(ref _etwDataList, newBag);
-        //                HttpPost(_apiUrl, postData);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                LogManager.GetLogger("").Error(ex);
-        //            }
-        //            //finally
-        //            //{
-        //            //    etwDataList.Clear();
-        //            //}
-        //        }
-
-        //        Thread.Sleep(1000);
-        //    }
-        //}
-
-        #endregion
-
 
         private static void SendData(object obj)
         {
             if (_etwDataList.Count <= 0)
             {
-                LogManager.GetLogger(string.Empty).Info(0);
+                Loger.Info("No Data need to be sent.");
                 return;
             } 
             try
@@ -149,7 +121,7 @@ namespace AttackPrevent.IISlogger
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger(string.Empty).Error(ex);
+              Loger.Error($"Error when sending data. error message: {ex.Message}.\n stack trace: {ex.StackTrace}.");
             }
         }
 

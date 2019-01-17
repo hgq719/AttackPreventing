@@ -273,7 +273,7 @@ namespace AttackPrevent.WindowsService
             };
             string ip = "0.0.0.0";
             etwAnalyzeService.Add(ip,data);
-            etwAnalyzeService.doWork();
+            etwAnalyzeService.DoWork();
 
             Console.ReadLine();
         }

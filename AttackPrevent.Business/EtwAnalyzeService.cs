@@ -18,6 +18,7 @@ namespace AttackPrevent.Business
         Task Add(string ip, ConcurrentBag<byte[]> data);
         void DoWork();
     }
+
     public class EtwAnalyzeService : IEtwAnalyzeService
     {
         private static IEtwAnalyzeService _etwAnalyzeService;
@@ -32,7 +33,7 @@ namespace AttackPrevent.Business
         private string awsGetWhiteListApiUrl;
         private string awsGetZoneListApiUrl;
         private int accumulationSecond;
-        private bool ifBusy = false;
+        private volatile bool ifBusy = false;
         private bool parseEtwDataLog = false;
 
         private EtwAnalyzeService()
@@ -49,14 +50,12 @@ namespace AttackPrevent.Business
 
         public static IEtwAnalyzeService GetInstance()
         {
-            if (_etwAnalyzeService == null)
+            if (_etwAnalyzeService != null) return _etwAnalyzeService;
+            lock (obj_Sync)
             {
-                lock (obj_Sync)
+                if (_etwAnalyzeService == null)
                 {
-                    if (_etwAnalyzeService == null)
-                    {
-                        _etwAnalyzeService = new EtwAnalyzeService();
-                    }
+                    _etwAnalyzeService = new EtwAnalyzeService();
                 }
             }
             return _etwAnalyzeService;
@@ -67,10 +66,10 @@ namespace AttackPrevent.Business
             return Task.Run(() =>
             {
                 //设置一个接收阀值
-                int queueCount = datas.Count();
+                var queueCount = datas.Count();
                 if (queueCount < ReceivingThreshold)
                 {
-                    EtwData etwData = new EtwData
+                    var etwData = new EtwData
                     {
                         guid = Guid.NewGuid().ToString(),
                         buffList = data,

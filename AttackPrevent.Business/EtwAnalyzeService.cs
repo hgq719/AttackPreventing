@@ -33,6 +33,7 @@ namespace AttackPrevent.Business
         private string awsGetZoneListApiUrl;
         private int accumulationSecond;
         private bool ifBusy = false;
+        private bool parseEtwDataLog = false;
 
         private EtwAnalyzeService()
         {
@@ -397,7 +398,12 @@ namespace AttackPrevent.Business
                 {
                     ETWPrase eTWPrase = new ETWPrase(buff);
 
-                    logger.Debug(JsonConvert.SerializeObject(eTWPrase));
+                    if (!parseEtwDataLog)
+                    {
+                        logger.Debug(JsonConvert.SerializeObject(eTWPrase));
+                        parseEtwDataLog = true; //只打印一条明细ETW 日志
+                    }
+
                     cloudflareLogs.Add(new CloudflareLog
                     {
                         ClientRequestHost = eTWPrase.Cs_host,

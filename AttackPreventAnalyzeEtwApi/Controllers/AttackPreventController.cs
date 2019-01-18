@@ -1,4 +1,5 @@
-﻿using AttackPrevent.Business;
+﻿using System;
+using AttackPrevent.Business;
 using AttackPreventAnalyzeEtwApi.Core;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -49,13 +50,23 @@ namespace AttackPreventAnalyzeEtwApi.Controllers
         //[ApiAuthorize]
         public async Task<IHttpActionResult> EtwResult()
         {
-            byte[] buff = await Request.Content.ReadAsByteArrayAsync();
-            ConcurrentBag<byte[]> data = Utils.Deserialize(buff);
-            IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
-            string ip = Utils.GetIPAddress();
-            logger.Debug(ip);
-            await etwAnalyzeService.Add(ip,data);
-            return Ok();
+            try
+            {
+                logger.Error($"Enter EtwResult method!");
+                string ip = Utils.GetIPAddress();
+                byte[] buff = await Request.Content.ReadAsByteArrayAsync();
+                ConcurrentBag<byte[]> data = Utils.Deserialize(buff);
+                IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
+
+                await etwAnalyzeService.Add(ip, data);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                logger.Error($"errorMessage = {e.Message}, \n StackTrace = {e.StackTrace}");
+                return null;
+            }
+
         }
         #endregion
     }

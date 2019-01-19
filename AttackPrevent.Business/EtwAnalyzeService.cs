@@ -34,6 +34,8 @@ namespace AttackPrevent.Business
         private int accumulationSecond;
         private bool ifBusy = false;
         private bool parseEtwDataLog = false;
+        private int receiveCount = 0;
+        private static object receiveSync = new object();
 
         private EtwAnalyzeService()
         {
@@ -86,6 +88,14 @@ namespace AttackPrevent.Business
                     logger.Debug(JsonConvert.SerializeObject(
                         $"EtwData Add more than max=[{ReceivingThreshold}]"
                     ));
+                }
+
+                lock (receiveSync)
+                {
+                    receiveCount++;
+                    logger.Info(JsonConvert.SerializeObject(new {
+                        receiveCount
+                    }));
                 }
             });
         }

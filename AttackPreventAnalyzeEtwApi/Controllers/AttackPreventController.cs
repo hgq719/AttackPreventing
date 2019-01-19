@@ -10,7 +10,7 @@ namespace AttackPreventAnalyzeEtwApi.Controllers
 {
     public class AttackPreventController : ApiController
     {
-        private ILogService logger = new LogService();
+        private readonly ILogService _logger = new LogService();
 
         #region Test
         // GET api/<controller>
@@ -52,18 +52,18 @@ namespace AttackPreventAnalyzeEtwApi.Controllers
         {
             try
             {
-                logger.Error($"Enter EtwResult method!");
-                string ip = Utils.GetIPAddress();
-                byte[] buff = await Request.Content.ReadAsByteArrayAsync();
-                ConcurrentBag<byte[]> data = Utils.Deserialize(buff);
-                IEtwAnalyzeService etwAnalyzeService = EtwAnalyzeService.GetInstance();
+                _logger.Error($"Enter EtwResult method.");
+                var ip = Utils.GetIPAddress();
+                var buff = await Request.Content.ReadAsByteArrayAsync();
+                var data = Utils.Deserialize(buff);
+                var etwAnalyzeService = EtwAnalyzeService.GetInstance();
 
                 await etwAnalyzeService.Add(ip, data);
                 return Ok();
             }
             catch (Exception e)
             {
-                logger.Error($"errorMessage = {e.Message}, \n StackTrace = {e.StackTrace}");
+                _logger.Error($"errorMessage = {e.Message}, \n StackTrace = {e.StackTrace}.");
                 return null;
             }
 

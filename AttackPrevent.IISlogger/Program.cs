@@ -67,7 +67,7 @@ namespace AttackPrevent.IISlogger
 #endif
         }
 
-        private static async void HttpPost(string url, byte[] postData)
+        private static void HttpPost(string url, byte[] postData)
         {
             try
             {
@@ -82,13 +82,13 @@ namespace AttackPrevent.IISlogger
                 request.Timeout = 500;
                 //request.CookieContainer = cookie;
                 var myRequestStream = request.GetRequestStream();
-                await myRequestStream.WriteAsync(postData, 0, postData.Length);
+                myRequestStream.Write(postData, 0, postData.Length);
                 myRequestStream.Close();
-                if (request != null)
-                {
-                    request.Abort();
-                    //request = null;
-                }
+                //if (request != null)
+                //{
+                //    request.Abort();
+                //    //request = null;
+                //}
             }
             catch (Exception ex)
             {
@@ -97,11 +97,12 @@ namespace AttackPrevent.IISlogger
             
         }
 
+        private static int sendCount = 0;
         private static void SendData(object obj)
         {
             if (_etwDataList.Count <= 0)
             {
-                Loger.Info("No Data need to be sent.");
+                //Loger.Info("No Data need to be sent.");
                 return;
             } 
             try
@@ -116,8 +117,9 @@ namespace AttackPrevent.IISlogger
 
                 HttpPost(_apiUrl, postData);
                 stopwatch.Stop();
-                LogManager.GetLogger(string.Empty).Info($"time cost: {stopwatch.Elapsed}, post count: {postCount}, etwData now count: {_etwDataList.Count}");
-                Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.InvariantCulture)} -  {postCount}");
+                sendCount++;
+                LogManager.GetLogger(string.Empty).Info($"time cost: {stopwatch.Elapsed}, post count: {postCount}, etwData now count: {_etwDataList.Count}, sendCount: {sendCount}");
+                Console.WriteLine($"{DateTime.Now.ToString(CultureInfo.InvariantCulture)} - postCount: {postCount}, sendCount: {sendCount}");
             }
             catch (Exception ex)
             {

@@ -36,6 +36,13 @@ namespace AttackPrevent.Business
         private int accumulationSecond;
         private volatile bool ifBusy = false;
         private bool parseEtwDataLog = false;
+        private List<string> _suffixList = new List<string>
+        {
+            "bmp","ejs","jpeg","pdf","ps","ttf","class","eot","jpg","pict"
+            ,"svg","webp","css","eps","js","pls","svgz","woff","csv","gif"
+            ,"mid","png","swf","woff2","doc","ico","midi","ppt","tif","xls"
+            ,"docx","jar","otf","pptx","tiff","xlsx"
+        };
 
         private EtwAnalyzeService()
         {
@@ -45,6 +52,12 @@ namespace AttackPrevent.Business
             awsGetWhiteListApiUrl = $"{awsApiHost}/GetWhiteList/{{zoneId}}/WhiteLists"; 
             accumulationSecond = int.Parse(ConfigurationManager.AppSettings["AccumulationSecond"] ?? "20");//累计秒
             awsGetZoneListApiUrl = $"{awsApiHost}/GetZoneList/Zones";
+
+            var filterSuffixList = ConfigurationManager.AppSettings["FilterSuffixList"];
+            if (!string.IsNullOrEmpty(filterSuffixList))
+            {
+                _suffixList = filterSuffixList.Split(',').ToList();
+            }
 
             datas = new ConcurrentQueue<EtwData>();
             handledDatas = new List<EtwData>();
@@ -405,14 +418,18 @@ namespace AttackPrevent.Business
                         parseEtwDataLog = true; //只打印一条明细ETW 日志
                     }
 
-                    cloudflareLogs.Add(new CloudflareLog
+                    if (!IfInSuffixList(eTWPrase.Cs_uri_stem))
                     {
-                        ClientRequestHost = eTWPrase.Cs_host,
-                        ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
-                        ClientRequestURI = $"{eTWPrase.Cs_uri_stem}?{eTWPrase.cs_uri_query}",
-                        ClientRequestMethod = eTWPrase.Cs_method,
-                    });
+                        cloudflareLogs.Add(new CloudflareLog
+                        {
+                            ClientRequestHost = eTWPrase.Cs_host,
+                            ClientIP = !string.IsNullOrEmpty(eTWPrase.CFConnectingIP) ? eTWPrase.CFConnectingIP : eTWPrase.C_ip,
+                            ClientRequestURI = string.IsNullOrEmpty(eTWPrase.cs_uri_query) || "-".Equals(eTWPrase.cs_uri_query) ? eTWPrase.Cs_uri_stem : $"{eTWPrase.Cs_uri_stem}?{eTWPrase.cs_uri_query}",
+                            ClientRequestMethod = eTWPrase.Cs_method,
+                        });
+                    }
                 }
+                
                 //var list = data.buffList.ToList();
                 //Parallel.For(0, list.Count(), index =>
                 //{
@@ -430,6 +447,17 @@ namespace AttackPrevent.Business
             //cloudflareLogs = cloudflareLogsBag.ToList();
             if (data != null) data.parsedData = cloudflareLogs;
             return cloudflareLogs;
+        }
+
+        private bool IfInSuffixList(string requestUrl)
+        {
+            foreach (var suffix in _suffixList)
+            {
+                if (requestUrl.ToLower().EndsWith($".{suffix}"))
+                    return true;
+            }
+
+            return false;
         }
 
         private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs,int accumulation=1)

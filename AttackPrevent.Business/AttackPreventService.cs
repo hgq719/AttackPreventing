@@ -136,17 +136,25 @@ namespace AttackPrevent.Business
             
             foreach (var rst in analyzeResult.result)
             {
-                StringBuilder sbDetail = new StringBuilder();
-                //sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                var sbDetail = new StringBuilder(
+                    $"[{rst.BrokenIpList.Count}] IPs exceeded rate limiting threshold(Url=[{rst.Url}],Threshold=[{rst.Threshold}],Period=[{rst.Period}],EnlargementFactor=[{rst.EnlargementFactor}]), time range：[{analyzeResult.timeStage}], details：<br />");
+
+                foreach (var rule in rst.BrokenIpList)
+                {
+                    sbDetail.AppendFormat("IP [{0}] visited [{1}] times.<br /> ", rule.IP, rule.RequestRecords.Sum(x=>x.RequestCount));
+                }
+                //auditLogEntities.Add(new AuditLogEntity(zone.TableID, LogLevel.App, sbDetail.ToString()));
+                ////sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
+                //sbDetail = new StringBuilder();
                 if (zone != null && zone.IfTestStage)
                 {
-                    sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}],EnlargementFactor=[{3}],RateLimitTriggerIpCount=[{4}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period, rst.EnlargementFactor, rst.RateLimitTriggerIpCount);
+                    sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
                 }
                 else
                 {
                     if (cloudflare.OpenRateLimit(rst.Url, rst.Threshold, rst.Period, out var errorLog))
                     {
-                        sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}],EnlargementFactor=[{3}],RateLimitTriggerIpCount=[{4}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period, rst.EnlargementFactor, rst.RateLimitTriggerIpCount);
+                        sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
                     }
                     else
                     {

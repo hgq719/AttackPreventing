@@ -603,37 +603,52 @@ namespace AttackPrevent.Business
                                         RateLimitId = rateLimit.ID,
                                         RateLimitTriggerIpCount = rateLimit.RateLimitTriggerIpCount
                                     }).ToList();
-                                if (brokenRuleIpList.Count > 0)
-                                {
-                                    ruleResult = new Result()
-                                    {
-                                        RuleId = rateLimit.ID,
-                                        Url = rateLimit.Url,
-                                        Threshold = rateLimit.Threshold,
-                                        Period = rateLimit.Period,
-                                        EnlargementFactor = rateLimit.EnlargementFactor,
-                                        BrokenIpList = new List<BrokenIp>()
-                                    };
-                                    var brokenIpList = new List<BrokenIp>();
-                                    foreach (var rule in brokenRuleIpList)
-                                    {
-                                        brokenIpList.Add(new BrokenIp()
-                                        {
-                                            IP = rule.IP,
-                                            RequestRecords = ipRequestListIncludingQueryString.Where(x => x.IP.Equals(rule.IP))
-                                                .OrderByDescending(x => x.RequestCount).Select(x => new RequestRecord()
-                                                {
-                                                    FullUrl = x.RequestFullUrl,
-                                                    RequestCount = x.RequestCount,
-                                                    HostName = x.RequestHost
-                                                }).ToList()
-                                        });
-                                    }
 
-                                    ruleResult.BrokenIpList = brokenIpList;
+                                var brokenIpCountList = brokenRuleIpList.GroupBy(x => new { x.RateLimitId, x.RequestUrl, x.RateLimitTriggerIpCount }).Select(x => new LogAnalyzeModel()
+                                {
+                                    RateLimitTriggerIpCount = x.Key.RateLimitTriggerIpCount,
+                                    RateLimitId = x.Key.RateLimitId,
+                                    RequestUrl = x.Key.RequestUrl,
+                                    RequestCount = x.Count()
+                                }).ToList();
+
+                                if (brokenIpCountList.Count > 0)
+                                {
+                                    //抽取出超过IP数量的规则列表，需要新增或OPEN Cloudflare的Rate Limiting Rule
+                                    var brokenRuleList = brokenIpCountList.Where(x => x.RateLimitTriggerIpCount <= x.RequestCount).ToList();
+
+                                    if (brokenRuleList.Count > 0)
+                                    {
+                                        ruleResult = new Result()
+                                        {
+                                            RuleId = rateLimit.ID,
+                                            Url = rateLimit.Url,
+                                            Threshold = rateLimit.Threshold,
+                                            Period = rateLimit.Period,
+                                            EnlargementFactor = rateLimit.EnlargementFactor,
+                                            RateLimitTriggerIpCount = rateLimit.RateLimitTriggerIpCount,
+                                            BrokenIpList = new List<BrokenIp>()
+                                        };
+                                        var brokenIpList = new List<BrokenIp>();
+                                        foreach (var rule in brokenRuleIpList)
+                                        {
+                                            brokenIpList.Add(new BrokenIp()
+                                            {
+                                                IP = rule.IP,
+                                                RequestRecords = ipRequestListIncludingQueryString.Where(x => x.IP.Equals(rule.IP))
+                                                    .OrderByDescending(x => x.RequestCount).Select(x => new RequestRecord()
+                                                    {
+                                                        FullUrl = x.RequestFullUrl,
+                                                        RequestCount = x.RequestCount,
+                                                        HostName = x.RequestHost
+                                                    }).ToList()
+                                            });
+                                        }
+                                        ruleResult.BrokenIpList = brokenIpList;
+                                        analyzeResult.result.Add(ruleResult);
+                                    }
                                 }
                             }
-                            analyzeResult.result.Add(ruleResult);
                         }
 
 
@@ -782,16 +797,16 @@ namespace AttackPrevent.Business
         private bool IfMatchCondition(RateLimitEntity rateLimit, LogAnalyzeModel analyzeModel)
         {
             bool bResult = false;
-            bResult = rateLimit.Url.EndsWith("*") ? ((analyzeModel.RequestUrl.ToLower().StartsWith(rateLimit.Url.Replace("*", "").ToLower())) && (analyzeModel.RequestCount >= rateLimit.Threshold))
-                : ((analyzeModel.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())) && (analyzeModel.RequestCount >= rateLimit.Threshold));
+            bResult = rateLimit.Url.EndsWith("*") ? ((analyzeModel.RequestUrl.ToLower().StartsWith(rateLimit.Url.Replace("*", "").ToLower())) && (analyzeModel.RequestCount >= rateLimit.EnlargementFactor * rateLimit.Threshold))
+                : ((analyzeModel.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())) && (analyzeModel.RequestCount >= rateLimit.EnlargementFactor * rateLimit.Threshold));
             return bResult;
         }
 
         private bool IfMatchConditionAccumulation(RateLimitEntity rateLimit, LogAnalyzeModel analyzeModel)
         {
             bool bResult = false;
-            bResult = rateLimit.Url.EndsWith("*") ? ((analyzeModel.RequestUrl.ToLower().StartsWith(rateLimit.Url.Replace("*", "").ToLower())) && (analyzeModel.RequestCount >= rateLimit.Threshold * accumulationSecond / (float)rateLimit.Period))
-                : ((analyzeModel.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())) && (analyzeModel.RequestCount >= rateLimit.Threshold * accumulationSecond / (float)rateLimit.Period));
+            bResult = rateLimit.Url.EndsWith("*") ? ((analyzeModel.RequestUrl.ToLower().StartsWith(rateLimit.Url.Replace("*", "").ToLower())) && (analyzeModel.RequestCount >= rateLimit.EnlargementFactor * rateLimit.Threshold * accumulationSecond / (float)rateLimit.Period))
+                : ((analyzeModel.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower())) && (analyzeModel.RequestCount >= rateLimit.EnlargementFactor * rateLimit.Threshold * accumulationSecond / (float)rateLimit.Period));
             return bResult;
         }
     }

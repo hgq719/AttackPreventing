@@ -117,7 +117,7 @@ namespace AttackPrevent.Business
                     auditLogEntities.AddRange(logs);
 
                     //记录日志
-                    InsertLogs(logs);
+                    InsertLogs(auditLogEntities);
                 }
 
             }
@@ -140,13 +140,13 @@ namespace AttackPrevent.Business
                 //sbDetail.AppendFormat("Start opening rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]].<br />", rateLimit.Url, rateLimit.Threshold, rateLimit.Period);
                 if (zone != null && zone.IfTestStage)
                 {
-                    sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
+                    sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}],EnlargementFactor=[{3}],RateLimitTriggerIpCount=[{4}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period, rst.EnlargementFactor, rst.RateLimitTriggerIpCount);
                 }
                 else
                 {
                     if (cloudflare.OpenRateLimit(rst.Url, rst.Threshold, rst.Period, out var errorLog))
                     {
-                        sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period);
+                        sbDetail.AppendFormat("Open rate limiting rule in Cloudflare [URL=[{0}],Threshold=[{1}],Period=[{2}],EnlargementFactor=[{3}],RateLimitTriggerIpCount=[{4}]] successfully.<br />", rst.Url, rst.Threshold, rst.Period, rst.EnlargementFactor, rst.RateLimitTriggerIpCount);
                     }
                     else
                     {

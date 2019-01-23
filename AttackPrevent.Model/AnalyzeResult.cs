@@ -21,6 +21,7 @@ namespace AttackPrevent.Model
         public int Threshold { get; set; }
         public int Period { get; set; }
         public double EnlargementFactor { get; set; }
+        public int RateLimitTriggerIpCount { get; set; }
         public List<BrokenIp> BrokenIpList { get; set; }
     }
     public class BrokenIp

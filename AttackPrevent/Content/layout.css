@@ -222,5 +222,10 @@ input[readonly].form-control {
     cursor:pointer;
 }
 
+.navbar-nav-cm .select a{
+    font-weight: 700;
+    color: #000;
+}
+
 
 

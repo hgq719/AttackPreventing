@@ -37,6 +37,12 @@ function num(obj) {
     //obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'); //只能输入两个小数
 }
 
+function selectMenu() {
+    $(".navbar-nav-cm li").removeClass("select");
+    var selectName = $("#selectedMenu").val();
+    $(".navbar-nav-cm ." + selectName).addClass("select");
+}
+
 $(document).ready(function () {
     $(".headerRight-cm").hover(function () {
         
@@ -125,6 +131,8 @@ $(document).ready(function () {
         num(this);
     }).bind("paste", function () {  //CTR+V事件处理    
         num(this);
-    }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+        }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+
+    selectMenu();
 });
 

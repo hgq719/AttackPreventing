@@ -9,7 +9,7 @@
     @Styles.Render("~/Content/bootstrap-datetimepicker.min.css")
     @Styles.Render("~/Content/bootstrap-table.min.css")
     @Styles.Render("~/Content/bootstrap-switch.min.css")
-    @Styles.Render("~/Content/layout.css?v=20181213")
+    @Styles.Render("~/Content/layout.css?v=20190125")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
 
@@ -55,38 +55,38 @@
         <div class="container-cm">
             <div class="navbar-collapse-cm collapse-cm">
                 <ul class="nav-cm navbar-nav-cm">
-                    <li>
+                    <li class="CloundflareDownloadLogs">
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Cloudflare Logs", "CloundflareDownloadLogs", "Home")
                     </li>
-                    <li>
+                    <li class="WhiteList">
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Whitelist Manage", "WhiteList", "Home")
+                        @Html.ActionLink("Whitelist Management", "WhiteList", "Home")
                     </li>
-                    <li>
+                    <li class="BlackList">
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Blacklist Manage", "BlackList", "Home")
+                        @Html.ActionLink("Blacklist Management", "BlackList", "Home")
                     </li>
-                    <li>
+                    <li class="RateLimit">
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Rate Limiting Rule Manage", "RateLimitIndex", "RateLimit")
+                        @Html.ActionLink("Rate Limiting Rule Management", "RateLimitIndex", "RateLimit")
                     </li>
-                    <li>
+                    <li class="AuditLog">
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Audit Logs", "AuditLogs", "AuditLog")
                     </li>
-                    <li>
+                    <li class="IISLog">
                         <span class="icon_menu"></span>
                         @Html.ActionLink("IIS Logs", "IISLogs", "IISLog")
                     </li>
-                    <li>
+                    <li class="Zone">
                         <span class="icon_menu"></span>
-                        @Html.ActionLink("Zone Manage", "ZoneIndex", "Zone")
+                        @Html.ActionLink("Zone Management", "ZoneIndex", "Zone")
                     </li>
                     @*<li>
-                        <span class="icon_menu"></span>
-                        @Html.ActionLink("Host Manage", "Index", "HostConfiguration")
-                    </li>*@
+            <span class="icon_menu"></span>
+            @Html.ActionLink("Host Management", "Index", "HostConfiguration")
+        </li>*@
                     <li>
                         <span class="icon_menu"></span>
                         @Html.ActionLink("Active Report", "ActiveReport", "Home")
@@ -116,6 +116,10 @@
                     </footer>*@
             </div>
         </div>
+        @if (!string.IsNullOrWhiteSpace(Session["selectedMenu"] as string))
+        {
+            @Html.Hidden("selectedMenu", Session["selectedMenu"].ToString())
+        }
 
     </div>
 
@@ -124,7 +128,7 @@
     @Scripts.Render("~/Scripts/bootstrap-table.min.js")
     @Scripts.Render("~/Scripts/bootstrap-switch.min.js")
     @Scripts.Render("~/Scripts/home.js?v=" + Guid.NewGuid())
-    @Scripts.Render("~/Scripts/layout.js?v=20190108_1")
+    @Scripts.Render("~/Scripts/layout.js?v=20190125")
     @RenderSection("scripts", required: false)
 </body>
 </html>

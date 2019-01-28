@@ -100,11 +100,11 @@ namespace AttackPrevent.IISlogger
         private static int sendCount = 0;
         private static void SendData(object obj)
         {
-            if (_etwDataList.Count <= 0)
-            {
-                //Loger.Info("No Data need to be sent.");
-                return;
-            } 
+            //if (_etwDataList.Count <= 0)
+            //{
+            //    //Loger.Info("No Data need to be sent.");
+            //    return;
+            //} 
             try
             {
                 Stopwatch stopwatch = new Stopwatch();

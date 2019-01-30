@@ -111,12 +111,15 @@ $(document).ready(function () {
         $(this).next('span').removeClass('text-danger');
         $(this).next('span').text('');
         $(this).parents('.form-group').removeClass('has-error');
+
+        $('.errorMessage').text('');
     });
 
     $('textarea.form-control').change(function () {
         $(this).next('span').removeClass('text-danger');
         $(this).next('span').text('');
         $(this).parents('.form-group').removeClass('has-error');
+
     });
 
     //$('#accountName').text($.session.get('UserName'));

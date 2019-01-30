@@ -227,5 +227,10 @@ input[readonly].form-control {
     color: #000;
 }
 
+.errorMessage {
+    color: red;
+    display: flex;
+}
+
 
 

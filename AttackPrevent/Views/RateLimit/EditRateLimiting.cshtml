@@ -11,6 +11,14 @@
     @using (Html.BeginForm("EditRateLimiting", "RateLimit", FormMethod.Post))
     {
         <div class="row form-group">
+            <div class="col-md-4"></div>
+            <div class="col-md-8">
+                <div class="errorMessage">
+                    @ViewBag.ErrorMessage
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
             <label class="col-md-4 label-col">Zone Name</label>
             <div class="col-md-8 ">
                 @Html.DropDownListFor(model => model.ZoneId, new SelectList(ViewBag.ZoneList, "Value", "Text"), new { @class = "form-control" })
@@ -70,7 +78,7 @@
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />
-                @Html.ActionLink("Cancel", "RateLimitIndex", "RateLimit", new { zoneId=Model.ZoneId } , new { @class = "btn btn-default" })
+                @Html.ActionLink("Cancel", "RateLimitIndex", "RateLimit", new { zoneId = Model.ZoneId }, new { @class = "btn btn-default" })
             </div>
         </div>
     }

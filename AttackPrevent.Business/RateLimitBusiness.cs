@@ -40,13 +40,22 @@ namespace AttackPrevent.Business
             return RateLimitAccess.GetRateLimits(zoneId, null, null, null);
         }
 
-        public static void Add(RateLimitEntity item)
+        public static void Add(RateLimitEntity item, ref bool ifContain)
         {
             var list = RateLimitAccess.GetRateLimits(item.ZoneId, null, null, string.Empty);
             var orderMax = 0;
             if (null != list.LastOrDefault())
             {
-                orderMax = list.LastOrDefault().OrderNo;
+                orderMax = list.LastOrDefault().OrderNo;                
+            }
+            if (IfContain(list, item))
+            {
+                ifContain = true;
+                return;
+            }
+            else
+            {
+                ifContain = false;
             }
             item.OrderNo = orderMax + 1;
             RateLimitAccess.Add(item);
@@ -57,17 +66,33 @@ namespace AttackPrevent.Business
             return RateLimitAccess.GetRateLimitByID(id);
         }
 
-        public static void Update(RateLimitEntity item)
-        {
+        public static void Update(RateLimitEntity item, ref bool ifContain)
+        {            
             RateLimitEntity rateLimitOld = RateLimitAccess.GetRateLimitByID(item.TableID);
             if (item.ZoneId == rateLimitOld.ZoneId)
             {
+                var list = RateLimitAccess.GetRateLimits(item.ZoneId, null, null, string.Empty);
+                list.RemoveAt(list.FindIndex((r) => { return r.TableID == item.TableID; }));
+
+                if (IfContain(list, item))
+                {
+                    ifContain = true;
+                    return;
+                }
+                else
+                {
+                    ifContain = false;
+                }
+
                 RateLimitAccess.Edit(item);
             }
             else
             {
-                Delete(rateLimitOld.TableID, rateLimitOld.OrderNo, rateLimitOld.ZoneId);
-                RateLimitBusiness.Add(item);
+                RateLimitBusiness.Add(item, ref ifContain);
+                if (!ifContain)
+                {
+                    Delete(rateLimitOld.TableID, rateLimitOld.OrderNo, rateLimitOld.ZoneId);
+                }   
             }
         }
 
@@ -94,6 +119,20 @@ namespace AttackPrevent.Business
         public static int GetRateLimitMaxOrder(string zoneId)
         {
             return RateLimitAccess.GetRateLimitMaxOrder(zoneId);
+        }
+
+        private static bool IfContain(List<RateLimitEntity> rateLimitEntities, RateLimitEntity rateLimit)
+        {
+            List<string> vs = new List<string> { "ID", "TableID", "OrderNo", "CreatedBy", "ZoneId", "Action", "LatestTriggerTime" };
+            foreach (RateLimitEntity item in rateLimitEntities)
+            {
+                if (!Utils.DifferenceComparison<RateLimitEntity, RateLimitEntity>(item, rateLimit, vs))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

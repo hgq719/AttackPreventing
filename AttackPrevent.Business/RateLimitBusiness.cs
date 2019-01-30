@@ -123,7 +123,7 @@ namespace AttackPrevent.Business
 
         private static bool IfContain(List<RateLimitEntity> rateLimitEntities, RateLimitEntity rateLimit)
         {
-            List<string> vs = new List<string> { "ID", "TableID", "OrderNo", "CreatedBy", "ZoneId", "Action", "LatestTriggerTime" };
+            List<string> vs = new List<string> { "ID", "TableID", "OrderNo", "CreatedBy", "ZoneId", "Action", "LatestTriggerTime", "EnlargementFactor", "RateLimitTriggerIpCount", "RateLimitTriggerTime" };
             foreach (RateLimitEntity item in rateLimitEntities)
             {
                 if (!Utils.DifferenceComparison<RateLimitEntity, RateLimitEntity>(item, rateLimit, vs))

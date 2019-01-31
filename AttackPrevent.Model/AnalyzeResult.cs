@@ -20,7 +20,7 @@ namespace AttackPrevent.Model
         public string Url { get; set; }
         public int Threshold { get; set; }
         public int Period { get; set; }
-        public double EnlargementFactor { get; set; }
+        public float EnlargementFactor { get; set; }
         public int RateLimitTriggerIpCount { get; set; }
         public List<BrokenIp> BrokenIpList { get; set; }
     }

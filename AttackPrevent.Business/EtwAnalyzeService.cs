@@ -247,7 +247,6 @@ namespace AttackPrevent.Business
 
         private void DoWorkOne()
         {
-
             EtwData data = null;
             try
             {
@@ -295,25 +294,6 @@ namespace AttackPrevent.Business
 
             try
             {
-                //Stopwatch stopwatch = new Stopwatch();
-                //stopwatch.Start();
-                //var list = datas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed).Take(accumulationSecond).ToList();
-                //if (list != null && list.Count == accumulationSecond)
-                //{
-                //    AnalyzeAccumulation(list);
-                //    stopwatch.Stop();
-                //    logger.Debug(JsonConvert.SerializeObject(new
-                //    {
-                //        time = stopwatch.Elapsed.TotalMilliseconds
-                //    }));
-                //    foreach (EtwData etwData in list)
-                //    {
-                //        var etw = etwData;
-                //        datas.TryTake(out etw);
-                //    }
-                //}
-
-
                 var list = handledDatas.Where(a => a.enumEtwStatus == EnumEtwStatus.Processed)
                                 .GroupBy(a => a.senderIp)
                                 .Where(g => g.Count() >= accumulationSecond);
@@ -348,32 +328,34 @@ namespace AttackPrevent.Business
 
         private void Analyze(EtwData data)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
+            //logger.Info($"Analyze in {DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss fff")}");
             if (data != null)
             {
+                
                 //数据解析
-                List<CloudflareLog> cloudflareLogs = ParseEtwData(data);
-                stopwatch.Stop();
-                //logger.Info(JsonConvert.SerializeObject(new
-                //{
-                //    timeType = "ParseEtwData",
-                //    time = stopwatch.Elapsed.TotalMilliseconds
-                //}));
-                stopwatch.Restart();
-                //分析
-                AnalyzeResult analyzeResult = AnalyzeRatelimit(cloudflareLogs);
-                stopwatch.Stop();
-                //logger.Info(JsonConvert.SerializeObject(new
-                //{
-                //    timeType = "AnalyzeRatelimit",
-                //    time = stopwatch.Elapsed.TotalMilliseconds
-                //}));
-                stopwatch.Restart();
-                //发送结果
-                SendResult(analyzeResult);
-                stopwatch.Stop();
+                var cloudflareLogs = ParseEtwData(data);
+                
+                //stopwatch.Stop();
+                //stopwatch.Restart();
+
+                if (null != cloudflareLogs && cloudflareLogs.Count > 0)
+                {
+                    //logger.Info($"Analyze start {DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss fff")}");
+                    //分析
+                    var analyzeResult = AnalyzeRatelimit(cloudflareLogs);
+                    if (null != analyzeResult && null != analyzeResult.result && analyzeResult.result.Count > 0)
+                    {
+                        //发送结果
+                        SendResult(analyzeResult);
+                    }
+                 }
+
+                //stopwatch.Stop();
+
+                //stopwatch.Restart();
+                
                 //logger.Info(JsonConvert.SerializeObject(new
                 //{
                 //    timeType = "SendResult",
@@ -395,10 +377,17 @@ namespace AttackPrevent.Business
                     //cloudflareLogs.AddRange(ParseEtwData(etwData));
                     cloudflareLogs.AddRange(etwData.parsedData);
                 }
-                //分析
-                AnalyzeResult analyzeResult = AnalyzeRatelimit(cloudflareLogs, accumulationSecond);
-                //发送结果
-                SendResult(analyzeResult);
+                
+                if (null != cloudflareLogs && cloudflareLogs.Count > 0)
+                {
+                    //分析
+                    var analyzeResult = AnalyzeRatelimit(cloudflareLogs, accumulationSecond);
+                    if (null != analyzeResult && null != analyzeResult.result && analyzeResult.result.Count > 0)
+                    {
+                        //发送结果
+                        SendResult(analyzeResult);
+                    }
+                }
             }
         }
 
@@ -462,14 +451,16 @@ namespace AttackPrevent.Business
 
         private AnalyzeResult AnalyzeRatelimit(List<CloudflareLog> cloudflareLogs,int accumulation=1)
         {
-            AnalyzeResult analyzeResult = new AnalyzeResult();
-            if (cloudflareLogs != null)
+            AnalyzeResult analyzeResult = null;
+            if (cloudflareLogs != null && cloudflareLogs.Count > 0)
             {
-                logger.Debug(JsonConvert.SerializeObject(new
-                {
-                    DataType = "0-CloudflareLogs",
-                    Value = cloudflareLogs,
-                }));
+                analyzeResult = new AnalyzeResult();
+                var removedLogs = new List<LogAnalyzeModel>();
+                //logger.Debug(JsonConvert.SerializeObject(new
+                //{
+                //    DataType = "0-CloudflareLogs",
+                //    Value = cloudflareLogs,
+                //}));
 
                 var key = "AnalyzeRatelimit_GetZoneList_Key";
                 List<ZoneEntity> zoneEntityList = Utils.GetMemoryCache(key, () =>
@@ -643,6 +634,9 @@ namespace AttackPrevent.Business
                                                         HostName = x.RequestHost
                                                     }).ToList()
                                             });
+                                            removedLogs = logAnalyzeModelList.ToList();
+                                            removedLogs.RemoveAll(p => p.IP == rule.IP);
+                                            logAnalyzeModelList = removedLogs;
                                         }
                                         ruleResult.BrokenIpList = brokenIpList;
                                         analyzeResult.result.Add(ruleResult);

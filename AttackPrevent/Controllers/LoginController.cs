@@ -60,7 +60,7 @@ namespace AttackPrevent.Controllers
                         UserName = loginModel.UserName
 
                     };
-                    errorTimes += 1;
+                    //errorTimes += 1;
                     CookieHelper.SetCookie(loginModel.UserName + "errorTimes", errorTimes.ToString(), DateTime.UtcNow.AddMinutes(3));
                     ViewBag.ErrorTimes = errorTimes;
                     ViewBag.ErrorMessage = "Account or password is wrong.";

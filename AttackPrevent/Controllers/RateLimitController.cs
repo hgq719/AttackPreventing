@@ -60,18 +60,26 @@ namespace AttackPrevent.Controllers
                     Url = rateLimitModel.Url,
                     CreatedBy = UserName
                 };
-
-                RateLimitBusiness.Add(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                bool ifContain = false;
+                RateLimitBusiness.Add(item, ref ifContain);
+                if (ifContain)
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit,
-                    ZoneID = rateLimitModel.ZoneId,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
-                });
-                return RedirectToAction("RateLimitIndex", new { zoneId = rateLimitModel.ZoneId });
+                    ViewBag.ErrorMessage = "Already exists the same RateLimit";
+                    return View(rateLimitModel);
+                }
+                else
+                {
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit,
+                        ZoneID = rateLimitModel.ZoneId,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"AddRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                    });
+                    return RedirectToAction("RateLimitIndex", new { zoneId = rateLimitModel.ZoneId });
+                }                
             }
             else
             {
@@ -121,17 +129,26 @@ namespace AttackPrevent.Controllers
                     Threshold = rateLimitModel.Threshold,
                     Url = rateLimitModel.Url
                 };
-
-                RateLimitBusiness.Update(item);
-                AuditLogBusiness.Add(new AuditLogEntity
+                bool ifContain = false;
+                RateLimitBusiness.Update(item, ref ifContain);
+                if (ifContain)
                 {
-                    IP = Request.UserHostAddress,
-                    LogType = LogLevel.Audit,
-                    ZoneID = rateLimitModel.ZoneId,
-                    LogOperator = UserName,
-                    LogTime = DateTime.UtcNow,
-                    Detail = $"[Audit] {"EditRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
-                });
+                    ViewBag.ErrorMessage = "Already exists the same RateLimit";
+                    return View(rateLimitModel);
+                }
+                else
+                {
+                    AuditLogBusiness.Add(new AuditLogEntity
+                    {
+                        IP = Request.UserHostAddress,
+                        LogType = LogLevel.Audit,
+                        ZoneID = rateLimitModel.ZoneId,
+                        LogOperator = UserName,
+                        LogTime = DateTime.UtcNow,
+                        Detail = $"[Audit] {"EditRateLimit"} {JsonConvert.SerializeObject(rateLimitModel)}",
+                    });
+                }
+                
             }
             else
             {

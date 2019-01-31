@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
+using System.Reflection;
 using System.Runtime.Caching;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
@@ -395,5 +396,27 @@ namespace AttackPrevent.Business
         }
         #endregion
 
+        public static bool DifferenceComparison<T1, T2>(T1 source, T2 current, List<string> exclude)
+        {
+            Type t1 = source.GetType();
+            Type t2 = current.GetType();
+            PropertyInfo[] propertyInfos = t1.GetProperties();
+            foreach (PropertyInfo item in propertyInfos)
+            {
+                string name = item.Name;
+                if (exclude.Contains(name))
+                {
+                    continue;
+                }
+                string value1 = item.GetValue(source, null)?.ToString();
+                string value2 = t2.GetProperty(name)?.GetValue(current, null)?.ToString();
+                if (value1 != value2)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

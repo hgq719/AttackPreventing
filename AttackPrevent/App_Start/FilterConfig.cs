@@ -39,12 +39,63 @@ namespace AttackPrevent
             filterContext.ExceptionHandled = true;
         }
     }
+
+    public class ActionFilterAttribute : System.Web.Mvc.FilterAttribute, System.Web.Mvc.IActionFilter
+    {
+        void IActionFilter.OnActionExecuted(ActionExecutedContext filterContext) { }
+        void IActionFilter.OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            string selectedMenu = "CloundflareDownloadLogs";
+            switch (filterContext.ActionDescriptor.ActionName)
+            {
+                case "CloundflareDownloadLogs":
+                    selectedMenu = "CloundflareDownloadLogs";
+                    break;
+                case "WhiteList":
+                case "AddWhiteList":
+                case "WhiteListDetail":
+                    selectedMenu = "WhiteList";
+                    break;
+                case "BlackList":
+                case "AddBlackList":
+                    selectedMenu = "WhiteList";
+                    break;
+                case "RateLimitIndex":
+                case "AddRateLimiting":
+                case "EditRateLimiting":
+                    selectedMenu = "RateLimit";
+                    break;
+                case "AuditLogs":
+                    selectedMenu = "AuditLog";
+                    break;
+                case "IISLogs":
+                    selectedMenu = "IISLog";
+                    break;
+                case "ZoneIndex":
+                case "AddZone":
+                case "EditZone":
+                    selectedMenu = "Zone";
+                    break;
+                case "ActiveReport":
+                    selectedMenu = "ActiveReport";
+                    break;
+                default:
+                    if (!string.IsNullOrWhiteSpace(filterContext.HttpContext.Session["selectedMenu"] as string))
+                    {
+                        selectedMenu = filterContext.HttpContext.Session["selectedMenu"].ToString();
+                    }
+                    break;
+            }
+            filterContext.HttpContext.Session["selectedMenu"] = selectedMenu;
+        }
+    }
     public class FilterConfig
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             //filters.Add(new HandleErrorAttribute());
             filters.Add(new MyExceptionAttribute());
+            filters.Add(new ActionFilterAttribute());
         }
     }
 }

@@ -5,7 +5,7 @@
 @Styles.Render("~/Content/home.css")
 <div style="width: 500px; margin-top: 20px; margin-left: 40px;" class="form-horizontal">
     <ol class="breadcrumb">
-        <li><a href="~/Zone/ZoneIndex">Zone Manage</a></li>
+        <li><a href="~/Zone/ZoneIndex">Zone Management</a></li>
         <li class="active">Edit</li>
     </ol>
     @using (Html.BeginForm("EditZone", "Zone", FormMethod.Post))
@@ -42,14 +42,14 @@
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 label-col">Threshold for Host (second)</label>
+            <label class="col-md-4 label-col">Threshold for Host</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.ThresholdForHost, new { @class = "form-control onlyInteger" })
                 @Html.ValidationMessageFor(model => model.ThresholdForHost)
             </div>
         </div>
         <div class="row form-group">
-            <label class="col-md-4 label-col">Period for Host</label>
+            <label class="col-md-4 label-col">Period for Host (second)</label>
             <div class="col-md-8 ">
                 @Html.TextBoxFor(model => model.PeriodForHost, new { @class = "form-control onlyInteger" })
                 @Html.ValidationMessageFor(model => model.PeriodForHost)

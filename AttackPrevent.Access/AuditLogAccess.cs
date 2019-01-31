@@ -45,7 +45,13 @@ namespace AttackPrevent.Access
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_");
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {
@@ -181,7 +187,13 @@ namespace AttackPrevent.Access
 
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_"); 
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {
@@ -286,7 +298,13 @@ namespace AttackPrevent.Access
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_");
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {

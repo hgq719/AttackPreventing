@@ -36,7 +36,7 @@ namespace AttackPrevent.IISlogger
             LogManager.GetLogger(string.Empty).Info(_apiUrl);
             ServicePointManager.DefaultConnectionLimit = 100;
 
-            //_timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
+            _timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
 
             // create a new real-time ETW trace session
             using (var session = new TraceEventSession(SessionName))
@@ -50,9 +50,9 @@ namespace AttackPrevent.IISlogger
                     var parser = new DynamicTraceEventParser(traceSource);
                     parser.All += OnIISRequest;
 
-                    //traceSource.Process();
-                    //Console.ReadLine();
-                    //traceSource.StopProcessing();
+                    traceSource.Process();
+                    Console.ReadLine();
+                    traceSource.StopProcessing();
                 }
             }
         }

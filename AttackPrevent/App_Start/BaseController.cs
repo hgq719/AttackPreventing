@@ -74,7 +74,7 @@ namespace AttackPrevent
             var controllerName = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
 
             var userName = Session["UserName"] as String;
-            if (String.IsNullOrEmpty(userName))
+            if (!Request.RawUrl.ToLower().Contains("getzoneifattacking")&& String.IsNullOrEmpty(userName))
             {
                 //重定向至登录页面
                 filterContext.Result = RedirectToAction("Index", "Login", new { ReturnUrl = Request.RawUrl });

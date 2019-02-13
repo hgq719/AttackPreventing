@@ -301,7 +301,7 @@ namespace AttackPrevent.Business
             List<string> top5List = new List<string>();
             var totalList = cloudflareLogs.SelectMany(a => a)
                 .Where(a => a.ClientIP == ip && a.ClientRequestHost == hostName)
-                .GroupBy(a => a.ClientRequestURI).Select(g => new
+                .GroupBy(a => a.ClientRequestURI.ToLower()).Select(g => new
                 {
                     Count = g.Count(),
                     FullUrl = string.Format("{0}{1}", hostName, g.Key)

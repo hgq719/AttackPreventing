@@ -1,26 +1,27 @@
-﻿
-using System;
-using System.Collections.Concurrent;
-using System.Configuration;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-
+﻿using log4net;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.ServiceProcess;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-using AttackPrevent.Business;
-
-using log4net;
-
-
-namespace AttackPrevent.IISlogger
+namespace AttackPrevent.IISLogger.WindowsService
 {
-    class Program
+    public partial class Service1 : ServiceBase
     {
         const string SessionName = "iis-etw";
         private static ConcurrentBag<byte[]> _etwDataList = new ConcurrentBag<byte[]>();
@@ -29,34 +30,76 @@ namespace AttackPrevent.IISlogger
         private static Timer _timer;
         private static readonly ILog Loger = LogManager.GetLogger("Program");
 
-        static void Main()
+        private static Thread thread;
+
+        public Service1()
         {
-            _apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
-            _apiKey = ConfigurationManager.AppSettings["iisLogApiKey"];
-            LogManager.GetLogger(string.Empty).Info(_apiUrl);
-            ServicePointManager.DefaultConnectionLimit = 100;
+            InitializeComponent();
 
-            _timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
-
-            // create a new real-time ETW trace session
-            using (var session = new TraceEventSession(SessionName))
+            try
             {
-                // enable IIS ETW provider and set up a new trace source on it
-                session.EnableProvider("Microsoft-Windows-IIS-Logging", TraceEventLevel.Verbose);
-
-                using (var traceSource = new ETWTraceEventSource(SessionName, TraceEventSourceType.Session))
-                {
-                    Console.WriteLine("Session started, listening for events...");
-                    var parser = new DynamicTraceEventParser(traceSource);
-                    parser.All += OnIISRequest;
-
-                    traceSource.Process();
-                    Console.ReadLine();
-                    traceSource.StopProcessing();
-                }
+                _apiUrl = ConfigurationManager.AppSettings["iisLogApiUrl"];
+                _apiKey = ConfigurationManager.AppSettings["iisLogApiKey"];
+                Loger.Info(_apiUrl);
+                ServicePointManager.DefaultConnectionLimit = 100;
+            }
+            catch (Exception ex)
+            {
+                Loger.Info(ex);
             }
         }
-        // ReSharper disable once InconsistentNaming
+
+        protected override void OnStart(string[] args)
+        {
+                _timer = new Timer(new TimerCallback(SendData), null, 0, 1000);
+
+                thread = new Thread(new ThreadStart(delegate
+                {
+                    try
+                    {
+                        using (var session = new TraceEventSession(SessionName))
+                        {
+                            // enable IIS ETW provider and set up a new trace source on it
+                            session.EnableProvider("Microsoft-Windows-IIS-Logging", TraceEventLevel.Verbose);
+
+                            using (var traceSource = new ETWTraceEventSource(SessionName, TraceEventSourceType.Session))
+                            {
+                                Loger.Info("Session started, listening for events...");
+                                var parser = new DynamicTraceEventParser(traceSource);
+                                parser.All += OnIISRequest;
+
+                                traceSource.Process();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loger.Info(ex);
+                    }
+                    
+                }));
+            thread.Start();
+
+        }
+
+        protected override void OnStop()
+        {
+            try
+            {
+                if (thread != null)
+                {
+                    thread.Abort();
+                }
+                _timer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Loger.Info(ex);
+            }
+
+
+        }
+
         private static void OnIISRequest(TraceEvent request)
         {
             _etwDataList.Add(request.EventData());
@@ -94,7 +137,7 @@ namespace AttackPrevent.IISlogger
             {
                 Loger.Error($"Error when post data to remote server. error message: {ex.Message}.\n stack trace: {ex.StackTrace}.");
             }
-            
+
         }
 
         private static int sendCount = 0;
@@ -123,7 +166,7 @@ namespace AttackPrevent.IISlogger
             }
             catch (Exception ex)
             {
-              Loger.Error($"Error when sending data. error message: {ex.Message}.\n stack trace: {ex.StackTrace}.");
+                Loger.Error($"Error when sending data. error message: {ex.Message}.\n stack trace: {ex.StackTrace}.");
             }
         }
 

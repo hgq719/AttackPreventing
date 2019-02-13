@@ -18,7 +18,7 @@ namespace AttackPrevent.Access
             {
                 string query = @"SELECT [UserName] 
                                     FROM [t_Users] ";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(query, conn); //comment 2
                 conn.Open();
 
                 using (SqlDataReader reader = cmd.ExecuteReader())

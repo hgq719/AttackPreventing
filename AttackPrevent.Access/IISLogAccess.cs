@@ -55,14 +55,20 @@ namespace AttackPrevent.Access
 
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_");
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {
                 where.Remove(where.Length - 4, 4);
             }
             query.AppendFormat(" WHERE {0}", where.ToString());
-            query.Append("ORDER BY logtime desc offset @offset rows fetch next @limit rows only");
+            query.Append("ORDER BY logtime desc ");
             using (var conn = new SqlConnection(cons))
             {
 
@@ -166,7 +172,13 @@ namespace AttackPrevent.Access
 
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_");
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {
@@ -273,7 +285,13 @@ namespace AttackPrevent.Access
             }
             if (!string.IsNullOrWhiteSpace(detail))
             {
-                where.Append(" Detail LIKE'%'+@detail+'%' AND ");
+                detail = detail.Replace("[", "@[");
+                detail = detail.Replace("%", "@%");
+                detail = detail.Replace("]", "@]");
+                detail = detail.Replace("^", "@^");
+                detail = detail.Replace("-", "@-");
+                detail = detail.Replace("_", "@_");
+                where.Append(" Detail LIKE'%'+@detail+'%' ESCAPE '@' AND ");
             }
             if (where.Length > 0)
             {

@@ -52,7 +52,7 @@ namespace AttackPreventAnalyzeEtwApi.Controllers
         {
             try
             {
-                _logger.Error($"Enter EtwResult method.");
+                //_logger.Info($"Enter EtwResult method.");
                 var ip = Utils.GetIPAddress();
                 var buff = await Request.Content.ReadAsByteArrayAsync();
                 var data = Utils.Deserialize(buff);

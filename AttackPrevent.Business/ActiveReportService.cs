@@ -203,6 +203,22 @@ namespace AttackPrevent.Business
                 logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
                     .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
 
+                if (logs == null || logs.Count == 0)
+                {
+                    logs = new List<CloudflareLog> {
+                        new CloudflareLog{
+                            ClientRequestHost="www.comm100.com",
+                            ClientIP="203.177.237.253",
+                            ClientRequestURI="/visitor.ashx?siteId=1000325&visitorGuid=LKsJf9nGBk6RX2Ogk6bW1A"
+                        },
+                        new CloudflareLog{
+                            ClientRequestHost="www.comm100.com",
+                            ClientIP="203.177.237.253",
+                            ClientRequestURI="/VISITOR.ashx?siteId=1000325&visitorGuid=LKsJf9nGBk6RX2Ogk6bW1A"
+                        },
+                    };
+                }              
+
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
             }

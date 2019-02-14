@@ -25,6 +25,8 @@ namespace AttackPrevent.WindowsService
         {
             try
             {
+                Test();
+
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
                 RunProgram().GetAwaiter().GetResult();
                 var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
@@ -223,10 +225,10 @@ namespace AttackPrevent.WindowsService
             smtpQueue = SmtpQueueBusiness.GetByTitle("06/12/2018");
             smtpQueue.Status = 0;
             SmtpQueueBusiness.Edit(smtpQueue);
-            //SmtpQueueBusiness.Delete("06/12/2018");
+            SmtpQueueBusiness.Delete("06/12/2018");
 
-            //IActiveReportService activeReportService = ActiveReportService.GetInstance();
-            //activeReportService.GeneratedActiveReport();
+            IActiveReportService activeReportService = ActiveReportService.GetInstance();
+            activeReportService.GeneratedActiveReport();
 
             ISendMailService sendMailService = SendMailService.GetInstance();
             sendMailService.MainQueueDoWork();

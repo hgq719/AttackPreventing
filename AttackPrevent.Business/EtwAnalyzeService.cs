@@ -639,15 +639,16 @@ namespace AttackPrevent.Business
                                             logAnalyzeModelList = removedLogs;
                                         }
                                         ruleResult.BrokenIpList = brokenIpList;
-                                        //删除已经触犯了当前ratelimit的所有url
-                                        removedLogs = logAnalyzeModelList.ToList();
-                                        removedLogs.RemoveAll(x => ifContainWildcard ? x.RequestUrl.ToLower().StartsWith(rateLimit.Url.ToLower().Replace("*", "")) : x.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower()));
-                                        logAnalyzeModelList = removedLogs;
 
                                         analyzeResult.result.Add(ruleResult);
                                     }
                                 }
                             }
+
+                            //删除已经触犯了当前ratelimit的所有url
+                            removedLogs = logAnalyzeModelList.ToList();
+                            removedLogs.RemoveAll(x => ifContainWildcard ? x.RequestUrl.ToLower().StartsWith(rateLimit.Url.ToLower().Replace("*", "")) : x.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower()));
+                            logAnalyzeModelList = removedLogs;
                         }
 
 

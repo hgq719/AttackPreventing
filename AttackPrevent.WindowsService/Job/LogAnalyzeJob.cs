@@ -292,8 +292,6 @@ namespace AttackPrevent.WindowsService.Job
                             #endregion
 
                             systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.Audit, sbDetail.ToString()));
-                            //删除已经触犯了当前ratelimit的所有url
-                            logs.RemoveAll(x => ifContainWildcard ? x.RequestUrl.ToLower().StartsWith(rateLimit.Url.ToLower().Replace("*", "")) : x.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower()));
 
                             // Ban Ip
                             foreach (var rule in brokenRuleIpList)
@@ -341,6 +339,9 @@ namespace AttackPrevent.WindowsService.Job
                             systemLogList.Add(removeRateLimitLog);
                         }
                     }
+
+                    //删除当前ratelimit的所有url
+                    logs.RemoveAll(x => ifContainWildcard ? x.RequestUrl.ToLower().StartsWith(rateLimit.Url.ToLower().Replace("*", "")) : x.RequestUrl.ToLower().Equals(rateLimit.Url.ToLower()));
                 }
                 #endregion
                 

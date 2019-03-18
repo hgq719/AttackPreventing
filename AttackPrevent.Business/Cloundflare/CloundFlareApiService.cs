@@ -566,8 +566,7 @@ namespace AttackPrevent.Business
 
         public CloudflareAccessRuleResponse DeleteAccessRule(string id)
         {
-            string url = "{2}/zones/{0}/firewall/access_rules/rules/{1}";
-            url = string.Format(url, _zoneId, id, _apiUrlPrefix);
+            var url = $"{_apiUrlPrefix}/zones/{_zoneId}/firewall/access_rules/rules/{id}";
             string json = JsonConvert.SerializeObject(new { cascade = "none" });
             string content = HttpDelete(url, json, 90);
             return JsonConvert.DeserializeObject<CloudflareAccessRuleResponse>(content);

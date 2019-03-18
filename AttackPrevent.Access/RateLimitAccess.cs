@@ -183,11 +183,13 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                  SET LatestTriggerTime = GETUTCDATE()  
                                  WHERE Url = @Url 
                                    AND Threshold = @Threshold
-                                   AND Period = @Period";
+                                   AND Period = @Period
+                                   AND ZoneId = @ZoneId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Threshold", rateLimit.Threshold);
                 cmd.Parameters.AddWithValue("@Period", rateLimit.Period);
                 cmd.Parameters.AddWithValue("@Url", rateLimit.Url);
+                cmd.Parameters.AddWithValue("@ZoneId", rateLimit.ZoneId);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();

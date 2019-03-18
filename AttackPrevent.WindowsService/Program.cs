@@ -27,7 +27,7 @@ namespace AttackPrevent.WindowsService
             {
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
                 RunProgram().GetAwaiter().GetResult();
-                var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2*60*1000);
+                var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2 * 60 * 1000);
                 Console.ReadLine();
                 timer.Dispose();
             }

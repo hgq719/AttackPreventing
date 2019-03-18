@@ -147,7 +147,8 @@ namespace AttackPrevent.Business
                 {
                     Url = rst.Url,
                     Period = rst.Period,
-                    Threshold = rst.Threshold
+                    Threshold = rst.Threshold,
+                    ZoneId = zone.ZoneId
                 });
 
                 sbDetail = new StringBuilder(

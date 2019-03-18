@@ -62,6 +62,7 @@ namespace AttackPrevent.WindowsService.Job
                         if (rateLimitingCount > 0)
                         {
                             zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
+
                             var task = new Task(() => { StartAnalyze(zoneEntity); });
                             task.Start();
                         }
@@ -82,6 +83,7 @@ namespace AttackPrevent.WindowsService.Job
             sw.Start();
 
             var zoneId = zoneEntity.ZoneId;
+            var systemLogList = new List<AuditLogEntity>();
             try
             {
                 if (ZoneLockerManager.IsRunning(zoneId))
@@ -94,7 +96,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
 
                 var dtNow = DateTime.UtcNow;
-                var dtStart = dtNow.AddMinutes(-7).AddSeconds(0 - dtNow.Second);
+                var dtStart = dtNow.AddMinutes(-3).AddSeconds(0 - dtNow.Second);
                 var dtEnd = dtStart.AddMinutes(2);
 
                 var timeStageList = new List<KeyValuePair<DateTime, DateTime>>();
@@ -156,7 +158,35 @@ namespace AttackPrevent.WindowsService.Job
                         {
                             AnalyzeLog(requestDetailList, zoneEntity, rateLimits, timeStage);
                         }
+                        else
+                        {
+                            foreach (var rateLimit in rateLimits)
+                            {
+                                // Remove Cloudflare rate limiting rule by last trigger time
+                                var removeRateLimitLog = RemoveCloudflareRateLimitByLastTriggerTime(zoneEntity.TableID, dtNow, zoneEntity.IfTestStage, cloudflare, rateLimit);
+                                if (null != removeRateLimitLog)
+                                {
+                                    systemLogList.Add(removeRateLimitLog);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var rateLimit in rateLimits)
+                        {
+                            // Remove Cloudflare rate limiting rule by last trigger time
+                            var removeRateLimitLog = RemoveCloudflareRateLimitByLastTriggerTime(zoneEntity.TableID, dtNow, zoneEntity.IfTestStage, cloudflare, rateLimit);
+                            if (null != removeRateLimitLog)
+                            {
+                                systemLogList.Add(removeRateLimitLog);
+                            }
+                        }
+                    }
 
+                    if (systemLogList.Count > 0)
+                    {
+                        AuditLogBusiness.AddList(systemLogList);
                     }
 
                     var removeLog = RemoveIpFromBlacklistByLastTriggerTime(zoneEntity.ZoneId, dtNow,
@@ -165,7 +195,6 @@ namespace AttackPrevent.WindowsService.Job
                     {
                         AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Audit, removeLog));
                     }
-
                 }
             }
             catch (Exception ex)
@@ -179,7 +208,6 @@ namespace AttackPrevent.WindowsService.Job
                 sw.Stop();
                 Console.WriteLine($"{DateTime.UtcNow} end to analyze zone: {zoneEntity.ZoneName},elapsed time : {sw.ElapsedMilliseconds/1000}s");
             }
-
         }
 
         private void AnalyzeLog(IEnumerable<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits, string timeStage)
@@ -415,8 +443,8 @@ namespace AttackPrevent.WindowsService.Job
             else
             {
                 //如果距离上次触发时间已经超过配置的RateLimitTriggerTime，则关闭该rate limit
-                var response = cloudflare.DeleteRateLimit(rule.Id);
-                if (response.success)
+                var response = cloudflare.DeleteAccessRule(rule.Id);
+                if (response.Success)
                 {
                     log = new AuditLogEntity(zoneTableId, LogLevel.Audit,
                         $"No Ip broke the rate limit rule [Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule successfully.");
@@ -424,7 +452,7 @@ namespace AttackPrevent.WindowsService.Job
                 else
                 {
                     log = new AuditLogEntity(zoneTableId, LogLevel.Error,
-                        $"No Ip broke the rate limit rule [Url =[{rateLimit.Url}],Threshold =[{rateLimit.Threshold}],Period =[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule failure, the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].");
+                        $"No Ip broke the rate limit rule [Url =[{rateLimit.Url}],Threshold =[{rateLimit.Threshold}],Period =[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule failure, the reason is:[{(response.Errors.Length > 0 ? response.Errors[0] : "No error message from Cloudflare.")}].");
                 }
             }
 

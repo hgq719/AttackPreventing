@@ -43,7 +43,7 @@ namespace AttackPrevent.Business
             });
             if (response.success)
             {
-                string key = $"GetWhiteListModelList:{zoneId}-{authEmail}-{authKey}";
+                string key = $"CreateAccessRule:{zoneId}-{authEmail}-{authKey}";
                 Utils.RemoveMemoryCache(key);
             }
 
@@ -67,7 +67,7 @@ namespace AttackPrevent.Business
                     response = cloudFlareApiService.DeleteAccessRule(zoneId, authEmail, authKey, rule.id);
                     if (response.success)
                     {
-                        string key = string.Format("GetWhiteListModelList:{0}-{1}-{2}", zoneId, authEmail, authKey);
+                        string key = string.Format("DeleteAccessRule:{0}-{1}-{2}", zoneId, authEmail, authKey);
                         Utils.RemoveMemoryCache(key);
                     }
                 

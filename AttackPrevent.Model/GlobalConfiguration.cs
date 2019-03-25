@@ -13,5 +13,6 @@ namespace AttackPrevent.Model
         public string ValidateCode { get; set; }
         public double GlobalSample { get; set; }
         public int GlobalTimeSpan { get; set; }
+        public int CancelAttackTime { get; set; } 
     }
 }

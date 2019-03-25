@@ -634,6 +634,9 @@ namespace AttackPrevent.Business
                 {
                     content = content.Replace("\"}", "\"},");
                     cloudflareLogs = JsonConvert.DeserializeObject<List<CloudflareLog>>($"[{content}]");
+                    cloudflareLogs.RemoveAll(x =>
+                        (null != x.CacheCacheStatus && x.CacheCacheStatus.ToLower().Equals("hit")) ||
+                        0 == x.OriginResponseStatus);
                 }
 
                 return cloudflareLogs;
@@ -727,7 +730,7 @@ namespace AttackPrevent.Business
                 if (!response.success)
                 {
                     errorLog = new AuditLogEntity(zoneTableId, LogLevel.Error,
-                        $"Open rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
+                        $"Open rate limiting rule of Cloudflare failure，the reason is:[{(null != response.errors && response.errors.Length > 0 ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
             }
@@ -737,7 +740,7 @@ namespace AttackPrevent.Business
                 if (!response.success)
                 {
                     errorLog = new AuditLogEntity(zoneTableId, LogLevel.Error,
-                        $"Create rate limiting rule of Cloudflare failure，the reason is:[{(response.errors.Any() ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
+                        $"Create rate limiting rule of Cloudflare failure，the reason is:[{(response.errors !=null && response.errors .Length > 0 ? response.errors[0].message : "No error message from Cloudflare.")}].<br />");
                 }
                 return response.success;
             }
@@ -761,7 +764,14 @@ namespace AttackPrevent.Business
             return new CloudflareAccessRuleResponse()
             {
                 Success = false,
-                Errors = new string[] { "Not found in Cloudflare blacklist." }
+                Errors = new AccessRuleError[]
+                {
+                    new AccessRuleError()
+                    {
+                        code = "0",
+                        message = "Not found in Cloudflare blacklist."
+                    }
+                }
             };
         }
         #endregion

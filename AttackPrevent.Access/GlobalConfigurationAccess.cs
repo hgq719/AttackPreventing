@@ -17,7 +17,9 @@ namespace AttackPrevent.Access
                                         [CancelBanIPTime],
                                         [ValidateCode],
                                         [GlobalSample],
-                                        [GlobalTimeSpan] FROM [t_Global_Configuration] ";
+                                        [GlobalTimeSpan],
+                                        [CancelAttackTime]
+                                        FROM [t_Global_Configuration] ";
                 var cmd = new SqlCommand(query, conn);
                 conn.Open();
 
@@ -31,7 +33,8 @@ namespace AttackPrevent.Access
                             CancelBanIPTime = Convert.ToInt32(reader["CancelBanIPTime"]),
                             ValidateCode = Convert.ToString(reader["ValidateCode"]),
                             GlobalSample = Convert.ToDouble(reader["GlobalSample"]),
-                            GlobalTimeSpan = Convert.ToInt32(reader["GlobalTimeSpan"])
+                            GlobalTimeSpan = Convert.ToInt32(reader["GlobalTimeSpan"]),
+                            CancelAttackTime = Convert.ToInt32(reader["CancelAttackTime"])
                         });
                     }
                 }

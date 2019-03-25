@@ -387,10 +387,30 @@ namespace AttackPrevent.Access
             using (SqlConnection conn = new SqlConnection(cons))
             {
                 string query = @"UPDATE T_ZONE_INFO 
-                                    SET IfAttacking = @IfAttacking WHERE ZoneId = @ZoneId";
+                                    SET IfAttacking = @IfAttacking 
+                                    , LastAttactkTime = GETDATE()
+                                    WHERE ZoneId = @ZoneId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@ZoneId", zoneId);
                 cmd.Parameters.AddWithValue("@IfAttacking", ifAttacking ? 1 : 0);
+                conn.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public static bool CancelAttack(int cancelAttackTime, string zoneId)
+        {
+            string cons = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(cons))
+            {
+                string query = @"UPDATE T_Zone_Info SET IfAttacking = 0
+                                    WHERE DATEADD(MINUTE, @cancelAttackTime, LastAttactkTime) < GETDATE()
+                                    AND IfAttacking = 1 AND ZoneId = @ZoneId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@ZoneId", zoneId);
+                cmd.Parameters.AddWithValue("@cancelAttackTime", cancelAttackTime);
                 conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;

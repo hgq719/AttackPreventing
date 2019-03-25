@@ -286,7 +286,7 @@ namespace AttackPrevent.Business
                 }
                 else
                 {
-                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", ip, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "No error message from Cloudflare.");
+                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", ip, cloudflareAccessRuleResponse.Errors.Length > 0 ? cloudflareAccessRuleResponse.Errors[0].message : "No error message from Cloudflare.");
                 }
             }
             return sbDetail.ToString();

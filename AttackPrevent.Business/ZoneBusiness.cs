@@ -96,6 +96,11 @@ namespace AttackPrevent.Business
             return ZoneAccess.UpdateAttackFlag(ifAttacking, zoneId);
         }
 
+        public static bool CancelAttack(int cancelAttackTime, string zoneId)
+        {
+            return ZoneAccess.CancelAttack(cancelAttackTime, zoneId);
+        }
+
         public static bool Equals(string zoneId, int id)
         {
             return ZoneAccess.Equals(zoneId, id);

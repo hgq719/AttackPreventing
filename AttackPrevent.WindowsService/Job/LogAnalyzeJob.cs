@@ -16,6 +16,7 @@ namespace AttackPrevent.WindowsService.Job
         private double _sample = 1;
         private int _timeSpan = 60;
         private int _cancelBanIpTime = 120;
+        private int _cancelAttackTime = 5;
         private readonly ILogService _logService = new LogService();
 
 
@@ -40,6 +41,7 @@ namespace AttackPrevent.WindowsService.Job
                 _sample = globalConfigurations[index: 0].GlobalSample;
                 _timeSpan = globalConfigurations[index: 0].GlobalTimeSpan;
                 _cancelBanIpTime = globalConfigurations[index: 0].CancelBanIPTime;
+                _cancelAttackTime = globalConfigurations[index: 0].CancelAttackTime;
             }
 
             var filterSuffixList = ConfigurationManager.AppSettings["FilterSuffixList"];
@@ -62,7 +64,7 @@ namespace AttackPrevent.WindowsService.Job
                         if (rateLimitingCount > 0)
                         {
                             zoneEntity.AuthKey = Utils.AesDecrypt(zoneEntity.AuthKey);
-
+                            //StartAnalyze(zoneEntity);
                             var task = new Task(() => { StartAnalyze(zoneEntity); });
                             task.Start();
                         }
@@ -169,6 +171,12 @@ namespace AttackPrevent.WindowsService.Job
                                     systemLogList.Add(removeRateLimitLog);
                                 }
                             }
+                            //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                            if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
+                            {
+                                systemLogList.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                                    $"There's no attack more than {_cancelAttackTime} minutes, cancel the alert call in ZoneName [{zoneEntity.ZoneName}], the time range is [{timeStage}]."));
+                            }
                         }
                     }
                     else
@@ -181,6 +189,12 @@ namespace AttackPrevent.WindowsService.Job
                             {
                                 systemLogList.Add(removeRateLimitLog);
                             }
+                        }
+                        //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                        if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
+                        {
+                            systemLogList.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                                $"There's no attack more than {_cancelAttackTime} minutes, cancel the alert call in ZoneName [{zoneEntity.ZoneName}], the time range is [{timeStage}]."));
                         }
                     }
 
@@ -221,9 +235,6 @@ namespace AttackPrevent.WindowsService.Job
             try
             {
                 var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-                //systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
-                //    $"Start analyzing logs, time range is [{timeStage}]."));
-
 
                 //抽取出所有ratelimit规则中的请求列表
                 var logs = logsAll.Where(x => IfInRateLimitRule(x.RequestUrl, rateLimits)).ToList();
@@ -232,8 +243,6 @@ namespace AttackPrevent.WindowsService.Job
                 bool ifContainWildcard = false;
                 foreach (var rateLimit in rateLimits)
                 {
-                    //systemLogList.Add(new AuditLogEntity(zoneId, LogLevel.App,
-                    //    $"Start analyzing rule [Url=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]]"));
                     //抽取出所有ratelimit规则中的请求列表
                     ifContainWildcard = rateLimit.Url.EndsWith("*");
                     var logAnalyzeDetailList = ifContainWildcard
@@ -384,14 +393,16 @@ namespace AttackPrevent.WindowsService.Job
                 if (ifAttacking)
                 {
                     systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.Audit,
-                        $"Suspected of an attack in ZoneName [{zoneEntity.ZoneName}], modified the attack token and trigger an alert."));
+                        $"Suspected of an attack in ZoneName [{zoneEntity.ZoneName}], modified the attack token and trigger an alert, time range：[{timeStage}]."));
                 }
                 else
                 {
-                    ZoneBusiness.UpdateAttackFlag(false, zoneEntity.ZoneId); 
-
-                    systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
-                        $"There's no attack ,cancel the alert call in ZoneName [{zoneEntity.ZoneName}]."));
+                    //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                    if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
+                    {
+                        systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,
+                            $"There's no attack more than {_cancelAttackTime} minutes, cancel the alert call in ZoneName [{zoneEntity.ZoneName}]."));
+                    }
                 }
                 AuditLogBusiness.AddList(systemLogList);
             }
@@ -422,7 +433,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
                 else
                 {
-                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", logAnalyzeModel.IP, cloudflareAccessRuleResponse.Errors.Count() > 0 ? cloudflareAccessRuleResponse.Errors[0] : "No error message from Cloudflare.");
+                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", logAnalyzeModel.IP, cloudflareAccessRuleResponse.Errors.Length > 0 ? cloudflareAccessRuleResponse.Errors[0].message : "No error message from Cloudflare.");
                 }
             }
             return sbDetail.ToString();
@@ -437,7 +448,7 @@ namespace AttackPrevent.WindowsService.Job
             if (null == rule) return null;
             if (ifTestStage)
             {
-                log = new AuditLogEntity(zoneTableId, LogLevel.Audit,
+                log = new AuditLogEntity(zoneTableId, LogLevel.App,
                     $"No Ip broke the rate limit rule [Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule successfully.");
             }
             else
@@ -452,7 +463,7 @@ namespace AttackPrevent.WindowsService.Job
                 else
                 {
                     log = new AuditLogEntity(zoneTableId, LogLevel.Error,
-                        $"No Ip broke the rate limit rule [Url =[{rateLimit.Url}],Threshold =[{rateLimit.Threshold}],Period =[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule failure, the reason is:[{(response.Errors.Length > 0 ? response.Errors[0] : "No error message from Cloudflare.")}].");
+                        $"No Ip broke the rate limit rule [Url =[{rateLimit.Url}],Threshold =[{rateLimit.Threshold}],Period =[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule failure, the reason is:[{(response.Errors.Length > 0 ? response.Errors[0].message : "No error message from Cloudflare.")}].");
                 }
             }
 
@@ -489,7 +500,7 @@ namespace AttackPrevent.WindowsService.Job
                             }
                             else
                             {
-                                sbCancelBanLog.AppendFormat("Remove IP [{0}] from blacklist failure, the reason is：[{1}].<br />", banIpHistory.IP, cloudflareAccessRuleResponse.Errors.Any() ? cloudflareAccessRuleResponse.Errors[0] : "No error message from Cloudflare.");
+                                sbCancelBanLog.AppendFormat("Remove IP [{0}] from blacklist failure, the reason is：[{1}].<br />", banIpHistory.IP, cloudflareAccessRuleResponse.Errors.Any() ? cloudflareAccessRuleResponse.Errors[0].message : "No error message from Cloudflare.");
                             }
                         }
                     }

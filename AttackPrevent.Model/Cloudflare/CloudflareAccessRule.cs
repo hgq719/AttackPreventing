@@ -77,9 +77,16 @@ namespace AttackPrevent.Model.Cloudflare
     public class CloudflareAccessRuleResponse
     {
         public bool Success { get; set; }
-        public string[] Errors { get; set; }
+        public AccessRuleError[] Errors { get; set; }
         public string[] Messages { get; set; }
         public CreateResult Result { get; set; }
+    }
+
+    public class AccessRuleError
+    {
+        public string code { get; set; }
+        public string message { get; set; }
+
     }
 
     public class CreateResult

@@ -457,7 +457,7 @@ namespace AttackPrevent.WindowsService.Job
                 var response = cloudflare.DeleteAccessRule(rule.Id);
                 if (response.Success)
                 {
-                    log = new AuditLogEntity(zoneTableId, LogLevel.Audit,
+                    log = new AuditLogEntity(zoneTableId, LogLevel.App,
                         $"No Ip broke the rate limit rule [Url=[{rateLimit.Url}],Threshold=[{rateLimit.Threshold}],Period=[{rateLimit.Period}]], last trigger time is [{rateLimit.LatestTriggerTime}], remove the rule successfully.");
                 }
                 else

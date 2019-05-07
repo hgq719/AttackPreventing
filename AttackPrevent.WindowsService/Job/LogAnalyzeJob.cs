@@ -154,10 +154,11 @@ namespace AttackPrevent.WindowsService.Job
                             };
                             return model;
                         }).Where(x => !IfInSuffixList(x.RequestUrl)).ToList();
-
-
+                        
                         if (requestDetailList.Count > 0)
                         {
+                            AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                                $"Finished getting total [{cloudflareLogs.Count}] records after filtering white list and static file, start to analyze logs, the time range is [{timeStage}]."));
                             AnalyzeLog(requestDetailList, zoneEntity, rateLimits, timeStage);
                         }
                         else
@@ -171,7 +172,7 @@ namespace AttackPrevent.WindowsService.Job
                                     systemLogList.Add(removeRateLimitLog);
                                 }
                             }
-                            //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                            //获取当前ZoneId上一次攻击的时间，如果时间大于配置的时间M（Min），则关闭攻击标志
                             if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
                             {
                                 systemLogList.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
@@ -190,7 +191,7 @@ namespace AttackPrevent.WindowsService.Job
                                 systemLogList.Add(removeRateLimitLog);
                             }
                         }
-                        //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                        //获取当前ZoneId上一次攻击的时间，如果时间大于配置的时间M（Min），则关闭攻击标志
                         if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
                         {
                             systemLogList.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
@@ -294,7 +295,10 @@ namespace AttackPrevent.WindowsService.Job
                         {
                             // 发送警报
                             ifAttacking = true;
-                            ZoneBusiness.UpdateAttackFlag(true, zoneEntity.ZoneId);
+                            if (ZoneBusiness.UpdateAttackFlag(true, zoneEntity.ZoneId))
+                            {
+                                systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App, "Update attack flag and  trigger time while attacking"));
+                            }
 
                             // 更新 Rate Limit Trigger Time
                             RateLimitBusiness.TriggerRateLimit(rateLimit);
@@ -397,7 +401,7 @@ namespace AttackPrevent.WindowsService.Job
                 }
                 else
                 {
-                    //获取当前ZoneId上一次攻击的时间，如果时间大于配置的事件M（Min），则关闭攻击标志
+                    //获取当前ZoneId上一次攻击的时间，如果时间大于配置的时间M（Min），则关闭攻击标志
                     if (ZoneBusiness.CancelAttack(_cancelAttackTime, zoneEntity.ZoneId))
                     {
                         systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.App,

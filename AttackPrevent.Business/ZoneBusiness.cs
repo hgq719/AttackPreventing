@@ -91,6 +91,11 @@ namespace AttackPrevent.Business
             return ZoneAccess.GetZoneByZoneId(zoneID);
         }
 
+        public static string GetAttackFlag()
+        {
+            return ZoneAccess.GetAttackFlag();
+        }
+
         public static bool UpdateAttackFlag(bool ifAttacking, string zoneId)
         {
             return ZoneAccess.UpdateAttackFlag(ifAttacking, zoneId);

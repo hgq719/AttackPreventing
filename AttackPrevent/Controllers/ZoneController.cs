@@ -179,9 +179,9 @@ namespace AttackPrevent.Controllers
             return RedirectToAction("ZoneIndex");
         }
 
-        public ActionResult GetZoneIfAttacking(string zone)
+        public ActionResult GetZoneIfAttacking()
         {
-            ViewBag.IfAttacking = ZoneBusiness.GetZone(zone, zone).IfAttacking;
+            ViewBag.IfAttacking = ZoneBusiness.GetAttackFlag();
             return View();
         }
     }

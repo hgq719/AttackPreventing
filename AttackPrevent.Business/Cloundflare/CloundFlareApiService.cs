@@ -688,16 +688,21 @@ namespace AttackPrevent.Business
             updateRateLimitResponse = JsonConvert.DeserializeObject<UpdateRateLimitResponse>(content);
             return updateRateLimitResponse;
         }
-        public FirewallAccessRuleResponse DeleteRateLimit(string id)
+        public DeleteRateLimitResponse DeleteRateLimit(string id)
         {
-            return DeleteAccessRule(_zoneId, _authEmail, _authKey, id);
-            //DeleteRateLimitResponse deleteRateLimitResponse = new DeleteRateLimitResponse();
-            //string url = "{2}/zones/{0}/rate_limits/{1}";
-            //url = string.Format(url, _zoneId, id, _apiUrlPrefix);
-            //string json = "";
-            //string content = HttpDelete(url, json, 90);
-            //deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
-            //return deleteRateLimitResponse;
+            //return DeleteAccessRule(_zoneId, _authEmail, _authKey, id);
+            ////DeleteRateLimitResponse deleteRateLimitResponse = new DeleteRateLimitResponse();
+            ////string url = "{2}/zones/{0}/rate_limits/{1}";
+            ////url = string.Format(url, _zoneId, id, _apiUrlPrefix);
+            ////string json = "";
+            ////string content = HttpDelete(url, json, 90);
+            ////deleteRateLimitResponse = JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
+            ////return deleteRateLimitResponse;
+
+            var url = $"{_apiUrlPrefix}/zones/{_zoneId}/rate_limits/{id}";
+            string json = JsonConvert.SerializeObject(new { cascade = "none" });
+            string content = HttpDelete(url, json, 90);
+            return JsonConvert.DeserializeObject<DeleteRateLimitResponse>(content);
         }
 
         public CloudflareRateLimitRule GetRateLimitRule(string url, int threshold, int period)

@@ -114,7 +114,12 @@ namespace AttackPrevent.WindowsService.Job
                     }
                 }
                 var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-                var ipWhiteList = cloudflare.GetIpWhitelist();
+                var ipWhiteList = cloudflare.GetIpWhitelist(out var errorLog);
+                if (!string.IsNullOrEmpty(errorLog))
+                {
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error, errorLog));
+                }
+
                 var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p => p.OrderNo).ToList();
 
                 foreach (var keyValuePair in timeStageList)
@@ -142,6 +147,11 @@ namespace AttackPrevent.WindowsService.Job
 
                     if (cloudflareLogs.Count > 0)
                     {
+                        var whiteListLogs = cloudflareLogs.Where(x => ipWhiteList.Contains(x.ClientIP)).ToList();
+
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                            $"Getting total [{ipWhiteList.Count}] ips whitelist and total [{whiteListLogs.Count}] records logs for white list, the time range is [{timeStage}]."));
+
                         var requestDetailList = cloudflareLogs.Where(x => !ipWhiteList.Contains(x.ClientIP)).Select(x =>
                         {
                             var model = new LogAnalyzeModel
@@ -154,11 +164,11 @@ namespace AttackPrevent.WindowsService.Job
                             };
                             return model;
                         }).Where(x => !IfInSuffixList(x.RequestUrl)).ToList();
-                        
+
                         if (requestDetailList.Count > 0)
                         {
                             AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
-                                $"Finished getting total [{cloudflareLogs.Count}] records after filtering white list and static file, start to analyze logs, the time range is [{timeStage}]."));
+                                $"Finished getting total [{requestDetailList.Count}] records after filtering white list and static file, start to analyze logs, the time range is [{timeStage}]."));
                             AnalyzeLog(requestDetailList, zoneEntity, rateLimits, timeStage);
                         }
                         else
@@ -214,8 +224,8 @@ namespace AttackPrevent.WindowsService.Job
             }
             catch (Exception ex)
             {
-                var msg = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
-                _logService.Error(msg);
+                var msg = $" Analyse Zone log failure, error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
+                AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error, msg));
             }
             finally
             {
@@ -327,7 +337,7 @@ namespace AttackPrevent.WindowsService.Job
                                 }
                                 else
                                 {
-                                    sbDetail.AppendFormat(errorLog.Detail);
+                                    systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.Error, errorLog.Detail));
                                 }
                             }
                             #endregion
@@ -354,11 +364,15 @@ namespace AttackPrevent.WindowsService.Job
                                 {
                                     sbDetail.Append($"IP [{rule.IP}] visited [{rateLimit.Url}] [{rule.RequestCount}] times, time range：[{timeStage}].<br /> Exceeded rate limiting threshold(URL=[{rateLimit.Url}],Period=[{rateLimit.Period}],Threshold=[{rateLimit.Threshold}],EnlargementFactor=[{rateLimit.EnlargementFactor}]).<br />");
                                 }
-                                banIpLog = BanIpByRateLimitRule(zoneEntity, ifTestStage, cloudflare, rateLimit, timeStage, rule);
+                                banIpLog = BanIpByRateLimitRule(zoneEntity, ifTestStage, cloudflare, rateLimit, timeStage, rule, out var errorLog);
                                 logs.RemoveAll(p => p.IP == rule.IP);
                                 if (!string.IsNullOrEmpty(banIpLog)) sbDetail.Append(banIpLog);
 
                                 systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.Audit, sbDetail.ToString()));
+                                if (!string.IsNullOrEmpty(errorLog))
+                                {
+                                    systemLogList.Add(new AuditLogEntity(zoneTableId, LogLevel.Error, sbDetail.ToString()));
+                                }
                             }
                         }
                         else
@@ -412,8 +426,9 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
-        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloudFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel)
+        private string BanIpByRateLimitRule(ZoneEntity zoneEntity, bool ifTestStage, CloudFlareApiService cloudflare, RateLimitEntity rateLimit, string timeStage, LogAnalyzeModel logAnalyzeModel, out string errorLog)
         {
+            errorLog = string.Empty;
             var sbDetail = new StringBuilder();
             if (ifTestStage)
             {
@@ -437,7 +452,10 @@ namespace AttackPrevent.WindowsService.Job
                 }
                 else
                 {
-                    sbDetail.AppendFormat("Ban IP [{0}] failure, the reason is：[{1}].<br />", logAnalyzeModel.IP, cloudflareAccessRuleResponse.Errors.Length > 0 ? cloudflareAccessRuleResponse.Errors[0].message : "No error message from Cloudflare.");
+                    errorLog = string.Format("Ban IP [{0}] failure, the reason is：[{1}].<br />", logAnalyzeModel.IP,
+                        cloudflareAccessRuleResponse.Errors.Length > 0
+                            ? cloudflareAccessRuleResponse.Errors[0].message
+                            : "No error message from Cloudflare.");
                 }
             }
             return sbDetail.ToString();

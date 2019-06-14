@@ -9,6 +9,8 @@ namespace AttackPrevent.Model.Cloudflare
     public class CloudflareAccessRuleListResponse
     {
         public List<CloudflareAccessRule> Result { get; set; }
+        public AccessRuleError[] Errors { get; set; }
+        public string[] Messages { get; set; }
         public bool Success { get; set; }
         public QueryResult Result_Info { get; set; }
     }

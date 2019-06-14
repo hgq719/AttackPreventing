@@ -474,8 +474,9 @@ namespace AttackPrevent.Business
             }
         }
 
-        public List<CloudflareAccessRule> GetWhiteList(string ip = null)
+        public List<CloudflareAccessRule> GetWhiteList(out string errorLog, string ip = null)
         {
+            errorLog = string.Empty;
             try
             {
                 var firstPage = 1;
@@ -515,19 +516,25 @@ namespace AttackPrevent.Business
                     }
 
                 }
+                else
+                {
+                    errorLog = $"Get White list failure,the reason is:[{(pageWhitelist.Errors != null && pageWhitelist.Errors.Length > 0 ? pageWhitelist.Errors[0].message : "No error message from Cloudflare.")}].<br />";
+                }
+
                 return whitelist;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                errorLog = $" error message = {ex.Message}. \n stack trace = {ex.StackTrace}";
                 return null;
             }
         }
 
-        public List<string> GetIpWhitelist()
+        public List<string> GetIpWhitelist(out string errorLog)
         {
-            var cloudflareAccessRules = GetWhiteList();
+            var cloudflareAccessRules = GetWhiteList(out errorLog);
             var ipList = new List<string>();
-            if (null != cloudflareAccessRules)
+            if (null != cloudflareAccessRules && cloudflareAccessRules.Count > 0)
             {
                 foreach (var rule in cloudflareAccessRules)
                 {
@@ -792,7 +799,7 @@ namespace AttackPrevent.Business
         {
             if (!string.IsNullOrEmpty(ip))
             {
-                var whitelist = GetWhiteList(ip);
+                var whitelist = GetWhiteList(out var errorLog, ip);
                 if (null != whitelist && whitelist.Count > 0)
                 {
                     var whiteInfo = whitelist[0];

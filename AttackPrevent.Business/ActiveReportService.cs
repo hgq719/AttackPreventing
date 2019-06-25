@@ -150,6 +150,7 @@ namespace AttackPrevent.Business
                 //// 每天9开始统计前一天的数据
                 //if (DateTime.Now > Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd 09:00:00")))
                 //{
+
                 List<ZoneEntity> zoneEntities = ZoneBusiness.GetZoneList().Where(a => a.IfEnable).ToList();
                 if (zoneEntities != null && zoneEntities.Count > 0)
                 {

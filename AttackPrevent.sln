@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPreventAwsApi", "Atta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPrevent.IISLogger.WindowsService", "AttackPrevent.IISLogger.WindowsService\AttackPrevent.IISLogger.WindowsService.csproj", "{199E49A8-3F44-4559-94BC-1BA206A47822}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPrevent.EmailService", "AttackPrevent.EmailService\AttackPrevent.EmailService.csproj", "{95458762-A268-48D9-B764-6E031AFAC64A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{199E49A8-3F44-4559-94BC-1BA206A47822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{199E49A8-3F44-4559-94BC-1BA206A47822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{199E49A8-3F44-4559-94BC-1BA206A47822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95458762-A268-48D9-B764-6E031AFAC64A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95458762-A268-48D9-B764-6E031AFAC64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95458762-A268-48D9-B764-6E031AFAC64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95458762-A268-48D9-B764-6E031AFAC64A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

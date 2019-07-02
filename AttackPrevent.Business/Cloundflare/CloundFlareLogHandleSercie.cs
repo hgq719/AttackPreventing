@@ -30,7 +30,7 @@ namespace AttackPrevent.Business
         private int timeSpan = 20;
         private DateTime startTime;
         private DateTime endTime;
-        private int taskCount = 1;
+        private int taskCount = 3;
         private string zoneId;
         private string authEmail;
         private string authKey;
@@ -79,8 +79,8 @@ namespace AttackPrevent.Business
             while (true)
             {
                 KeyValuePair<DateTime, DateTime> keyValuePair = default(KeyValuePair<DateTime, DateTime>);
-                try
-                {
+                //try
+                //{
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
 
@@ -116,12 +116,12 @@ namespace AttackPrevent.Business
                     {
                         break;
                     }
-                }
-                catch (Exception e)
-                {
-                    logService.Error(e.StackTrace);
-                    keyValuePairs.Enqueue(keyValuePair); //异常重新入队列
-                }
+                //}
+                //catch (Exception e)
+                //{
+                //    logService.Error(e.StackTrace);
+                //    keyValuePairs.Enqueue(keyValuePair); //异常重新入队列
+                //}
             }
 
         }

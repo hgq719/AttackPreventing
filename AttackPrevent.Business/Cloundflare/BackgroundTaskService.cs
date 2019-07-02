@@ -83,12 +83,14 @@ namespace AttackPrevent.Business.Cloundflare
         {
             if (!ifBusy)
             {
+                string key = "";
+                GetCloundflareLogsBackgroundInfo backgroundInfo = null;
                 try
                 {
                     ifBusy = true;
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    GetCloundflareLogsBackgroundInfo backgroundInfo;
+    
                     if (backgroundInfos.TryDequeue(out backgroundInfo))
                     {
                         double sample = backgroundInfo.Sample;
@@ -97,7 +99,7 @@ namespace AttackPrevent.Business.Cloundflare
                         string zoneId = backgroundInfo.ZoneId;
                         string authEmail = backgroundInfo.AuthEmail;
                         string authKey = backgroundInfo.AuthKey;
-                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                        key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
                         ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
                         cloudflareLogHandleSercie.TaskStart();
@@ -114,6 +116,13 @@ namespace AttackPrevent.Business.Cloundflare
                 catch(Exception e)
                 {
                     logger.Error(e);
+                    if(!string.IsNullOrEmpty(key) &&
+                        backgroundInfo != null)
+                    {
+                        backgroundInfo.Status = EnumBackgroundStatus.Failed;
+                        Utils.SetMemoryCache(backgroundInfo.Guid, backgroundInfo);
+                    }
+            
                     ifBusy = false;
                 }                
             }

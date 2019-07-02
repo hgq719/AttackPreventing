@@ -101,7 +101,13 @@ namespace AttackPrevent.Business
 
                 if( !string.IsNullOrEmpty(content))
                 {
-                    logger.Error(content);
+                    logger.Error(JsonConvert.SerializeObject(new {
+                        zoneId= zoneId,
+                        url= url,
+                        errorMessage = content,
+                    }));
+
+                    throw new Exception("Exec GetCloudflareLogs Error!"+ content);
                 }                    
             }
             return CloudflareLogs;

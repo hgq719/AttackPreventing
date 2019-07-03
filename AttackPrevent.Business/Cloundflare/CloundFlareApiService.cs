@@ -107,7 +107,7 @@ namespace AttackPrevent.Business
                         errorMessage = content,
                     }));
 
-                    throw new Exception("Exec GetCloudflareLogs Error!"+ content);
+                    throw new Exception(content);
                 }                    
             }
             return CloudflareLogs;

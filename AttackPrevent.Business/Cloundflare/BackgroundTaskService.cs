@@ -13,7 +13,7 @@ namespace AttackPrevent.Business.Cloundflare
     public interface IBackgroundTaskService
     {
         string Enqueue(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end);
-        EnumBackgroundStatus GetOperateStatus(string guid);
+        GetCloundflareLogsBackgroundInfo GetOperateStatus(string guid);
         List<CloudflareLog> GetCloudflareLogs(string guid, int limit, int offset, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus);
         void doWork();
         int GetTotal(string guid, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus);
@@ -120,6 +120,7 @@ namespace AttackPrevent.Business.Cloundflare
                         backgroundInfo != null)
                     {
                         backgroundInfo.Status = EnumBackgroundStatus.Failed;
+                        backgroundInfo.ErrorMessage = string.IsNullOrEmpty(e.InnerException?.Message) ? e.Message : e.InnerException?.Message;
                         Utils.SetMemoryCache(backgroundInfo.Guid, backgroundInfo);
                     }
             
@@ -128,15 +129,16 @@ namespace AttackPrevent.Business.Cloundflare
             }
         }
 
-        public EnumBackgroundStatus GetOperateStatus(string guid)
+        public GetCloundflareLogsBackgroundInfo GetOperateStatus(string guid)
         {
-            EnumBackgroundStatus enumBackgroundStatus = EnumBackgroundStatus.Failed;
-            GetCloundflareLogsBackgroundInfo backgroundInfo = Utils.GetMemoryCache<GetCloundflareLogsBackgroundInfo>(guid);
-            if (backgroundInfo != null)
+            //EnumBackgroundStatus enumBackgroundStatus = EnumBackgroundStatus.Failed;
+            GetCloundflareLogsBackgroundInfo backgroundInfo = new GetCloundflareLogsBackgroundInfo { Status = EnumBackgroundStatus.Failed, };
+            GetCloundflareLogsBackgroundInfo backgroundInfoCache = Utils.GetMemoryCache<GetCloundflareLogsBackgroundInfo>(guid);
+            if (backgroundInfoCache != null)
             {
-                enumBackgroundStatus = backgroundInfo.Status;
+                backgroundInfo = backgroundInfoCache;
             }
-            return enumBackgroundStatus;
+            return backgroundInfo;
         }
 
         public List<CloudflareLog> GetCloudflareLogs(string guid, int limit, int offset, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus)

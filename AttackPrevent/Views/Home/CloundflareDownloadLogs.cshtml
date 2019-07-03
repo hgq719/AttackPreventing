@@ -288,7 +288,10 @@
                 var status = data.status;
                 if (status === "Processing") {
                     GetOperateStatus(zoneID, startTime, endTime, sample, callback);
-                } else {
+                } else if (status === "Failed") {
+                    $("body").mLoading("hide");
+                    alert(data.errorMsg);
+                } else {debugger
                     $("body").mLoading("hide");
                     callback();
                 }

@@ -199,11 +199,12 @@ namespace AttackPrevent.Controllers
             var backgroundTaskService = BackgroundTaskService.GetInstance();
             var guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
 
-            EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid);
+            EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid).Status;
+            string errorMessage = backgroundTaskService.GetOperateStatus(guid).ErrorMessage;
             logs = backgroundTaskService.GetCloudflareLogs(guid, limit, offset, host, siteId,url,cacheStatus,ip,responseStatus);
             var total = backgroundTaskService.GetTotal(guid, host, siteId, url, cacheStatus, ip, responseStatus);
             var rows = logs;
-            return Json(new { status = status.ToString(), total = total, rows = rows }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status.ToString(), total = total, rows = rows, errorMsg = errorMessage }, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetOperateStatus(string zoneID, DateTime startTime, DateTime endTime, double sample)
@@ -219,8 +220,9 @@ namespace AttackPrevent.Controllers
 
             IBackgroundTaskService backgroundTaskService = BackgroundTaskService.GetInstance();
             string guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
-            EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid);            
-            return Json(new { status = status.ToString()}, JsonRequestBehavior.AllowGet);
+            EnumBackgroundStatus status = backgroundTaskService.GetOperateStatus(guid).Status;
+            string errorMessage = backgroundTaskService.GetOperateStatus(guid).ErrorMessage;
+            return Json(new { status = status.ToString(), errorMsg = errorMessage }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult ExportCloundflareLogs(string zoneID, DateTime startTime, DateTime endTime, string host, double sample, string siteId, string url, string cacheStatus, string ip, string responseStatus)
@@ -241,7 +243,7 @@ namespace AttackPrevent.Controllers
 
             var backgroundTaskService = BackgroundTaskService.GetInstance();
             var guid = backgroundTaskService.Enqueue(zoneID, authEmail, authKey, sample, startTime, endTime);
-            var status = backgroundTaskService.GetOperateStatus(guid);
+            var status = backgroundTaskService.GetOperateStatus(guid)?.Status;
             if(status == EnumBackgroundStatus.Succeeded)
             {         
                 var list = backgroundTaskService.GetCloudflareLogs(guid, host, siteId, url, cacheStatus, ip, responseStatus);

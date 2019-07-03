@@ -19,7 +19,8 @@ namespace AttackPrevent.Business
         public DateTime EndTime { get; set; }
         public EnumBackgroundStatus Status { get; set; }
         public List<CloudflareLog> CloudflareLogs { get; set; }
-}
+        public string ErrorMessage { get; set; }
+    }
     public enum EnumBackgroundStatus
     {
         Processing,

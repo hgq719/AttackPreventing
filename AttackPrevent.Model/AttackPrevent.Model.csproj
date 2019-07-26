@@ -64,6 +64,7 @@
     <Compile Include="WhiteListModel.cs" />
     <Compile Include="ZoneEntity.cs" />
     <Compile Include="Cloudflare\CloudflareRateLimitRule.cs" />
+    <Compile Include="ZoneWhiteListCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

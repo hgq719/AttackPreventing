@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace AttackPrevent.WindowsService.Job
 {
@@ -114,12 +116,47 @@ namespace AttackPrevent.WindowsService.Job
                     }
                 }
                 var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
+                
                 var ipWhiteList = cloudflare.GetIpWhitelist(out var errorLog);
                 if (!string.IsNullOrEmpty(errorLog))
                 {
                     AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error, errorLog));
                 }
 
+                #region 如果接口中取不到白名单，则从文件中获取
+                var zoneWhiteListCache = ZoneWhiteListCache.GetInstance();
+                if (ipWhiteList.Count > 0)
+                {
+                    if (zoneWhiteListCache.AddZoneWhiteList(zoneId, ipWhiteList))
+                    {
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error,
+                            $"Update whitelist cache successfully."));
+                    }
+                    else
+                    {
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error,
+                            $"Update whitelist cache failure."));
+                    }
+                }
+                else
+                {
+                    AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error,
+                        $"Call whitelist api failure from cloudflare."));
+                    //接口错误，返回不了白名单，则直接从文件中取
+                    ipWhiteList = zoneWhiteListCache.GetZoneWhiteList(zoneId);
+                    if (ipWhiteList.Count > 0)
+                    {
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.App,
+                            $"Get whitelist from cache."));
+                    }
+                    else
+                    {
+                        AuditLogBusiness.Add(new AuditLogEntity(zoneEntity.TableID, LogLevel.Error,
+                            $"There's no data in whitelist cache."));
+                    }
+                }
+                #endregion
+                
                 var rateLimits = RateLimitBusiness.GetList(zoneEntity.ZoneId).OrderBy(p => p.OrderNo).ToList();
 
                 foreach (var keyValuePair in timeStageList)

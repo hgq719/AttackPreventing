@@ -199,7 +199,7 @@ namespace AttackPrevent.Business
 
                 List<CloudflareLog> logs = new List<CloudflareLog>();
 
-                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime, true);
                 cloudflareLogHandleSercie.TaskStart();
                 logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
                     .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
@@ -256,13 +256,16 @@ namespace AttackPrevent.Business
 
                 List<CloudflareLog> logs = new List<CloudflareLog>();
 
-                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
+                ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime, true);
                 cloudflareLogHandleSercie.TaskStart();
+
                 logs = cloudflareLogHandleSercie.GetCloudflareLogs(key)
                     .Where(a => !IfInSuffixList(a.ClientRequestURI)).ToList();
 
                 cloudflareLogs.Add(logs);
                 logService.Debug(key);
+
+                cloudflareLogHandleSercie.CleanDicCloudflareLogsToday(); //2020.7.13 清空当前缓存
             }
 
             //为了防止异常导致之前已经存储进去的数据重复，先删除对应的数据

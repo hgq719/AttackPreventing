@@ -116,7 +116,7 @@ namespace AttackPrevent.WindowsService.Job
                     }
                 }
                 var cloudflare = new CloudFlareApiService(zoneEntity.ZoneId, zoneEntity.AuthEmail, zoneEntity.AuthKey);
-                
+
                 var ipWhiteList = cloudflare.GetIpWhitelist(out var errorLog);
                 if (!string.IsNullOrEmpty(errorLog))
                 {
@@ -195,9 +195,9 @@ namespace AttackPrevent.WindowsService.Job
                             {
                                 IP = x.ClientIP,
                                 RequestHost = x.ClientRequestHost,
-                                RequestFullUrl = $"{x.ClientRequestHost}{x.ClientRequestURI}",
+                                RequestFullUrl = $"{RemovePortFromHost(x.ClientRequestHost)}{x.ClientRequestURI}",
                                 RequestUrl =
-                                    $"{x.ClientRequestHost}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
+                                    $"{RemovePortFromHost(x.ClientRequestHost)}{(x.ClientRequestURI.IndexOf('?') > 0 ? x.ClientRequestURI.Substring(0, x.ClientRequestURI.IndexOf('?')) : x.ClientRequestURI)}"
                             };
                             return model;
                         }).Where(x => !IfInSuffixList(x.RequestUrl)).ToList();
@@ -272,6 +272,25 @@ namespace AttackPrevent.WindowsService.Job
             }
         }
 
+        private string RemovePortFromHost(string host)
+        {
+            var result = host;
+            try
+            {
+                var portIndex = host.Replace("：",":").IndexOf(":");
+                if (portIndex > 0)
+                {
+                    result = host.Substring(0, portIndex);
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                return host;
+            }
+        }
+
         private void AnalyzeLog(IEnumerable<LogAnalyzeModel> logsAll, ZoneEntity zoneEntity, List<RateLimitEntity> rateLimits, string timeStage)
         {
             var systemLogList = new List<AuditLogEntity>();
@@ -292,6 +311,7 @@ namespace AttackPrevent.WindowsService.Job
                 foreach (var rateLimit in rateLimits)
                 {
                     //抽取出所有ratelimit规则中的请求列表
+                    rateLimit.Url = rateLimit.Url.Trim();
                     ifContainWildcard = rateLimit.Url.EndsWith("*");
                     var logAnalyzeDetailList = ifContainWildcard
                         ? logs.Where(x => x.RequestUrl.ToLower().StartsWith(rateLimit.Url.ToLower().Replace("*", ""))).ToList()

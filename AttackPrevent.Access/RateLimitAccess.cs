@@ -72,7 +72,7 @@ namespace AttackPrevent.Access
                             ID = index++,
                             Period = Convert.ToInt32(reader["Period"]),
                             Threshold = Convert.ToInt32(reader["Threshold"]),
-                            Url = Convert.ToString(reader["Url"]).Replace("https://", "").Replace("http://", ""),
+                            Url = Convert.ToString(reader["Url"]).Replace("https://", "").Replace("http://", "").Trim(),
                             OrderNo = Convert.ToInt32(reader["OrderNo"]),
                             EnlargementFactor =float.Parse( reader["EnlargementFactor"] == DBNull.Value ? "0" : reader["EnlargementFactor"].ToString()),
                             RateLimitTriggerIpCount = Convert.ToInt32(reader["RateLimitTriggerIpCount"]),

@@ -13,7 +13,7 @@ namespace AttackPrevent.Business.Cloundflare
     public interface IBackgroundTaskService
     {
         string Enqueue(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end);
-        EnumBackgroundStatus GetOperateStatus(string guid);
+        GetCloundflareLogsBackgroundInfo GetOperateStatus(string guid);
         List<CloudflareLog> GetCloudflareLogs(string guid, int limit, int offset, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus);
         void doWork();
         int GetTotal(string guid, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus);
@@ -83,12 +83,14 @@ namespace AttackPrevent.Business.Cloundflare
         {
             if (!ifBusy)
             {
+                string key = "";
+                GetCloundflareLogsBackgroundInfo backgroundInfo = null;
                 try
                 {
                     ifBusy = true;
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    GetCloundflareLogsBackgroundInfo backgroundInfo;
+    
                     if (backgroundInfos.TryDequeue(out backgroundInfo))
                     {
                         double sample = backgroundInfo.Sample;
@@ -97,7 +99,7 @@ namespace AttackPrevent.Business.Cloundflare
                         string zoneId = backgroundInfo.ZoneId;
                         string authEmail = backgroundInfo.AuthEmail;
                         string authKey = backgroundInfo.AuthKey;
-                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                        key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
 
                         ICloudflareLogHandleSercie cloudflareLogHandleSercie = new CloudflareLogHandleSercie(zoneId, authEmail, authKey, sample, startTime, endTime);
                         cloudflareLogHandleSercie.TaskStart();
@@ -114,20 +116,29 @@ namespace AttackPrevent.Business.Cloundflare
                 catch(Exception e)
                 {
                     logger.Error(e);
+                    if(!string.IsNullOrEmpty(key) &&
+                        backgroundInfo != null)
+                    {
+                        backgroundInfo.Status = EnumBackgroundStatus.Failed;
+                        backgroundInfo.ErrorMessage = string.IsNullOrEmpty(e.InnerException?.Message) ? e.Message : e.InnerException?.Message;
+                        Utils.SetMemoryCache(backgroundInfo.Guid, backgroundInfo);
+                    }
+            
                     ifBusy = false;
                 }                
             }
         }
 
-        public EnumBackgroundStatus GetOperateStatus(string guid)
+        public GetCloundflareLogsBackgroundInfo GetOperateStatus(string guid)
         {
-            EnumBackgroundStatus enumBackgroundStatus = EnumBackgroundStatus.Failed;
-            GetCloundflareLogsBackgroundInfo backgroundInfo = Utils.GetMemoryCache<GetCloundflareLogsBackgroundInfo>(guid);
-            if (backgroundInfo != null)
+            //EnumBackgroundStatus enumBackgroundStatus = EnumBackgroundStatus.Failed;
+            GetCloundflareLogsBackgroundInfo backgroundInfo = new GetCloundflareLogsBackgroundInfo { Status = EnumBackgroundStatus.Failed, };
+            GetCloundflareLogsBackgroundInfo backgroundInfoCache = Utils.GetMemoryCache<GetCloundflareLogsBackgroundInfo>(guid);
+            if (backgroundInfoCache != null)
             {
-                enumBackgroundStatus = backgroundInfo.Status;
+                backgroundInfo = backgroundInfoCache;
             }
-            return enumBackgroundStatus;
+            return backgroundInfo;
         }
 
         public List<CloudflareLog> GetCloudflareLogs(string guid, int limit, int offset, string host, string siteId, string url, string cacheStatus, string ip, string responseStatus)

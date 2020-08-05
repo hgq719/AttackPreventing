@@ -20,9 +20,13 @@ namespace AttackPrevent.Business
         //开启任务
         void TaskStart();
         List<CloudflareLog> GetCloudflareLogs(string key);
+
+        void CleanDicCloudflareLogsToday();
     }
     public class CloudflareLogHandleSercie : ICloudflareLogHandleSercie
     {
+        private static ConcurrentDictionary<string, List<CloudflareLog>> dicCloudflareLogsToday = null;
+
         private ConcurrentDictionary<string, List<CloudflareLog>> dicCloudflareLogs = new ConcurrentDictionary<string, List<CloudflareLog>>();
         private ConcurrentQueue<KeyValuePair<DateTime, DateTime>> keyValuePairs;
         private ILogService logService;
@@ -35,7 +39,9 @@ namespace AttackPrevent.Business
         private string authEmail;
         private string authKey;
 
-        public CloudflareLogHandleSercie(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end)
+        private bool isStoreToday;//2020.7.10 
+
+        public CloudflareLogHandleSercie(string zoneId, string authEmail, string authKey, double sample, DateTime start, DateTime end, bool isStoreToday=false)
         {
             this.zoneId = zoneId;
             this.authEmail = authEmail;
@@ -44,8 +50,15 @@ namespace AttackPrevent.Business
             this.startTime = start;
             this.endTime = end;
 
+            this.isStoreToday = isStoreToday;
+
             _cloudFlareApiService = new CloudFlareApiService();
             logService = new Business.LogService();
+
+            if (dicCloudflareLogsToday == null)
+            {
+                dicCloudflareLogsToday = new ConcurrentDictionary<string, List<CloudflareLog>>();
+            }
         }
 
         private ICloudFlareApiService _cloudFlareApiService;
@@ -91,6 +104,20 @@ namespace AttackPrevent.Business
 
                         string time = string.Format("{0}-{1}", start.ToString("yyyyMMddHHmmss"), end.ToString("yyyyMMddHHmmss"));
                         bool retry = false;
+
+                    string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                    
+                    if (isStoreToday
+                        && dicCloudflareLogsToday.ContainsKey(time))
+                    {//取缓存
+                        if (!dicCloudflareLogs.Keys.Contains(key))
+                        {
+                            dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
+                        }
+                            dicCloudflareLogs[key].AddRange(dicCloudflareLogsToday[time]);
+                            continue;
+                    }
+
                         List<CloudflareLog> cloudflareLogs = _cloudFlareApiService.GetCloudflareLogs(zoneId, authEmail, authKey, sample, start, end, out retry);
                         while (retry == true)
                         {
@@ -98,7 +125,7 @@ namespace AttackPrevent.Business
                             Thread.Sleep(1000 * 5); //如果是频率限制，休眠5S，再请求
                         }
 
-                        string key = string.Format("{0}-{1}-{2}-{3}", startTime.ToString("yyyyMMddHHmmss"), endTime.ToString("yyyyMMddHHmmss"), sample, zoneId);
+                        
                         if (!dicCloudflareLogs.Keys.Contains(key))
                         {
                             dicCloudflareLogs.TryAdd(key, new List<CloudflareLog>());
@@ -108,6 +135,16 @@ namespace AttackPrevent.Business
                         {
                             dicCloudflareLogs[key].AddRange(cloudflareLogs);
                         }
+
+                    if (isStoreToday
+                        && cloudflareLogs.Count > 0)
+                    {//记录缓存
+                        if (!dicCloudflareLogsToday.Keys.Contains(time))
+                        {
+                            dicCloudflareLogsToday.TryAdd(time, new List<CloudflareLog>());
+                            dicCloudflareLogsToday[time].AddRange(cloudflareLogs);
+                        }           
+                    }
 
                         stopwatch.Stop();
 
@@ -119,8 +156,9 @@ namespace AttackPrevent.Business
                 }
                 catch (Exception e)
                 {
-                    logService.Error(e.StackTrace);
-                    keyValuePairs.Enqueue(keyValuePair); //异常重新入队列
+                    logService.Error(e.Message);// 2020.7.13 打印错误日志
+                    throw e;
+                    //keyValuePairs.Enqueue(keyValuePair); //异常重新入队列
                 }
             }
 
@@ -148,6 +186,10 @@ namespace AttackPrevent.Business
         public List<CloudflareLog> GetCloudflareLogs(string key)
         {
             return dicCloudflareLogs[key];
-        }        
+        }
+        public void CleanDicCloudflareLogsToday()
+        {//清空缓存 防止长时间占用内存
+            dicCloudflareLogsToday.Clear();
+        }
     }
 }

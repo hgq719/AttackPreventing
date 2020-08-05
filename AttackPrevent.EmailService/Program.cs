@@ -17,6 +17,7 @@ namespace AttackPrevent.WindowsService
         {
             try
             {
+                //Test();
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.EmailService.exe.config"));
                 RunProgram().GetAwaiter().GetResult();
                 Console.WriteLine("AttackPrevent EmailService Start ...");

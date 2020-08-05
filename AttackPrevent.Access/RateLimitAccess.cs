@@ -25,6 +25,9 @@ namespace AttackPrevent.Access
                                                              ZoneId,
                                                              Action,
                                                              CreatedBy,
+                                                             IfBanIp,
+                                                             IfOpenRateLimitRule,
+                                                             IfTesting,
                                                              Id FROM t_RateLimiting_Rules where ZoneId=@zoneID");
             if (startTime.HasValue)
             {
@@ -82,6 +85,9 @@ namespace AttackPrevent.Access
                             ZoneId = reader["ZoneId"].ToString(),
                             Action = reader["Action"].ToString(),
                             CreatedBy = reader["CreatedBy"].ToString(),
+                            IfBanIp = Convert.ToInt32(reader["IfBanIp"]) > 0,
+                            IfOpenRateLimitRule = Convert.ToInt32(reader["IfOpenRateLimitRule"]) > 0,
+                            IfTesting = Convert.ToInt32(reader["IfTesting"]) > 0
                         });
                     }
                 }
@@ -109,7 +115,10 @@ namespace AttackPrevent.Access
           RateLimitTriggerTime ,
           Remark ,
           CreatedBy ,
-          CreatedTime
+          CreatedTime,
+          IfBanIp,
+          IfOpenRateLimitRule,
+          IfTesting
         )
 VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           @order , -- OrderNo - int
@@ -123,7 +132,10 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
           @triggerTime , -- RateLimitTriggerTime - int
           N'' , -- Remark - nvarchar(1024)
           @user , -- CreatedBy - 
-          GETUTCDATE()  -- CreatedTime - datetime
+          GETUTCDATE(),  -- CreatedTime - datetime
+          @ifBanIp , -- IfBanIp - 
+          @ifOpenRateLimitRule , -- IfOpenRateLimitRule - 
+          @ifTesting  -- IfTesting - 
         )";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
@@ -135,6 +147,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                 cmd.Parameters.AddWithValue("@triggerIpCount", item.RateLimitTriggerIpCount);
                 cmd.Parameters.AddWithValue("@triggerTime", item.RateLimitTriggerTime);
                 cmd.Parameters.AddWithValue("@user", item.CreatedBy);
+                cmd.Parameters.AddWithValue("@ifBanIp", item.IfBanIp);
+                cmd.Parameters.AddWithValue("@ifOpenRateLimitRule", item.IfOpenRateLimitRule);
+                cmd.Parameters.AddWithValue("@ifTesting", item.IfTesting);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -155,7 +170,10 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                             EnlargementFactor = @enlargement ,
                                             RateLimitTriggerIpCount = @triggerIpCount ,
                                             RateLimitTriggerTime = @triggerTime ,
-                                            CreatedBy = @user
+                                            CreatedBy = @user,
+                                            IfBanIp = @ifBanIp,
+                                            IfOpenRateLimitRule = @ifOpenRateLimitRule,
+                                            IfTesting = @ifTesting
                                     WHERE   Id = @id;";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@zoneID", item.ZoneId);
@@ -167,6 +185,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                 cmd.Parameters.AddWithValue("@triggerTime", item.RateLimitTriggerTime);
                 cmd.Parameters.AddWithValue("@user", item.CreatedBy);
                 cmd.Parameters.AddWithValue("@id", item.TableID);
+                cmd.Parameters.AddWithValue("@ifBanIp", item.IfBanIp);
+                cmd.Parameters.AddWithValue("@ifOpenRateLimitRule", item.IfOpenRateLimitRule);
+                cmd.Parameters.AddWithValue("@ifTesting", item.IfTesting);
                 conn.Open();
 
                 cmd.ExecuteNonQuery();
@@ -247,6 +268,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
+                                        IfBanIp,
+                                        IfOpenRateLimitRule,
+                                        IfTesting,
                                         RateLimitTriggerTime FROM t_RateLimiting_Rules where OrderNo=@order and ZoneId=@zoneId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@order", order);
@@ -267,6 +291,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.TableID = Convert.ToInt32(reader["Id"]);
                         item.ZoneId = Convert.ToString(reader["ZoneId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
+                        item.IfBanIp = Convert.ToInt32(reader["IfBanIp"]) > 0;
+                        item.IfOpenRateLimitRule = Convert.ToInt32(reader["IfOpenRateLimitRule"]) > 0;
+                        item.IfTesting = Convert.ToInt32(reader["IfTesting"]) > 0;
                     }
                 }
             }
@@ -288,6 +315,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                                         RateLimitTriggerIpCount, 
                                         Id, 
                                         ZoneId, 
+                                        IfBanIp,
+                                        IfOpenRateLimitRule,
+                                        IfTesting,
                                         RateLimitTriggerTime FROM t_RateLimiting_Rules where Id=@id";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", id);
@@ -307,6 +337,9 @@ VALUES  ( @zoneID , -- ZoneId - nvarchar(512)
                         item.TableID = Convert.ToInt32(reader["Id"]);
                         item.ZoneId = Convert.ToString(reader["ZoneId"]);
                         item.RateLimitTriggerTime = Convert.ToInt32(reader["RateLimitTriggerTime"]);
+                        item.IfBanIp = Convert.ToInt32(reader["IfBanIp"]) > 0;
+                        item.IfOpenRateLimitRule = Convert.ToInt32(reader["IfOpenRateLimitRule"]) > 0;
+                        item.IfTesting = Convert.ToInt32(reader["IfTesting"]) > 0;
                     }
                 }
             }

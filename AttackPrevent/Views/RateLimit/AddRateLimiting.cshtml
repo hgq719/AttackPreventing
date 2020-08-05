@@ -16,7 +16,7 @@
                 <div class="errorMessage">
                     @ViewBag.ErrorMessage
                 </div>
-             </div>
+            </div>
         </div>
         <div class="row form-group">
             <label class="col-md-4 label-col">Zone Name</label>
@@ -71,12 +71,34 @@
 
             </div>
         </div>
+        <div class="row form-group">
+            <div class="checkbox col-md-4 col-md-offset-4">
+                <label>
+                    @Html.CheckBoxFor(model => model.IfOpenRateLimitRule, new { @checked = true }) If Open the Rate Limiting Rule
+                </label>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="checkbox col-md-4 col-md-offset-4">
+                <label>
+                    @Html.CheckBoxFor(model => model.IfBanIp, new { @checked = true }) If Ban IP
+                </label>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="checkbox col-md-4 col-md-offset-4">
+                <label>
+                    @Html.CheckBoxFor(model => model.IfTesting, false) If Test
+                </label>
+            </div>
+        </div>
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4 text-right">
                 <input type="submit" value="Save" class="btn btn-primary" />
                 @Html.ActionLink("Cancel", "RateLimitIndex", "RateLimit", new { @class = "btn btn-default" })
             </div>
         </div>
+
     }
 
 </div>

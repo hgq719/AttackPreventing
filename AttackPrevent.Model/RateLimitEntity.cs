@@ -37,5 +37,11 @@ namespace AttackPrevent.Model
         public int RateLimitTriggerTime { get; set; }
 
         public string CreatedBy { get; set; }
+
+        public bool IfTesting { get; set; }
+
+        public bool IfOpenRateLimitRule { get; set; }
+
+        public bool IfBanIp { get; set; }
     }
 }

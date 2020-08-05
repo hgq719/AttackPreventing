@@ -58,7 +58,10 @@ namespace AttackPrevent.Controllers
                     RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
                     Threshold = rateLimitModel.Threshold,
                     Url = rateLimitModel.Url,
-                    CreatedBy = UserName
+                    CreatedBy = UserName,
+                    IfTesting = rateLimitModel.IfTesting,
+                    IfOpenRateLimitRule = rateLimitModel.IfOpenRateLimitRule,
+                    IfBanIp = rateLimitModel.IfBanIp
                 };
                 bool ifContain = false;
                 RateLimitBusiness.Add(item, ref ifContain);
@@ -106,7 +109,10 @@ namespace AttackPrevent.Controllers
                 Threshold = item.Threshold,
                 Url = item.Url,
                 ZoneId = item.ZoneId,
-                TableID = item.TableID
+                TableID = item.TableID,
+                IfTesting = item.IfTesting,
+                IfOpenRateLimitRule = item.IfOpenRateLimitRule,
+                IfBanIp = item.IfBanIp
             };
             return View(rateLimitModel);
         }
@@ -127,7 +133,10 @@ namespace AttackPrevent.Controllers
                     RateLimitTriggerTime = rateLimitModel.RateLimitTriggerTime,
                     TableID = rateLimitModel.TableID,
                     Threshold = rateLimitModel.Threshold,
-                    Url = rateLimitModel.Url
+                    Url = rateLimitModel.Url,
+                    IfTesting = rateLimitModel.IfTesting,
+                    IfOpenRateLimitRule = rateLimitModel.IfOpenRateLimitRule,
+                    IfBanIp = rateLimitModel.IfBanIp
                 };
                 bool ifContain = false;
                 RateLimitBusiness.Update(item, ref ifContain);

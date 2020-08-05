@@ -25,10 +25,18 @@ namespace AttackPrevent.WindowsService
         {
             try
             {
+#if DEBUG
+                var job = new LogAnalyzeJob();
+                job.Execute();
+                Console.ReadLine();
+#else
                 XmlConfigurator.Configure(new System.IO.FileInfo("AttackPrevent.WindowsService.exe.config"));
                 var timer = new System.Threading.Timer(new TimerCallback(timer_Elapsed), null, 0, 2 * 60 * 1000);
                 Console.ReadLine();
                 timer.Dispose();
+#endif
+
+
             }
             catch (Exception ex)
             {

@@ -38,5 +38,11 @@ namespace AttackPrevent.Models
         [Required(ErrorMessage = "The {0} is required.")]
         [Range(0, 10000, ErrorMessage = "Out of Range")]
         public int RateLimitTriggerTime { get; set; }
+
+        public bool IfTesting { get; set; } = false;
+
+        public bool IfOpenRateLimitRule { get; set; }
+
+        public bool IfBanIp { get; set; }
     }
 }
